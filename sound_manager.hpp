@@ -1,7 +1,7 @@
 #ifndef __SOUND_MANAGER_H__
 #define __SOUND_MANAGER_H__
 
-#include "math/vector.h"
+#include "math/vector.hpp"
 #include <string>
 #include <vector>
 #include <map>

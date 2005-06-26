@@ -2,7 +2,7 @@
 #define __SOUND_SOURCE_H__
 
 #include <AL/al.h>
-#include "math/vector.h"
+#include "math/vector.hpp"
 
 class SoundSource
 {

@@ -2,7 +2,7 @@
 #define __STREAM_SOUND_SOURCE_H__
 
 #include <stdio.h>
-#include "sound_source.h"
+#include "sound_source.hpp"
 
 class SoundFile;
 
