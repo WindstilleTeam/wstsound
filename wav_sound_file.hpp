@@ -14,35 +14,31 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef HEADER_SUPERTUX_AUDIO_SOUND_FILE_HPP
-#define HEADER_SUPERTUX_AUDIO_SOUND_FILE_HPP
+#ifndef HEADER_SUPERTUX_AUDIO_WAV_SOUND_FILE_HPP
+#define HEADER_SUPERTUX_AUDIO_WAV_SOUND_FILE_HPP
 
-#include <iostream>
+#include <physfs.h>
 
-class SoundFile
+#include "audio/sound_file.hpp"
+
+class WavSoundFile : public SoundFile
 {
 public:
-  SoundFile() :
-    channels(),
-    rate(),
-    bits_per_sample(),
-    size()
-  {}
+  WavSoundFile(PHYSFS_file* file);
+  ~WavSoundFile();
 
-  virtual ~SoundFile()
-  { }
+  size_t read(void* buffer, size_t buffer_size);
+  void reset();
 
-  virtual size_t read(void* buffer, size_t buffer_size) = 0;
-  virtual void reset() = 0;
+private:
+  PHYSFS_file* file;
 
-  int channels;
-  int rate;
-  int bits_per_sample;
-  /// size in bytes
-  size_t size;
+  PHYSFS_sint64 datastart;
+
+private:
+  WavSoundFile(const WavSoundFile&);
+  WavSoundFile& operator=(const WavSoundFile&);
 };
-
-SoundFile* load_sound_file(const std::string& filename);
 
 #endif
 

@@ -14,35 +14,21 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef HEADER_SUPERTUX_AUDIO_SOUND_FILE_HPP
-#define HEADER_SUPERTUX_AUDIO_SOUND_FILE_HPP
+#ifndef HEADER_SUPERTUX_AUDIO_SOUND_ERROR_HPP
+#define HEADER_SUPERTUX_AUDIO_SOUND_ERROR_HPP
 
-#include <iostream>
+#include <stdexcept>
 
-class SoundFile
+class SoundError : public std::exception
 {
 public:
-  SoundFile() :
-    channels(),
-    rate(),
-    bits_per_sample(),
-    size()
-  {}
+  SoundError(const std::string& message) throw();
+  virtual ~SoundError() throw();
 
-  virtual ~SoundFile()
-  { }
-
-  virtual size_t read(void* buffer, size_t buffer_size) = 0;
-  virtual void reset() = 0;
-
-  int channels;
-  int rate;
-  int bits_per_sample;
-  /// size in bytes
-  size_t size;
+  const char* what() const throw();
+private:
+  std::string message;
 };
-
-SoundFile* load_sound_file(const std::string& filename);
 
 #endif
 
