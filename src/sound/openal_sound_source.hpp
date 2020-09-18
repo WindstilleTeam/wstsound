@@ -21,7 +21,6 @@
 
 #include <al.h>
 
-#include "math/vector2f.hpp"
 #include "sound/sound_source.hpp"
 
 class SoundChannel;

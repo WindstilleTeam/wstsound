@@ -28,7 +28,6 @@
 #include <alc.h>
 #include <al.h>
 
-#include "math/vector2f.hpp"
 #include "sound/sound_channel.hpp"
 
 typedef void* SoundHandle;

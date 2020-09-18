@@ -16,14 +16,50 @@
 **  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <algorithm>
+#include <bit>
 #include <filesystem>
-#include <string.h>
 #include <stdexcept>
-#include <stdio.h>
 #include <stdint.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <string.h>
+#include <typeinfo>
 
 #include "sound/wav_sound_file.hpp"
-#include "util/util.hpp"
+
+namespace {
+
+template <class To, class From>
+To bit_cast(const From& src) noexcept
+{ // FIXME: replace with std::bit_cast when available
+  To dst;
+  memcpy(&dst, &src, sizeof(To));
+  return dst;
+}
+
+template<typename T>
+T read_type(std::istream& in)
+{
+  char data[sizeof(T)];
+
+  if (!in.read(data, sizeof(data)))
+  {
+    std::ostringstream msg;
+    msg << "Problem reading " << typeid(T).name() << ": " << strerror(errno);
+    throw std::runtime_error(msg.str());
+  }
+  else
+  {
+    if constexpr (std::endian::native == std::endian::big) {
+      std::reverse(std::begin(data), std::end(data));
+    }
+
+    return bit_cast<T>(data);
+  }
+}
+
+} // namespace
 
 WavSoundFile::WavSoundFile(std::filesystem::path const& filename) :
   file(),
@@ -54,7 +90,7 @@ WavSoundFile::WavSoundFile(std::filesystem::path const& filename) :
     throw std::runtime_error("file is not a RIFF wav file");
   }
 
-  /*uint32_t wavelen =*/ read_uint32_t(file);
+  /*uint32_t wavelen =*/ read_type<uint32_t>(file);
 
   if (!file.read( magic, sizeof(magic)))
   {
@@ -75,7 +111,7 @@ WavSoundFile::WavSoundFile(std::filesystem::path const& filename) :
     {
       throw std::runtime_error("EOF while searching format chunk");
     }
-    chunklen = read_uint32_t(file);
+    chunklen = read_type<uint32_t>(file);
 
     if (strncmp(chunkmagic, "fmt ", 4) == 0)
     {
@@ -101,18 +137,18 @@ WavSoundFile::WavSoundFile(std::filesystem::path const& filename) :
     throw std::runtime_error("Format chunk too short");
 
   // parse format
-  uint16_t encoding = read_uint16_t(file);
+  uint16_t encoding = read_type<uint16_t>(file);
   if (encoding != 1)
   {
     std::ostringstream str;
     str << "WavSoundFile(): only PCM encoding supported, got " << encoding;
     throw std::runtime_error(str.str());
   }
-  m_channels = read_uint16_t(file);
-  m_rate = read_uint32_t(file);
-  /*uint32_t byterate =*/ read_uint32_t(file);
-  /*uint16_t blockalign =*/ read_uint16_t(file);
-  m_bits_per_sample = read_uint16_t(file);
+  m_channels = read_type<uint16_t>(file);
+  m_rate = read_type<uint32_t>(file);
+  /*uint32_t byterate =*/ read_type<uint32_t>(file);
+  /*uint16_t blockalign =*/ read_type<uint16_t>(file);
+  m_bits_per_sample = read_type<uint16_t>(file);
 
   if(chunklen > 16)
   {
@@ -124,7 +160,7 @@ WavSoundFile::WavSoundFile(std::filesystem::path const& filename) :
   do {
     if (!file.read(chunkmagic, sizeof(chunkmagic)))
       throw std::runtime_error("EOF while searching data chunk");
-    chunklen = read_uint32_t(file);
+    chunklen = read_type<uint32_t>(file);
 
     if(strncmp(chunkmagic, "data", 4) == 0)
       break;
@@ -188,12 +224,11 @@ WavSoundFile::read(void* buffer, size_t buffer_size)
   }
 
   // handle endian swaping
-  if (is_big_endian())
+  if constexpr (std::endian::native == std::endian::big)
   {
-    uint16_t* p = static_cast<uint16_t*>(buffer);
-    for(size_t i = 0; i < readsize; ++i)
-    {
-      p[i] = byte_swap16(p[i]);
+    char* p = static_cast<char*>(buffer);
+    for(size_t i = 0; i < readsize; i += sizeof(uint16_t)) {
+      std::reverse(p, p + sizeof(uint16_t));
     }
   }
 

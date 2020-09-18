@@ -21,7 +21,6 @@
 #include <iostream>
 #include <filesystem>
 
-#include "math/vector2f.hpp"
 #include "sound/dummy_sound_source.hpp"
 #include "sound/sound_file.hpp"
 #include "sound/sound_manager.hpp"
