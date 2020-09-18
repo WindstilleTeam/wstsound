@@ -27,6 +27,7 @@
 
 #include <alc.h>
 #include <al.h>
+#include <glm/glm.hpp>
 
 #include "sound/sound_channel.hpp"
 
