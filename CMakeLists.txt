@@ -22,6 +22,8 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/external/cmake-modules/)
 include(ClangTidy)
 include(MaximumWarnings)
 
+option(BUILD_EXTRA "Build extra stuff" OFF)
+
 if(NOT TARGET Threads::Threads)
   find_package(Threads REQUIRED)
 endif()
@@ -61,5 +63,19 @@ target_link_libraries(wstsound PUBLIC
   PkgConfig::VORBIS
   PkgConfig::VORBISFILE
   Threads::Threads)
+
+if(BUILD_EXTRA)
+  file(GLOB EXTRA_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+    extra/*.cpp)
+  foreach(SRC ${EXTRA_SOURCES})
+    get_filename_component(SRC_BASENAME ${SRC} NAME_WE)
+    add_executable(${SRC_BASENAME} ${SRC})
+    target_link_libraries(${SRC_BASENAME} wstsound)
+    set_target_properties(${SRC_BASENAME} PROPERTIES
+      CXX_STANDARD 20
+      CXX_STANDARD_REQUIRED ON
+      CXX_EXTENSIONS OFF)
+  endforeach(SRC)
+endif()
 
 # EOF #

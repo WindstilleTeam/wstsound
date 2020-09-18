@@ -18,10 +18,10 @@
 
 #include <iostream>
 #include <unistd.h>
+#include <random>
 
 #include <glm/gtx/string_cast.hpp>
 
-#include "math/random.hpp"
 #include "sound/sound_manager.hpp"
 #include "sound/sound_source.hpp"
 #include "sound/sound_file.hpp"
@@ -36,13 +36,13 @@ int main(int argc, char** argv)
   }
   else
   {
+    std::default_random_engine generator{std::random_device()()};
+
     SoundManager sound_manager;
 
     sound_manager.set_gain(1.0f);
     sound_manager.sound().set_gain(1.0f);
     sound_manager.voice().set_gain(1.0f);
-
-    Random random(time(nullptr));
 
     std::cout << "Filter Test" << std::endl;
 
@@ -54,7 +54,7 @@ int main(int argc, char** argv)
       SoundSourcePtr source = sound_manager.sound().prepare(std::move(sound_file), kStreamSoundSource);
 
       source->set_looping(true);
-      glm::vec2 pos(random.frand(-500, 500), 0.0f);
+      glm::vec2 pos(std::uniform_real_distribution<double>(-500, 500)(generator), 0.0f);
       source->set_position(pos);
       //source->set_rolloff_factor(0.0f);
 

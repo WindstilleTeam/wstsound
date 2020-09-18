@@ -19,7 +19,6 @@
 #include <iostream>
 
 #include "sound/sound_file.hpp"
-#include "util/pathname.hpp"
 
 int main(int argc, char** argv)
 {
