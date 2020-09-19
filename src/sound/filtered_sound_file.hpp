@@ -32,7 +32,6 @@ public:
 
   size_t read(void* buffer, size_t buffer_size) override;
   void reset() override;
-  bool eof() const override;
 
   int    get_bits_per_sample() const override;
   size_t get_size() const override;

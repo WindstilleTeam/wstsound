@@ -24,7 +24,6 @@
 
 OggSoundFile::OggSoundFile(std::unique_ptr<std::istream> istream) :
   m_istream(std::move(istream)),
-  m_eof(false),
   m_file_size(),
   m_vorbis_file(),
   m_channels(),
@@ -102,7 +101,6 @@ OggSoundFile::read(void* _buffer, size_t buffer_size)
 
     if (bytesRead == 0)
     {
-      m_eof = true;
       break;
     }
 
@@ -117,21 +115,12 @@ OggSoundFile::read(void* _buffer, size_t buffer_size)
 void
 OggSoundFile::reset()
 {
-  m_eof = false;
   ov_raw_seek(&m_vorbis_file, 0);
-}
-
-bool
-OggSoundFile::eof() const
-{
-  return m_eof;
 }
 
 void
 OggSoundFile::seek_to(float sec)
 {
-  m_eof = false;
-
   // the version 'lap' will do crosslapsing to remove clicking when seeking
   ov_time_seek_lap(&m_vorbis_file, sec);
 }

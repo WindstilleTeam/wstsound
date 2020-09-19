@@ -54,12 +54,6 @@ FilteredSoundFile::reset()
   return m_sound_file->reset();
 }
 
-bool
-FilteredSoundFile::eof() const
-{
-  return m_sound_file->eof();
-}
-
 int
 FilteredSoundFile::get_bits_per_sample() const
 {

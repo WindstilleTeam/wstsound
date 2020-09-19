@@ -29,14 +29,12 @@ public:
   WavSoundFile(std::unique_ptr<std::istream> istream);
   ~WavSoundFile() override;
 
-  bool eof() const override;
   size_t read(void* buffer, size_t buffer_size) override;
   void reset() override;
   void seek_to(float sec) override;
 
 private:
   std::unique_ptr<std::istream> m_istream;
-  bool m_eof;
   size_t datastart;
   int m_channels;
   int m_rate;

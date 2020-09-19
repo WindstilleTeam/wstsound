@@ -114,7 +114,7 @@ StreamSoundSource::update(float delta)
   if (is_playing())
   {
     // fill the buffer queue with new data
-    if (m_looping || !m_sound_file->eof())
+    if (m_looping)
     {
       ALint processed = 0;
       alGetSourcei(m_source, AL_BUFFERS_PROCESSED, &processed);

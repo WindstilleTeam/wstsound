@@ -32,7 +32,6 @@ public:
 
   size_t read(void* buffer, size_t buffer_size) override;
   void reset() override;
-  bool eof() const override;
 
   int    get_bits_per_sample() const override { return m_bits_per_sample; }
   size_t get_size() const override { return m_size; }
@@ -49,7 +48,6 @@ private:
   static long   cb_tell(void* source);
 
   std::unique_ptr<std::istream> m_istream;
-  bool m_eof;
   size_t m_file_size;
   OggVorbis_File m_vorbis_file;
 
