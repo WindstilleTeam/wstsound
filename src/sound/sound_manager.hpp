@@ -100,12 +100,6 @@ private:
   typedef std::vector<SoundSourcePtr> SoundSources;
   SoundSources m_sources;
 
-  std::unique_ptr<StreamSoundSource> m_music_source;
-  std::unique_ptr<StreamSoundSource> m_next_music_source;
-
-  bool m_music_enabled;
-  std::filesystem::path m_current_music;
-
 private:
   SoundManager(const SoundManager&);
   SoundManager& operator=(const SoundManager&);

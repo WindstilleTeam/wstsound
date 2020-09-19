@@ -35,11 +35,7 @@ SoundManager::SoundManager() :
   m_sound_channel(*this),
   m_music_channel(*this),
   m_buffers(),
-  m_sources(),
-  m_music_source(),
-  m_next_music_source(),
-  m_music_enabled(true),
-  m_current_music()
+  m_sources()
 {
   try
   {
@@ -77,9 +73,6 @@ SoundManager::SoundManager() :
 
 SoundManager::~SoundManager()
 {
-  m_music_source.reset();
-  m_next_music_source.reset();
-
   m_sources.clear();
 
   for(SoundBuffers::iterator i = m_buffers.begin(); i != m_buffers.end(); ++i)
@@ -208,83 +201,6 @@ SoundManager::enable_sound(bool enable)
 }
 
 void
-SoundManager::enable_music(bool enable)
-{
-  if (m_device)
-  {
-    m_music_enabled = enable;
-
-    if (m_music_enabled)
-    {
-      play_music(m_current_music);
-    }
-    else
-    {
-      if (m_music_source)
-      {
-        m_music_source.reset();
-      }
-    }
-  }
-}
-
-void
-SoundManager::stop_music(bool fade)
-{
-  if (fade)
-  {
-    if (m_music_source.get() &&
-        m_music_source->get_fade_state() != StreamSoundSource::kFadingOff)
-    {
-      m_music_source->set_fading(StreamSoundSource::kFadingOff, .7f);
-    }
-  }
-  else
-  {
-    m_music_source.reset();
-  }
-}
-
-void
-SoundManager::play_music(std::filesystem::path const& filename, bool fade)
-{
-  if (filename != m_current_music)
-  {
-    m_current_music = filename;
-
-    if (m_music_enabled)
-    {
-      try
-      {
-        std::unique_ptr<StreamSoundSource> newmusic(new StreamSoundSource(m_music_channel, SoundFile::load(filename)));
-
-        if (fade)
-        {
-          if (m_music_source.get() &&
-              m_music_source->get_fade_state() != StreamSoundSource::kFadingOff)
-          {
-            m_music_source->set_fading(StreamSoundSource::kFadingOff, .7f);
-          }
-
-          m_next_music_source = std::move(newmusic);
-        }
-        else
-        {
-          m_music_source = std::move(newmusic);
-          m_music_source->play();
-          m_next_music_source.reset();
-        }
-      }
-      catch(std::exception& e)
-      {
-        std::cerr << "Couldn't play music file '" << filename << "': "
-                  << e.what() << "\n";
-      }
-    }
-  }
-}
-
-void
 SoundManager::set_listener_position(const glm::vec2& pos)
 {
   alListener3f(AL_POSITION, pos.x, pos.y, 0);
@@ -322,19 +238,6 @@ SoundManager::update(float delta)
       {
         ++i;
       }
-    }
-
-    // check streaming sounds
-    if (m_music_source)
-    {
-      m_music_source->update(delta);
-    }
-
-    if (m_next_music_source && (!m_music_source || !m_music_source->is_playing()))
-    {
-      m_music_source = std::move(m_next_music_source);
-      //music_source->setFading(StreamSoundSource::FadingOn, 1.0f);
-      m_music_source->play();
     }
 
     alcProcessContext(m_context);
