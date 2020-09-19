@@ -25,12 +25,13 @@
 #include <string.h>
 
 #include "sound/ogg_sound_file.hpp"
+#include "sound/opus_sound_file.hpp"
 #include "sound/wav_sound_file.hpp"
 
 std::unique_ptr<SoundFile>
 SoundFile::from_stream(std::unique_ptr<std::istream> istream)
 {
-  char magic[4];
+  char magic[64];
 
   if (!istream->read(magic, sizeof(magic))) {
     throw std::runtime_error("Couldn't read magic, file too short");
@@ -38,9 +39,13 @@ SoundFile::from_stream(std::unique_ptr<std::istream> istream)
     // reset the stream before handing it over
     istream->seekg(0, std::ios::beg);
 
+    // FIXME: this is a bit of a hack, there are probably better ways
+    // to tell OggVorbis and Opus appart
     if (strncmp(magic, "RIFF", 4) == 0) {
       return std::make_unique<WavSoundFile>(std::move(istream));
-    } else if (strncmp(magic, "OggS", 4) == 0) {
+    } else if (strncmp(magic, "OggS", 4) == 0 && strncmp(magic + 28, "Opus", 4) == 0) {
+      return std::make_unique<OpusSoundFile>(std::move(istream));
+    } else if (strncmp(magic, "OggS", 4) == 0 && strncmp(magic + 29, "vorbis", 4) == 0) {
       return std::make_unique<OggSoundFile>(std::move(istream));
     } else {
       throw std::runtime_error("Unknown file format");

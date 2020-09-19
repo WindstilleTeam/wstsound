@@ -36,13 +36,11 @@ pkg_search_module(OGG REQUIRED ogg IMPORTED_TARGET)
 pkg_search_module(VORBIS REQUIRED vorbis IMPORTED_TARGET)
 pkg_search_module(VORBISFILE REQUIRED vorbisfile IMPORTED_TARGET)
 
+pkg_search_module(OPUSFILE REQUIRED opusfile IMPORTED_TARGET)
+
 # compile libgalapix
 file(GLOB WSTSOUND_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-  src/sound/*.cpp
-  src/sprite2d/*.cpp
-  src/sprite3d/*.cpp
-  src/system/*.cpp
-  src/util/*.cpp)
+  src/sound/*.cpp)
 add_library(wstsound STATIC ${WSTSOUND_SOURCES})
 target_compile_options(wstsound PUBLIC ${WARNINGS_CXX_FLAGS})
 set_target_properties(wstsound PROPERTIES
@@ -57,6 +55,7 @@ target_link_libraries(wstsound PUBLIC
   PkgConfig::OGG
   PkgConfig::VORBIS
   PkgConfig::VORBISFILE
+  PkgConfig::OPUSFILE
   Threads::Threads)
 
 if(BUILD_EXTRA)
