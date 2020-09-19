@@ -123,7 +123,8 @@ SoundManager::load_file_into_buffer(std::filesystem::path const& filename)
 }
 
 SoundSourcePtr
-SoundManager::create_sound_source(std::filesystem::path const& filename, SoundChannel& channel, OpenALSoundSourceType type)
+SoundManager::create_sound_source(std::filesystem::path const& filename, SoundChannel& channel,
+                                  SoundSourceType type)
 {
   if (!m_sound_enabled)
   {
@@ -133,7 +134,7 @@ SoundManager::create_sound_source(std::filesystem::path const& filename, SoundCh
   {
     switch(type)
     {
-      case kStaticSoundSource:
+      case SoundSourceType::STATIC:
       {
         ALuint buffer;
 
@@ -150,7 +151,7 @@ SoundManager::create_sound_source(std::filesystem::path const& filename, SoundCh
       }
       break;
 
-      case kStreamSoundSource:
+      case SoundSourceType::STREAM:
       {
         std::unique_ptr<SoundFile> sound_file = SoundFile::load(filename);
         return SoundSourcePtr(new StreamSoundSource(channel, std::move(sound_file)));
@@ -169,7 +170,7 @@ SoundManager::play(std::filesystem::path const& filename, const glm::vec2& pos)
 {
   try
   {
-    SoundSourcePtr source = create_sound_source(filename, m_sound_channel, kStaticSoundSource);
+    SoundSourcePtr source = create_sound_source(filename, m_sound_channel, SoundSourceType::STATIC);
 
     if (source.get())
     {

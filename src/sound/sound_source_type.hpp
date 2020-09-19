@@ -16,10 +16,13 @@
 **  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef HEADER_WINDSTILLE_SOUND_OPENAL_SOUND_SOURCE_TYPE_HPP
-#define HEADER_WINDSTILLE_SOUND_OPENAL_SOUND_SOURCE_TYPE_HPP
+#ifndef HEADER_WINDSTILLE_SOUND_SOUND_SOURCE_TYPE_HPP
+#define HEADER_WINDSTILLE_SOUND_SOUND_SOURCE_TYPE_HPP
 
-enum OpenALSoundSourceType { kStaticSoundSource, kStreamSoundSource };
+enum class SoundSourceType {
+  STATIC,
+  STREAM
+};
 
 #endif
 

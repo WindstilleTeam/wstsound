@@ -35,7 +35,8 @@ SoundChannel::SoundChannel(SoundManager& sound_manager) :
 }
 
 SoundSourcePtr
-SoundChannel::play(std::filesystem::path const& filename)
+SoundChannel::play(std::filesystem::path const& filename,
+                   SoundSourceType type)
 {
   SoundSourcePtr source = prepare(filename);
   source->play();
@@ -44,11 +45,11 @@ SoundChannel::play(std::filesystem::path const& filename)
 
 SoundSourcePtr
 SoundChannel::prepare(std::unique_ptr<SoundFile> sound_file,
-                      OpenALSoundSourceType type)
+                      SoundSourceType type)
 {
   switch(type)
   {
-    case kStreamSoundSource:
+    case SoundSourceType::STREAM:
     {
       SoundSourcePtr source(new StreamSoundSource(*this, std::move(sound_file)));
       source->update_gain();
@@ -56,7 +57,7 @@ SoundChannel::prepare(std::unique_ptr<SoundFile> sound_file,
       return source;
     }
 
-    case kStaticSoundSource:
+    case SoundSourceType::STATIC:
       // FIXME: not implemented
       assert(false && "not implemented");
       return {};
@@ -69,7 +70,7 @@ SoundChannel::prepare(std::unique_ptr<SoundFile> sound_file,
 
 SoundSourcePtr
 SoundChannel::prepare(std::filesystem::path const& filename,
-                      OpenALSoundSourceType type)
+                      SoundSourceType type)
 {
   SoundSourcePtr source = m_sound_manager.create_sound_source(filename, *this, type);
   if (!source)

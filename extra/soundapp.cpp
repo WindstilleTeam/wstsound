@@ -51,7 +51,7 @@ int main(int argc, char** argv)
     {
       std::unique_ptr<SoundFile> sound_file = SoundFile::load(argv[i]);
       //std::unique_ptr<SoundFile> filtered_sound_file(new FilteredSoundFile(sound_file));
-      SoundSourcePtr source = sound_manager.sound().prepare(std::move(sound_file), kStreamSoundSource);
+      SoundSourcePtr source = sound_manager.sound().prepare(std::move(sound_file), SoundSourceType::STREAM);
 
       source->set_looping(true);
       glm::vec2 pos(std::uniform_real_distribution<double>(-500, 500)(generator), 0.0f);

@@ -22,7 +22,7 @@
 #include <filesystem>
 #include <vector>
 
-#include "sound/openal_sound_source_type.hpp"
+#include "sound/sound_source_type.hpp"
 #include "sound/sound_source_ptr.hpp"
 
 class SoundFile;
@@ -34,12 +34,13 @@ public:
   SoundChannel(SoundManager& sound_manager);
 
   // shortcut for prepare()->play()
-  SoundSourcePtr play(std::filesystem::path const& filename);
+  SoundSourcePtr play(std::filesystem::path const& filename,
+                      SoundSourceType type = SoundSourceType::STATIC);
 
   SoundSourcePtr prepare(std::unique_ptr<SoundFile> sound_file,
-                         OpenALSoundSourceType type = kStaticSoundSource);
+                         SoundSourceType type = SoundSourceType::STATIC);
   SoundSourcePtr prepare(std::filesystem::path const& filename,
-                         OpenALSoundSourceType type = kStaticSoundSource);
+                         SoundSourceType type = SoundSourceType::STATIC);
 
   void update(float delta);
 

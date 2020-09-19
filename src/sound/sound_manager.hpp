@@ -69,7 +69,7 @@ public:
    */
   SoundSourcePtr create_sound_source(std::filesystem::path const& filename,
                                      SoundChannel& channel,
-                                     OpenALSoundSourceType type);
+                                     SoundSourceType type);
 
 public:
   static void check_al_error(const char* message);
