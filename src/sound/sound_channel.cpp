@@ -106,10 +106,15 @@ SoundChannel::get_gain() const
 void
 SoundChannel::update(float delta)
 {
-  for(std::vector<SoundSourcePtr>::iterator i = m_sound_sources.begin(); i != m_sound_sources.end(); ++i)
+  for(SoundSourcePtr& sound_source : m_sound_sources)
   {
-    (*i)->update(delta);
+    sound_source->update(delta);
   }
+
+  // check for finished sound sources
+  std::erase_if(m_sound_sources, [](SoundSourcePtr const& source){
+    return !source->is_playing();
+  });
 }
 
 /* EOF */

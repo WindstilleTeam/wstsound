@@ -49,9 +49,9 @@ public:
   // master volume is not clamped
   void set_gain(float gain);
 
-  SoundChannel& voice() { return m_voice_channel; }
-  SoundChannel& sound() { return m_sound_channel; }
-  SoundChannel& music() { return m_music_channel; }
+  SoundChannel& sound() { return *m_channels[0]; }
+  SoundChannel& music() { return *m_channels[1]; }
+  SoundChannel& voice() { return *m_channels[2]; }
 
   /**
    * Convenience function to simply play a sound at a given position.
@@ -85,12 +85,9 @@ private:
   ALCcontext* m_context;
   bool m_sound_enabled;
 
-  SoundChannel m_voice_channel;
-  SoundChannel m_sound_channel;
-  SoundChannel m_music_channel;
+  std::vector<std::unique_ptr<SoundChannel> > m_channels;
 
   std::map<std::filesystem::path, ALuint> m_buffers;
-  std::vector<SoundSourcePtr> m_sources;
 
 private:
   SoundManager(const SoundManager&);

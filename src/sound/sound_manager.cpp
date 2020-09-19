@@ -31,11 +31,8 @@ SoundManager::SoundManager() :
   m_device(nullptr),
   m_context(nullptr),
   m_sound_enabled(false),
-  m_voice_channel(*this),
-  m_sound_channel(*this),
-  m_music_channel(*this),
-  m_buffers(),
-  m_sources()
+  m_channels(),
+  m_buffers()
 {
   try
   {
@@ -69,12 +66,14 @@ SoundManager::SoundManager() :
 
     std::cout << "Disabling sound\n";
   }
+
+  m_channels.emplace_back(std::make_unique<SoundChannel>(*this));
+  m_channels.emplace_back(std::make_unique<SoundChannel>(*this));
+  m_channels.emplace_back(std::make_unique<SoundChannel>(*this));
 }
 
 SoundManager::~SoundManager()
 {
-  m_sources.clear();
-
   for(auto const& it : m_buffers)
   {
     alDeleteBuffers(1, &it.second);
@@ -170,13 +169,12 @@ SoundManager::play(std::filesystem::path const& filename, const glm::vec2& pos)
 {
   try
   {
-    SoundSourcePtr source = create_sound_source(filename, m_sound_channel, SoundSourceType::STATIC);
+    SoundSourcePtr source = create_sound_source(filename, *m_channels[0], SoundSourceType::STATIC);
 
     if (source.get())
     {
       source->set_position(pos);
       source->play();
-      m_sources.push_back(source);
     }
 
     return source;
@@ -218,17 +216,12 @@ SoundManager::set_gain(float gain)
 void
 SoundManager::update(float delta)
 {
-  m_voice_channel.update(delta);
-  m_sound_channel.update(delta);
-  m_music_channel.update(delta);
+  for(std::unique_ptr<SoundChannel>& channel : m_channels) {
+    channel->update(delta);
+  }
 
   if (m_sound_enabled)
   {
-    // check for finished sound sources
-    std::erase_if(m_sources, [](SoundSourcePtr const& source){
-      return !source->is_playing();
-    });
-
     alcProcessContext(m_context);
     check_alc_error("Error while processing audio context: ");
   }
