@@ -63,7 +63,7 @@ T read_type(std::istream& in)
 
 WavSoundFile::WavSoundFile(std::unique_ptr<std::istream> istream) :
   m_istream(std::move(istream)),
-  datastart(),
+  m_datastart(),
   m_channels(),
   m_rate(),
   m_bits_per_sample(),
@@ -161,7 +161,7 @@ WavSoundFile::WavSoundFile(std::unique_ptr<std::istream> istream) :
       throw std::runtime_error("EOF while searching fmt chunk");
   } while(true);
 
-  datastart = static_cast<size_t>(m_istream->tellg());
+  m_datastart = m_istream->tellg();
   m_size = static_cast<size_t>(chunklen);
 }
 
@@ -172,47 +172,45 @@ WavSoundFile::~WavSoundFile()
 void
 WavSoundFile::reset()
 {
-  if (!m_istream->seekg(datastart))
+  m_istream->clear();
+  if (!m_istream->seekg(m_datastart)) {
     throw std::runtime_error("Couldn't seek to data start");
+  }
 }
 
 void
 WavSoundFile::seek_to(float sec)
 {
-  size_t byte_pos = static_cast<size_t>(sec * static_cast<float>(m_rate * m_bits_per_sample/8 * m_channels));
+  std::streamoff byte_pos = static_cast<size_t>(sec * static_cast<float>(m_rate * m_bits_per_sample/8 * m_channels));
 
-  if (!m_istream->seekg(datastart + byte_pos))
+  if (!m_istream->seekg(m_datastart + byte_pos))
     throw std::runtime_error("Couldn't seek to data start");
 }
 
 size_t
 WavSoundFile::read(void* buffer, size_t buffer_size)
 {
-  size_t end = datastart + m_size;
-  size_t cur = static_cast<size_t>(m_istream->tellg());
-
-  if (cur >= end)
+  if (!m_istream->read(static_cast<char*>(buffer), buffer_size))
   {
-    return 0;
-  }
-
-  size_t readsize = std::min(end - cur, buffer_size);
-
-  if (!m_istream->read(static_cast<char*>(buffer), readsize))
-  {
-    throw std::runtime_error("read error while reading samples");
-  }
-
-  // handle endian swaping
-  if constexpr (std::endian::native == std::endian::big)
-  {
-    char* p = static_cast<char*>(buffer);
-    for(size_t i = 0; i < readsize; i += sizeof(uint16_t)) {
-      std::reverse(p, p + sizeof(uint16_t));
+    if (!m_istream->eof()) {
+      throw std::runtime_error("read error while reading samples");
     }
+    return m_istream->gcount();
   }
+  else
+  {
+    std::streamsize bytesread = m_istream->gcount();
 
-  return readsize;
+    // handle endian swaping
+    if constexpr (std::endian::native == std::endian::big) {
+      char* p = static_cast<char*>(buffer);
+      for(size_t i = 0; i < bytesread; i += sizeof(uint16_t)) {
+        std::reverse(p, p + sizeof(uint16_t));
+      }
+    }
+
+    return bytesread;
+  }
 }
 
 /* EOF */

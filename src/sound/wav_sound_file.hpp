@@ -35,7 +35,7 @@ public:
 
 private:
   std::unique_ptr<std::istream> m_istream;
-  size_t datastart;
+  std::streampos m_datastart;
   int m_channels;
   int m_rate;
   int m_bits_per_sample;
