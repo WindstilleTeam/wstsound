@@ -38,19 +38,6 @@ StreamSoundSource::StreamSoundSource(SoundChannel& channel, std::unique_ptr<Soun
 {
   alGenBuffers(static_cast<ALsizei>(m_buffers.size()), m_buffers.data());
   SoundManager::check_al_error("Couldn't allocate audio buffers: ");
-
-  try
-  {
-    for(size_t i = 0; i < STREAMFRAGMENTS; ++i)
-    {
-      fill_buffer_and_queue(m_buffers[i]);
-    }
-  }
-  catch(...)
-  {
-    alDeleteBuffers(STREAMFRAGMENTS, m_buffers);
-    throw;
-  }
 }
 
 StreamSoundSource::~StreamSoundSource()
@@ -105,6 +92,16 @@ StreamSoundSource::get_sample_pos() const
   return (samples_total + sample_pos) % (static_cast<int>(m_sound_file->get_size())
                                          / m_sound_file->get_channels()
                                          / (m_sound_file->get_bits_per_sample()/8));
+}
+
+void
+StreamSoundSource::play()
+{
+  for(auto const& buffer : m_buffers) {
+    fill_buffer_and_queue(buffer);
+  }
+
+  OpenALSoundSource::play();
 }
 
 void

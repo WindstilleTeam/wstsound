@@ -37,6 +37,7 @@ public:
   StreamSoundSource(SoundChannel& channel, std::unique_ptr<SoundFile> sound_file);
   ~StreamSoundSource() override;
 
+  void play() override;
   void update(float delta) override;
   void seek_to(float sec) override;
   void set_looping(bool looping) override;
