@@ -37,8 +37,6 @@ public:
   SoundSourcePtr play(std::filesystem::path const& filename,
                       SoundSourceType type = SoundSourceType::STATIC);
 
-  SoundSourcePtr prepare(std::unique_ptr<SoundFile> sound_file,
-                         SoundSourceType type = SoundSourceType::STATIC);
   SoundSourcePtr prepare(std::filesystem::path const& filename,
                          SoundSourceType type = SoundSourceType::STATIC);
 

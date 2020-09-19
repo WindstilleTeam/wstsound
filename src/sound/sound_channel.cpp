@@ -44,31 +44,6 @@ SoundChannel::play(std::filesystem::path const& filename,
 }
 
 SoundSourcePtr
-SoundChannel::prepare(std::unique_ptr<SoundFile> sound_file,
-                      SoundSourceType type)
-{
-  switch(type)
-  {
-    case SoundSourceType::STREAM:
-    {
-      SoundSourcePtr source(new StreamSoundSource(*this, std::move(sound_file)));
-      source->update_gain();
-      m_sound_sources.push_back(source);
-      return source;
-    }
-
-    case SoundSourceType::STATIC:
-      // FIXME: not implemented
-      assert(false && "not implemented");
-      return {};
-
-    default:
-      assert(false && "never reached");
-      return {};
-  }
-}
-
-SoundSourcePtr
 SoundChannel::prepare(std::filesystem::path const& filename,
                       SoundSourceType type)
 {
