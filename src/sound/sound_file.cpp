@@ -74,7 +74,7 @@ SoundFile::load(std::filesystem::path const& filename)
 }
 
 float
-SoundFile::get_length() const
+SoundFile::get_duration() const
 {
   return static_cast<float>(get_size())
     / static_cast<float>(get_rate())

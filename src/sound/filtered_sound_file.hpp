@@ -42,7 +42,7 @@ public:
   void   seek_to(float sec) override;
 
   /** Returns the length of the file in seconds */
-  float  get_length() const override;
+  float  get_duration() const override;
 
 private:
   std::unique_ptr<SoundFile> m_sound_file;

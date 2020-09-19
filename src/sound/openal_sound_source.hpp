@@ -35,7 +35,7 @@ public:
   void stop() override;
   bool is_playing() const override;
 
-  float get_length() const override;
+  float get_duration() const override;
 
   void set_looping(bool looping) override;
 

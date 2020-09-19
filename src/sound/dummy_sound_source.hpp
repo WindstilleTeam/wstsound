@@ -32,7 +32,7 @@ public:
   void stop() override {}
   bool is_playing() const override { return false; }
 
-  float get_length() const override { return 0.0f; }
+  float get_duration() const override { return 0.0f; }
 
   void set_looping(bool looping) override {}
 

@@ -32,7 +32,7 @@ public:
   virtual void stop() = 0;
   virtual bool is_playing() const = 0;
 
-  virtual float get_length() const = 0;
+  virtual float get_duration() const = 0;
 
   virtual void set_looping(bool looping) = 0;
 

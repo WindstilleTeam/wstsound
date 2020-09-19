@@ -91,9 +91,9 @@ FilteredSoundFile::seek_to(float sec)
 }
 
 float
-FilteredSoundFile::get_length() const
+FilteredSoundFile::get_duration() const
 {
-  return m_sound_file->get_length();
+  return m_sound_file->get_duration();
 }
 
 /* EOF */

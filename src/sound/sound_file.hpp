@@ -41,7 +41,7 @@ public:
   virtual void   seek_to(float sec) = 0;
 
   /** Returns the length of the file in seconds */
-  virtual float  get_length() const;
+  virtual float  get_duration() const;
 
 public:
   static std::unique_ptr<SoundFile> load(std::filesystem::path const& filename);
