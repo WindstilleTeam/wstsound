@@ -35,8 +35,6 @@ public:
   void stop() override;
   bool is_playing() const override;
 
-  float get_duration() const override;
-
   void set_looping(bool looping) override;
 
   /// Set volume (0.0 is silent, 1.0 is normal)

@@ -55,13 +55,6 @@ OpenALSoundSource::play()
   SoundManager::check_al_error("Couldn't start audio source: ");
 }
 
-float
-OpenALSoundSource::get_duration() const
-{
-  assert(false && "implement me");
-  return 0.0f;
-}
-
 void
 OpenALSoundSource::seek_to(float sec)
 {

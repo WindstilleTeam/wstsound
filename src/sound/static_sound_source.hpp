@@ -23,10 +23,14 @@
 
 class StaticSoundSource : public OpenALSoundSource
 {
-private:
 public:
   StaticSoundSource(SoundChannel& channel, ALuint buffer);
   ~StaticSoundSource() override {}
+
+  float get_duration() const { return m_duration; }
+
+private:
+  float m_duration;
 
 private:
   StaticSoundSource(const StaticSoundSource&);

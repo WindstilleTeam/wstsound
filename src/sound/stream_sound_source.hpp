@@ -44,6 +44,7 @@ public:
 
   float get_pos() const override;
   int   get_sample_pos() const override;
+  float get_duration() const override;
 
   void set_fading(FadeState state, float fadetime);
   FadeState get_fade_state() const { return m_fade_state; }

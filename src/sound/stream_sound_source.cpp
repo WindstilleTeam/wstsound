@@ -94,6 +94,12 @@ StreamSoundSource::get_sample_pos() const
                                          / (m_sound_file->get_bits_per_sample()/8));
 }
 
+float
+StreamSoundSource::get_duration() const
+{
+  return m_sound_file->get_duration();
+}
+
 void
 StreamSoundSource::play()
 {

@@ -20,8 +20,33 @@
 
 #include "sound/sound_manager.hpp"
 
+namespace {
+
+float buffer_get_duration(ALuint buffer)
+{
+  ALint frequency;
+  alGetBufferi(buffer, AL_FREQUENCY, &frequency);
+
+  ALint bits;
+  alGetBufferi(buffer, AL_BITS, &bits);
+
+  ALint channels;
+  alGetBufferi(buffer, AL_CHANNELS, &channels);
+
+  ALint size;
+  alGetBufferi(buffer, AL_SIZE, &size);
+
+  return static_cast<float>(size)
+    / static_cast<float>(frequency)
+    / static_cast<float>(channels)
+    / static_cast<float>(bits) /8.0f;
+}
+
+} // namespace
+
 StaticSoundSource::StaticSoundSource(SoundChannel& channel, ALuint buffer) :
-  OpenALSoundSource(channel)
+  OpenALSoundSource(channel),
+  m_duration(buffer_get_duration(buffer))
 {
   alSourcei(m_source, AL_BUFFER, buffer);
   SoundManager::check_al_error("StaticSoundSource: ");
