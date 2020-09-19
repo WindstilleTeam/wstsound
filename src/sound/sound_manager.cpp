@@ -164,28 +164,6 @@ SoundManager::create_sound_source(std::filesystem::path const& filename, SoundCh
   }
 }
 
-SoundSourcePtr
-SoundManager::play(std::filesystem::path const& filename, const glm::vec2& pos)
-{
-  try
-  {
-    SoundSourcePtr source = create_sound_source(filename, *m_channels[0], SoundSourceType::STATIC);
-
-    if (source.get())
-    {
-      source->set_position(pos);
-      source->play();
-    }
-
-    return source;
-  }
-  catch(std::exception& e)
-  {
-    std::cout << "Couldn't play sound " << filename << ": " << e.what() << "\n";
-    return SoundSourcePtr(); // FIXME: not the best idea, should return dummy object
-  }
-}
-
 void
 SoundManager::enable_sound(bool enable)
 {

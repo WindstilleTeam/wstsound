@@ -53,11 +53,6 @@ public:
   SoundChannel& music() { return *m_channels[1]; }
   SoundChannel& voice() { return *m_channels[2]; }
 
-  /**
-   * Convenience function to simply play a sound at a given position.
-   */
-  SoundSourcePtr play(std::filesystem::path const& filename, const glm::vec2& pos = glm::vec2(-1, -1));
-
   void update(float delta);
 
   /**
