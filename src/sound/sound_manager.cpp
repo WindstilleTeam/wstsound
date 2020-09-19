@@ -16,6 +16,7 @@
 **  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <assert.h>
 #include <filesystem>
 #include <stdexcept>
 #include <iostream>
@@ -174,15 +175,15 @@ SoundManager::enable_sound(bool enable)
 }
 
 void
-SoundManager::set_listener_position(const glm::vec2& pos)
+SoundManager::set_listener_position(float x, float y, float z)
 {
-  alListener3f(AL_POSITION, pos.x, pos.y, 0);
+  alListener3f(AL_POSITION, x, y, z);
 }
 
 void
-SoundManager::set_listener_velocity(const glm::vec2& vel)
+SoundManager::set_listener_velocity(float x, float y, float z)
 {
-  alListener3f(AL_VELOCITY, vel.x, vel.y, 0);
+  alListener3f(AL_VELOCITY, x, y, z);
 }
 
 void

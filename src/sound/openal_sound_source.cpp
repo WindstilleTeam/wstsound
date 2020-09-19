@@ -97,16 +97,16 @@ OpenALSoundSource::set_looping(bool looping)
 }
 
 void
-OpenALSoundSource::set_position(const glm::vec2& position)
+OpenALSoundSource::set_position(float x, float y, float z)
 {
-  alSource3f(m_source, AL_POSITION, position.x, position.y, 0);
+  alSource3f(m_source, AL_POSITION, x, y, z);
   SoundManager::check_al_error("OpenALSoundSource::set_position: ");
 }
 
 void
-OpenALSoundSource::set_velocity(const glm::vec2& velocity)
+OpenALSoundSource::set_velocity(float x, float y, float z)
 {
-  alSource3f(m_source, AL_VELOCITY, velocity.x, velocity.y, 0);
+  alSource3f(m_source, AL_VELOCITY, x, y, z);
   SoundManager::check_al_error("OpenALSoundSource::set_velocity: ");
 }
 

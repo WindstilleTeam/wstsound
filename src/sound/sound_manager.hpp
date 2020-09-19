@@ -27,7 +27,6 @@
 
 #include <alc.h>
 #include <al.h>
-#include <glm/glm.hpp>
 
 #include "sound/sound_channel.hpp"
 
@@ -43,8 +42,8 @@ public:
 
   void enable_sound(bool sound_enabled);
 
-  void set_listener_position(const glm::vec2& position);
-  void set_listener_velocity(const glm::vec2& velocity);
+  void set_listener_position(float x, float y, float z);
+  void set_listener_velocity(float x, float y, float z);
 
   // master volume is not clamped
   void set_gain(float gain);

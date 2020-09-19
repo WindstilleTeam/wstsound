@@ -30,10 +30,6 @@ endif()
 
 find_package(OpenAL REQUIRED)
 
-if(NOT TARGET glm::glm)
-  find_package(glm REQUIRED)
-endif()
-
 find_package(PkgConfig REQUIRED)
 
 pkg_search_module(OGG REQUIRED ogg IMPORTED_TARGET)
@@ -58,7 +54,6 @@ target_include_directories(wstsound SYSTEM PUBLIC
   ${OPENAL_INCLUDE_DIR})
 target_link_libraries(wstsound PUBLIC
   ${OPENAL_LIBRARY}
-  glm::glm
   PkgConfig::OGG
   PkgConfig::VORBIS
   PkgConfig::VORBISFILE
