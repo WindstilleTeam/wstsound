@@ -43,7 +43,7 @@ SoundFile::from_stream(std::unique_ptr<std::istream> istream)
     // to tell OggVorbis and Opus appart
     if (strncmp(magic, "RIFF", 4) == 0) {
       return std::make_unique<WavSoundFile>(std::move(istream));
-    } else if (strncmp(magic, "OggS", 4) == 0 && strncmp(magic + 28, "Opus", 4) == 0) {
+    } else if (strncmp(magic, "OggS", 4) == 0 && strncmp(magic + 28, "OpusHead", 8) == 0) {
       return std::make_unique<OpusSoundFile>(std::move(istream));
     } else if (strncmp(magic, "OggS", 4) == 0 && strncmp(magic + 29, "vorbis", 4) == 0) {
       return std::make_unique<OggSoundFile>(std::move(istream));
