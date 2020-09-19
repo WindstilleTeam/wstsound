@@ -22,8 +22,8 @@
 #include <stdexcept>
 #include <sstream>
 
-OggSoundFile::OggSoundFile(std::filesystem::path const& filename) :
-  m_in(),
+OggSoundFile::OggSoundFile(std::unique_ptr<std::istream> istream) :
+  m_istream(std::move(istream)),
   m_eof(false),
   m_file_size(),
   m_vorbis_file(),
@@ -32,19 +32,10 @@ OggSoundFile::OggSoundFile(std::filesystem::path const& filename) :
   m_bits_per_sample(),
   m_size()
 {
-  m_in.open(filename, std::ios::binary);
-
-  if (!m_in)
-  {
-    std::ostringstream str;
-    str << "OggSoundFile: Couldn't open: " << filename;
-    throw std::runtime_error(str.str());
-  }
-
   // get the file size
-  m_in.seekg(0, std::ios::end);
-  m_file_size = static_cast<size_t>(m_in.tellg());
-  m_in.seekg(0, std::ios::beg);
+  m_istream->seekg(0, std::ios::end);
+  m_file_size = static_cast<size_t>(m_istream->tellg());
+  m_istream->seekg(0, std::ios::beg);
 
   ov_callbacks callbacks = { cb_read, cb_seek, cb_close, cb_tell };
 
@@ -155,9 +146,9 @@ OggSoundFile::cb_read(void* ptr, size_t size, size_t nmemb, void* userdata)
 
   // prevent std::istream from hitting eof(), needed as tellg() will
   // return -1 in that case instead of the from cb_tell expected filesize
-  read_len = std::min(read_len, ogg.m_file_size - ogg.m_in.tellg());
+  read_len = std::min(read_len, ogg.m_file_size - ogg.m_istream->tellg());
 
-  size_t len = ogg.m_in.read(static_cast<char*>(ptr), read_len).gcount();
+  size_t len = ogg.m_istream->read(static_cast<char*>(ptr), read_len).gcount();
   return len;
 }
 
@@ -170,19 +161,19 @@ OggSoundFile::cb_seek(void* userdata, ogg_int64_t offset, int whence)
   {
     case SEEK_SET:
       //std::cout << "OggSoundFile::cb_seek: " << offset << " BEG" << std::endl;
-      if (!ogg.m_in.seekg(offset, std::ios::beg))
+      if (!ogg.m_istream->seekg(offset, std::ios::beg))
         return -1;
       break;
 
     case SEEK_CUR:
       //std::cout << "OggSoundFile::cb_seek: " << offset << " CUR" << std::endl;
-      if (!ogg.m_in.seekg(offset, std::ios::cur))
+      if (!ogg.m_istream->seekg(offset, std::ios::cur))
         return -1;
       break;
 
     case SEEK_END:
       //std::cout << "OggSoundFile::cb_seek: " << offset << " END" << std::endl;
-      if (!ogg.m_in.seekg(offset, std::ios::end))
+      if (!ogg.m_istream->seekg(offset, std::ios::end))
         return -1;
       break;
 
@@ -198,7 +189,8 @@ OggSoundFile::cb_close(void* userdata)
   //std::cout << "OggSoundFile::cb_close" << std::endl;
   OggSoundFile& ogg = *reinterpret_cast<OggSoundFile*>(userdata);
 
-  ogg.m_in.close();
+  ogg.m_istream.reset();
+
   return 0;
 }
 
@@ -207,7 +199,7 @@ OggSoundFile::cb_tell(void* userdata)
 {
   //std::cout << "OggSoundFile::cb_tell" << std::endl;
   OggSoundFile& ogg = *reinterpret_cast<OggSoundFile*>(userdata);
-  return static_cast<long>(ogg.m_in.tellg());
+  return static_cast<long>(ogg.m_istream->tellg());
 }
 
 /* EOF */

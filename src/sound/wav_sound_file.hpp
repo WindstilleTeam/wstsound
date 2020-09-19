@@ -26,7 +26,7 @@
 class WavSoundFile : public SoundFile
 {
 public:
-  WavSoundFile(std::filesystem::path const& filename);
+  WavSoundFile(std::unique_ptr<std::istream> istream);
   ~WavSoundFile() override;
 
   bool eof() const override;
@@ -35,7 +35,7 @@ public:
   void seek_to(float sec) override;
 
 private:
-  std::ifstream file;
+  std::unique_ptr<std::istream> m_istream;
   bool m_eof;
   size_t datastart;
   int m_channels;

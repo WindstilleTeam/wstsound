@@ -61,8 +61,8 @@ T read_type(std::istream& in)
 
 } // namespace
 
-WavSoundFile::WavSoundFile(std::filesystem::path const& filename) :
-  file(),
+WavSoundFile::WavSoundFile(std::unique_ptr<std::istream> istream) :
+  m_istream(std::move(istream)),
   m_eof(false),
   datastart(),
   m_channels(),
@@ -70,16 +70,8 @@ WavSoundFile::WavSoundFile(std::filesystem::path const& filename) :
   m_bits_per_sample(),
   m_size()
 {
-  file.open(filename, std::ios::binary);
-  if (!file)
-  {
-    std::ostringstream str;
-    str << "WavSoundFile(): Couldn't open " << filename;
-    throw std::runtime_error(str.str());
-  }
-
   char magic[4];
-  if (!file.read(magic, sizeof(magic)))
+  if (!m_istream->read(magic, sizeof(magic)))
   {
     throw std::runtime_error("Couldn't read file magic (not a wave file)");
   }
@@ -90,9 +82,9 @@ WavSoundFile::WavSoundFile(std::filesystem::path const& filename) :
     throw std::runtime_error("file is not a RIFF wav file");
   }
 
-  /*uint32_t wavelen =*/ read_type<uint32_t>(file);
+  /*uint32_t wavelen =*/ read_type<uint32_t>(*m_istream);
 
-  if (!file.read( magic, sizeof(magic)))
+  if (!m_istream->read( magic, sizeof(magic)))
   {
     throw std::runtime_error("Couldn't read chunk header (not a wav file?)");
   }
@@ -107,11 +99,11 @@ WavSoundFile::WavSoundFile(std::filesystem::path const& filename) :
 
   // search audio data format chunk
   do {
-    if (!file.read(chunkmagic, sizeof(chunkmagic)))
+    if (!m_istream->read(chunkmagic, sizeof(chunkmagic)))
     {
       throw std::runtime_error("EOF while searching format chunk");
     }
-    chunklen = read_type<uint32_t>(file);
+    chunklen = read_type<uint32_t>(*m_istream);
 
     if (strncmp(chunkmagic, "fmt ", 4) == 0)
     {
@@ -122,7 +114,7 @@ WavSoundFile::WavSoundFile(std::filesystem::path const& filename) :
     {
       // skip chunk
 
-      if (!file.seekg(chunklen, std::ios::cur))
+      if (!m_istream->seekg(chunklen, std::ios::cur))
       {
         throw std::runtime_error("EOF while searching fmt chunk");
       }
@@ -137,40 +129,40 @@ WavSoundFile::WavSoundFile(std::filesystem::path const& filename) :
     throw std::runtime_error("Format chunk too short");
 
   // parse format
-  uint16_t encoding = read_type<uint16_t>(file);
+  uint16_t encoding = read_type<uint16_t>(*m_istream);
   if (encoding != 1)
   {
     std::ostringstream str;
     str << "WavSoundFile(): only PCM encoding supported, got " << encoding;
     throw std::runtime_error(str.str());
   }
-  m_channels = read_type<uint16_t>(file);
-  m_rate = read_type<uint32_t>(file);
-  /*uint32_t byterate =*/ read_type<uint32_t>(file);
-  /*uint16_t blockalign =*/ read_type<uint16_t>(file);
-  m_bits_per_sample = read_type<uint16_t>(file);
+  m_channels = read_type<uint16_t>(*m_istream);
+  m_rate = read_type<uint32_t>(*m_istream);
+  /*uint32_t byterate =*/ read_type<uint32_t>(*m_istream);
+  /*uint16_t blockalign =*/ read_type<uint16_t>(*m_istream);
+  m_bits_per_sample = read_type<uint16_t>(*m_istream);
 
   if(chunklen > 16)
   {
-    if(file.seekg(chunklen-16, std::ios::cur).fail())
+    if(m_istream->seekg(chunklen-16, std::ios::cur).fail())
       throw std::runtime_error("EOF while reading reast of format chunk");
   }
 
   // set file offset to DATA chunk data
   do {
-    if (!file.read(chunkmagic, sizeof(chunkmagic)))
+    if (!m_istream->read(chunkmagic, sizeof(chunkmagic)))
       throw std::runtime_error("EOF while searching data chunk");
-    chunklen = read_type<uint32_t>(file);
+    chunklen = read_type<uint32_t>(*m_istream);
 
     if(strncmp(chunkmagic, "data", 4) == 0)
       break;
 
     // skip chunk
-    if(file.seekg(chunklen, std::ios::cur).fail())
+    if(m_istream->seekg(chunklen, std::ios::cur).fail())
       throw std::runtime_error("EOF while searching fmt chunk");
   } while(true);
 
-  datastart = static_cast<size_t>(file.tellg());
+  datastart = static_cast<size_t>(m_istream->tellg());
   m_size = static_cast<size_t>(chunklen);
 }
 
@@ -189,7 +181,7 @@ WavSoundFile::reset()
 {
   m_eof = false;
 
-  if (!file.seekg(datastart))
+  if (!m_istream->seekg(datastart))
     throw std::runtime_error("Couldn't seek to data start");
 }
 
@@ -200,7 +192,7 @@ WavSoundFile::seek_to(float sec)
 
   size_t byte_pos = static_cast<size_t>(sec * static_cast<float>(m_rate * m_bits_per_sample/8 * m_channels));
 
-  if (!file.seekg(datastart + byte_pos))
+  if (!m_istream->seekg(datastart + byte_pos))
     throw std::runtime_error("Couldn't seek to data start");
 }
 
@@ -208,7 +200,7 @@ size_t
 WavSoundFile::read(void* buffer, size_t buffer_size)
 {
   size_t end = datastart + m_size;
-  size_t cur = static_cast<size_t>(file.tellg());
+  size_t cur = static_cast<size_t>(m_istream->tellg());
 
   if (cur >= end)
   {
@@ -218,7 +210,7 @@ WavSoundFile::read(void* buffer, size_t buffer_size)
 
   size_t readsize = std::min(end - cur, buffer_size);
 
-  if (!file.read(static_cast<char*>(buffer), readsize))
+  if (!m_istream->read(static_cast<char*>(buffer), readsize))
   {
     throw std::runtime_error("read error while reading samples");
   }

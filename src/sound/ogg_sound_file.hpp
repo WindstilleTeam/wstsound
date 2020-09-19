@@ -27,7 +27,7 @@
 class OggSoundFile : public SoundFile
 {
 public:
-  OggSoundFile(std::filesystem::path const& filename);
+  OggSoundFile(std::unique_ptr<std::istream> istream);
   ~OggSoundFile() override;
 
   size_t read(void* buffer, size_t buffer_size) override;
@@ -48,7 +48,7 @@ private:
   static int    cb_close(void* source);
   static long   cb_tell(void* source);
 
-  std::ifstream  m_in;
+  std::unique_ptr<std::istream> m_istream;
   bool m_eof;
   size_t m_file_size;
   OggVorbis_File m_vorbis_file;

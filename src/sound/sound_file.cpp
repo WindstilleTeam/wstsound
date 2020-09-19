@@ -50,13 +50,16 @@ SoundFile::load(std::filesystem::path const& filename)
       }
       else
       {
+        // reset the stream before handing it over
+        in.seekg(0, std::ios::beg);
+
         if (strncmp(magic, "RIFF", 4) == 0)
         {
-          return std::unique_ptr<SoundFile>(new WavSoundFile(filename));
+          return std::make_unique<WavSoundFile>(std::make_unique<std::ifstream>(std::move(in)));
         }
         else if (strncmp(magic, "OggS", 4) == 0)
         {
-          return std::unique_ptr<SoundFile>(new OggSoundFile(filename));
+          return std::make_unique<OggSoundFile>(std::make_unique<std::ifstream>(std::move(in)));
         }
         else
         {
