@@ -172,7 +172,6 @@ WavSoundFile::~WavSoundFile()
 void
 WavSoundFile::reset()
 {
-  m_istream->clear();
   if (!m_istream->seekg(m_datastart)) {
     throw std::runtime_error("Couldn't seek to data start");
   }
@@ -195,6 +194,7 @@ WavSoundFile::read(void* buffer, size_t buffer_size)
     if (!m_istream->eof()) {
       throw std::runtime_error("read error while reading samples");
     }
+    m_istream->clear();
     return m_istream->gcount();
   }
   else

@@ -18,6 +18,7 @@
 
 #include "sound/stream_sound_source.hpp"
 
+#include <array>
 #include <iostream>
 
 #include "sound/sound_manager.hpp"
@@ -26,6 +27,7 @@
 StreamSoundSource::StreamSoundSource(SoundChannel& channel, std::unique_ptr<SoundFile> sound_file) :
   OpenALSoundSource(channel),
   m_sound_file(std::move(sound_file)),
+  m_buffers(),
   m_format(SoundManager::get_sample_format(m_sound_file.get())),
   m_looping(false),
   m_total_buffers_processed(0),
@@ -34,7 +36,7 @@ StreamSoundSource::StreamSoundSource(SoundChannel& channel, std::unique_ptr<Soun
   m_fade_time(),
   m_total_time(0.0f)
 {
-  alGenBuffers(STREAMFRAGMENTS, m_buffers);
+  alGenBuffers(static_cast<ALsizei>(m_buffers.size()), m_buffers.data());
   SoundManager::check_al_error("Couldn't allocate audio buffers: ");
 
   try
@@ -55,7 +57,7 @@ StreamSoundSource::~StreamSoundSource()
 {
   stop();
 
-  alDeleteBuffers(STREAMFRAGMENTS, m_buffers);
+  alDeleteBuffers(static_cast<ALsizei>(m_buffers.size()), m_buffers.data());
   SoundManager::check_al_error("Couldn't delete audio buffers: ");
 }
 
@@ -75,12 +77,11 @@ StreamSoundSource::seek_to(float sec)
   if ((false))
   { // FIXME: clear the buffer or not on seek? see ov_time_seek_lap()
     // in OggSoundFile for possible reason why jumping might not be a good idea
-    alSourceUnqueueBuffers(m_source, STREAMFRAGMENTS, m_buffers);
+    alSourceUnqueueBuffers(m_source, static_cast<ALsizei>(m_buffers.size()), m_buffers.data());
     SoundManager::check_al_error("Couldn't unqueue audio buffers: ");
 
-    for(size_t i = 0; i < STREAMFRAGMENTS; ++i)
-    {
-      fill_buffer_and_queue(m_buffers[i]);
+    for(auto const& buffer : m_buffers) {
+      fill_buffer_and_queue(buffer);
     }
   }
 }
@@ -137,8 +138,7 @@ StreamSoundSource::update(float delta)
     if (!is_playing())
     {
       std::cerr << "Restarting audio source because of buffer underrun.\n";
-      alSourcePlay(m_source);
-      SoundManager::check_al_error("Couldn't restart audio source: ");
+      play();
     }
 
     // handle fade-in/out
@@ -182,34 +182,30 @@ StreamSoundSource::set_fading(FadeState fade_state, float fade_time)
 void
 StreamSoundSource::fill_buffer_and_queue(ALuint buffer)
 {
-  char bufferdata[STREAMFRAGMENTSIZE];
-  size_t bytesread = 0;
+  std::array<char, STREAMFRAGMENTSIZE> bufferdata;
+  size_t total_bytesread = 0;
 
   // fill buffer with data from m_sound_file
-  do
-  {
-    bytesread += m_sound_file->read(bufferdata + bytesread,
-                                    STREAMFRAGMENTSIZE - bytesread);
+  do {
+    size_t const bytesrequested = STREAMFRAGMENTSIZE - total_bytesread;
+    size_t const bytesread = m_sound_file->read(bufferdata.data() + total_bytesread,
+                                                bytesrequested);
+    total_bytesread += bytesread;
 
-    // the end of the SoundFile is reached
-    if (bytesread < STREAMFRAGMENTSIZE)
+    if (bytesread < bytesrequested) // EOF reached
     {
-      if (m_looping)
-      { // loop
+      if (m_looping) {
         m_sound_file->reset();
-      }
-      else
-      { // or end
+      } else {
         break;
       }
     }
-  }
-  while(bytesread < STREAMFRAGMENTSIZE);
+  } while(total_bytesread < STREAMFRAGMENTSIZE);
 
-  if (bytesread > 0)
+  if (total_bytesread > 0)
   {
     // upload data to the OpenAL buffer
-    alBufferData(buffer, m_format, bufferdata, static_cast<ALsizei>(bytesread), m_sound_file->get_rate());
+    alBufferData(buffer, m_format, bufferdata.data(), static_cast<ALsizei>(total_bytesread), m_sound_file->get_rate());
     SoundManager::check_al_error("Couldn't refill audio buffer: ");
 
     // add buffer to the queue of this source

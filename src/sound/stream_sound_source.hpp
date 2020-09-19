@@ -19,6 +19,7 @@
 #ifndef HEADER_WINDSTILLE_SOUND_STREAM_SOUND_SOURCE_HPP
 #define HEADER_WINDSTILLE_SOUND_STREAM_SOUND_SOURCE_HPP
 
+#include <array>
 #include <memory>
 #include <stdio.h>
 
@@ -54,7 +55,7 @@ private:
   static const size_t STREAMFRAGMENTSIZE = 65536;
 
   std::unique_ptr<SoundFile> m_sound_file;
-  ALuint m_buffers[STREAMFRAGMENTS];
+  std::array<ALuint, STREAMFRAGMENTS> m_buffers;
   ALenum m_format;
 
   bool m_looping;
@@ -66,6 +67,10 @@ private:
 
   // FIXME: simple time counter that summarizes all deltas, could be done better
   float m_total_time;
+
+public:
+  StreamSoundSource(const StreamSoundSource&) = delete;
+  StreamSoundSource& operator=(const StreamSoundSource&) = delete;
 };
 
 #endif
