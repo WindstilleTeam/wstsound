@@ -75,10 +75,9 @@ SoundManager::~SoundManager()
 {
   m_sources.clear();
 
-  for(SoundBuffers::iterator i = m_buffers.begin(); i != m_buffers.end(); ++i)
+  for(auto const& it : m_buffers)
   {
-    ALuint buffer = i->second;
-    alDeleteBuffers(1, &buffer);
+    alDeleteBuffers(1, &it.second);
   }
 
   if (m_context)
@@ -139,13 +138,10 @@ SoundManager::create_sound_source(std::filesystem::path const& filename, SoundCh
         ALuint buffer;
 
         // reuse an existing static sound buffer
-        SoundBuffers::iterator i = m_buffers.find(filename);
-        if (i != m_buffers.end())
-        {
-          buffer = i->second;
-        }
-        else
-        {
+        auto it = m_buffers.find(filename);
+        if (it != m_buffers.end()) {
+          buffer = it->second;
+        } else {
           buffer = load_file_into_buffer(filename);
           m_buffers.insert(std::make_pair(filename, buffer));
         }
@@ -228,17 +224,9 @@ SoundManager::update(float delta)
   if (m_sound_enabled)
   {
     // check for finished sound sources
-    for(SoundSources::iterator i = m_sources.begin(); i != m_sources.end(); )
-    {
-      if (!(*i)->is_playing())
-      {
-        i = m_sources.erase(i);
-      }
-      else
-      {
-        ++i;
-      }
-    }
+    std::erase_if(m_sources, [](SoundSourcePtr const& source){
+      return !source->is_playing();
+    });
 
     alcProcessContext(m_context);
     check_alc_error("Error while processing audio context: ");

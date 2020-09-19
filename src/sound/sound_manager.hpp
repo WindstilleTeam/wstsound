@@ -31,8 +31,6 @@
 
 #include "sound/sound_channel.hpp"
 
-typedef void* SoundHandle;
-
 class SoundFile;
 class SoundSource;
 class StreamSoundSource;
@@ -95,10 +93,8 @@ private:
   SoundChannel m_sound_channel;
   SoundChannel m_music_channel;
 
-  typedef std::map<std::filesystem::path, ALuint> SoundBuffers;
-  SoundBuffers m_buffers;
-  typedef std::vector<SoundSourcePtr> SoundSources;
-  SoundSources m_sources;
+  std::map<std::filesystem::path, ALuint> m_buffers;
+  std::vector<SoundSourcePtr> m_sources;
 
 private:
   SoundManager(const SoundManager&);
