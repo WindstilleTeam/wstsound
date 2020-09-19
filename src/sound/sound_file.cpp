@@ -28,47 +28,39 @@
 #include "sound/wav_sound_file.hpp"
 
 std::unique_ptr<SoundFile>
-SoundFile::load(std::filesystem::path const& filename)
+SoundFile::from_stream(std::unique_ptr<std::istream> istream)
+{
+  char magic[4];
+
+  if (!istream->read(magic, sizeof(magic))) {
+    throw std::runtime_error("Couldn't read magic, file too short");
+  } else {
+    // reset the stream before handing it over
+    istream->seekg(0, std::ios::beg);
+
+    if (strncmp(magic, "RIFF", 4) == 0) {
+      return std::make_unique<WavSoundFile>(std::move(istream));
+    } else if (strncmp(magic, "OggS", 4) == 0) {
+      return std::make_unique<OggSoundFile>(std::move(istream));
+    } else {
+      throw std::runtime_error("Unknown file format");
+    }
+  }
+}
+
+std::unique_ptr<SoundFile>
+SoundFile::from_file(std::filesystem::path const& filename)
 {
   std::ifstream in(filename, std::ios::binary);
 
-  if (!in)
-  {
+  if (!in) {
     std::stringstream msg;
     msg << "Couldn't open '" << filename << "'";
     throw std::runtime_error(msg.str());
-  }
-  else
-  {
-    try
-    {
-      char magic[4];
-
-      if (!in.read(magic, sizeof(magic)))
-      {
-        throw std::runtime_error("Couldn't read magic, file too short");
-      }
-      else
-      {
-        // reset the stream before handing it over
-        in.seekg(0, std::ios::beg);
-
-        if (strncmp(magic, "RIFF", 4) == 0)
-        {
-          return std::make_unique<WavSoundFile>(std::make_unique<std::ifstream>(std::move(in)));
-        }
-        else if (strncmp(magic, "OggS", 4) == 0)
-        {
-          return std::make_unique<OggSoundFile>(std::make_unique<std::ifstream>(std::move(in)));
-        }
-        else
-        {
-          throw std::runtime_error("Unknown file format");
-        }
-      }
-    }
-    catch(std::exception& e)
-    {
+  } else {
+    try {
+      return from_stream(std::make_unique<std::ifstream>(std::move(in)));
+    } catch(std::exception& e) {
       std::stringstream msg;
       msg << "Couldn't read '" << filename << "': " << e.what();
       throw std::runtime_error(msg.str());

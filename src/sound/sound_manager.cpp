@@ -94,7 +94,7 @@ ALuint
 SoundManager::load_file_into_buffer(std::filesystem::path const& filename)
 {
   // open sound file
-  std::unique_ptr<SoundFile> file(SoundFile::load(filename));
+  std::unique_ptr<SoundFile> file(SoundFile::from_file(filename));
 
   ALenum format = get_sample_format(file.get());
   ALuint buffer;
@@ -152,7 +152,7 @@ SoundManager::create_sound_source(std::filesystem::path const& filename, SoundCh
 
       case SoundSourceType::STREAM:
       {
-        std::unique_ptr<SoundFile> sound_file = SoundFile::load(filename);
+        std::unique_ptr<SoundFile> sound_file = SoundFile::from_file(filename);
         return SoundSourcePtr(new StreamSoundSource(channel, std::move(sound_file)));
       }
       break;

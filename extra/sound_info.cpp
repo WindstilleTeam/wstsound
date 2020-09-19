@@ -31,7 +31,7 @@ int main(int argc, char** argv)
   {
     for(int i = 1; i < argc; ++i)
     {
-      std::unique_ptr<SoundFile> sound_file = SoundFile::load(argv[i]);
+      std::unique_ptr<SoundFile> sound_file = SoundFile::from_file(argv[i]);
       std::cout << "Filename: " << argv[i] << std::endl;
       std::cout << "Length:   " << sound_file->get_duration() << "sec" << std::endl;
       std::cout << "Size:     " << sound_file->get_size() << "B" << std::endl;

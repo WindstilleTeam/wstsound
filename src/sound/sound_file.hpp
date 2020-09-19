@@ -43,7 +43,8 @@ public:
   virtual float  get_duration() const;
 
 public:
-  static std::unique_ptr<SoundFile> load(std::filesystem::path const& filename);
+  static std::unique_ptr<SoundFile> from_file(std::filesystem::path const& filename);
+  static std::unique_ptr<SoundFile> from_stream(std::unique_ptr<std::istream> istream);
 };
 
 #endif
