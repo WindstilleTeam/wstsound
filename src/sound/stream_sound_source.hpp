@@ -68,7 +68,7 @@ private:
   ALenum m_format;
 
   bool m_looping;
-  int  m_total_buffers_processed;
+  int  m_total_samples_processed;
 
   FadeState m_fade_state;
   float m_fade_start_ticks;

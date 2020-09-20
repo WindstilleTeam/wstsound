@@ -30,7 +30,7 @@ StreamSoundSource::StreamSoundSource(SoundChannel& channel, std::unique_ptr<Soun
   m_buffers(),
   m_format(OpenALSystem::get_sample_format(m_sound_file.get())),
   m_looping(false),
-  m_total_buffers_processed(0),
+  m_total_samples_processed(0),
   m_fade_state(),
   m_fade_start_ticks(),
   m_fade_time(),
@@ -57,20 +57,46 @@ StreamSoundSource::set_looping(bool looping)
 }
 
 void
-StreamSoundSource::seek_to(float sec)
+StreamSoundSource::seek_to_sample(int sample)
 {
-  m_sound_file->seek_to(sec);
+  bool const was_playing = is_playing();
 
-  if ((false))
-  { // FIXME: clear the buffer or not on seek? see ov_time_seek_lap()
-    // in OggSoundFile for possible reason why jumping might not be a good idea
-    alSourceUnqueueBuffers(m_source, static_cast<ALsizei>(m_buffers.size()), m_buffers.data());
-    OpenALSystem::check_al_error("Couldn't unqueue audio buffers: ");
+  if (was_playing) {
+    // stop the source to cause all buffers getting marked as
+    // processed, so we can unqueue them
+    alSourceStop(m_source);
+  }
 
-    for(auto const& buffer : m_buffers) {
-      fill_buffer_and_queue(buffer);
+  m_sound_file->seek_to_sample(sample);
+
+  m_total_samples_processed = sample;
+
+  ALint queued = 0;
+  alGetSourcei(m_source, AL_BUFFERS_PROCESSED, &queued);
+
+  {
+    ALint processed = 0;
+    alGetSourcei(m_source, AL_BUFFERS_PROCESSED, &processed);
+
+    std::array<ALuint, STREAMFRAGMENTS> unqueue_buffers;
+    alSourceUnqueueBuffers(m_source, processed, unqueue_buffers.data());
+    OpenALSystem::check_al_error("Couldn't unqueue audio buffer: ");
+
+    std::cout << "processed: " << processed << std::endl;
+    for(int i = 0; i < processed; ++i) {
+      fill_buffer_and_queue(unqueue_buffers[i]);
     }
   }
+
+  if (was_playing) {
+    alSourcePlay(m_source);
+  }
+}
+
+void
+StreamSoundSource::seek_to(float sec)
+{
+  seek_to_sample(sec_to_sample(sec));
 }
 
 float
@@ -126,7 +152,7 @@ StreamSoundSource::update(float delta)
       {
         processed--;
 
-        m_total_buffers_processed += 1;
+        m_total_samples_processed += samples_per_buffer();
 
         ALuint buffer;
         alSourceUnqueueBuffers(m_source, 1, &buffer);
