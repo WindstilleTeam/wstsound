@@ -34,6 +34,12 @@ SoundChannel::SoundChannel(SoundManager& sound_manager) :
 {
 }
 
+void
+SoundChannel::clear()
+{
+  m_sound_sources.clear();
+}
+
 SoundSourcePtr
 SoundChannel::play(std::filesystem::path const& filename,
                    SoundSourceType type)

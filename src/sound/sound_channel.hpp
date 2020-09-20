@@ -46,6 +46,8 @@ public:
   void  set_gain(float gain);
   float get_gain() const;
 
+  void clear();
+
 private:
   SoundManager& m_sound_manager;
   std::vector<SoundSourcePtr> m_sound_sources;

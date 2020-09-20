@@ -75,6 +75,10 @@ SoundManager::SoundManager() :
 
 SoundManager::~SoundManager()
 {
+  for(std::unique_ptr<SoundChannel>& channel : m_channels) {
+    channel->clear();
+  }
+
   for(auto const& it : m_buffers)
   {
     alDeleteBuffers(1, &it.second);
