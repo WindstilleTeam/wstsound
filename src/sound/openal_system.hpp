@@ -44,7 +44,7 @@ public:
   void print_openal_version();
   void check_alc_error(char const* message);
 
-  bool sound_enabled() const { return m_sound_enabled; }
+  bool sound_enabled() const { return m_device != nullptr; }
 
   /** Create an OpenAL buffer, the returned handle is held by
       OpenALSystem and must not be deleted */
@@ -54,7 +54,6 @@ public:
 private:
   ALCdevice*  m_device;
   ALCcontext* m_context;
-  bool m_sound_enabled;
   std::vector<ALuint> m_buffers;
 
 public:

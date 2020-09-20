@@ -27,7 +27,6 @@
 OpenALSystem::OpenALSystem() :
   m_device(nullptr),
   m_context(nullptr),
-  m_sound_enabled(false),
   m_buffers()
 {
   try
@@ -48,14 +47,12 @@ OpenALSystem::OpenALSystem() :
       check_alc_error("Couldn't select audio context: ");
 
       check_al_error("Audio error after init: ");
-      m_sound_enabled = true;
     }
   }
   catch(std::exception& e)
   { // disable sound
     m_device  = nullptr;
     m_context = nullptr;
-    m_sound_enabled = false;
 
     std::cerr << "Couldn't initialize audio device:" << e.what() << "\n";
     print_openal_version();
@@ -101,8 +98,7 @@ OpenALSystem::create_buffer(ALenum format,
 void
 OpenALSystem::update()
 {
-  if (m_sound_enabled)
-  {
+  if (m_context) {
     alcProcessContext(m_context);
     check_alc_error("Error while processing audio context: ");
   }
