@@ -119,11 +119,11 @@ OggSoundFile::reset()
 }
 
 void
-OggSoundFile::seek_to(float sec)
+OggSoundFile::seek_to_sample(int sample)
 {
-  // the version 'lap' will do crosslapsing to remove clicking when seeking
-  ov_time_seek_lap(&m_vorbis_file, sec);
+  ov_pcm_seek_lap(&m_vorbis_file, sample);
 }
+
 
 size_t
 OggSoundFile::cb_read(void* ptr, size_t size, size_t nmemb, void* userdata)

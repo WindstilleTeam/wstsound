@@ -79,15 +79,9 @@ FilteredSoundFile::get_channels() const
 }
 
 void
-FilteredSoundFile::seek_to(float sec)
+FilteredSoundFile::seek_to_sample(int sample)
 {
-  m_sound_file->seek_to(sec);
-}
-
-float
-FilteredSoundFile::get_duration() const
-{
-  return m_sound_file->get_duration();
+  m_sound_file->seek_to_sample(sample);
 }
 
 /* EOF */

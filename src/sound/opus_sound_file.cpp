@@ -86,9 +86,9 @@ OpusSoundFile::reset()
 }
 
 void
-OpusSoundFile::seek_to(float sec)
+OpusSoundFile::seek_to_sample(int sample)
 {
-  op_pcm_seek(m_opus_file, static_cast<ogg_int64_t>(sec * 48000));
+  op_pcm_seek(m_opus_file, sample);
 }
 
 int

@@ -33,14 +33,16 @@ public:
   virtual void reset() = 0;
 
   virtual int    get_bits_per_sample() const = 0;
-  virtual size_t get_size() const = 0;
+  virtual size_t get_size() const = 0; // size in bytes
   virtual int    get_rate() const = 0;
   virtual int    get_channels() const = 0;
 
-  virtual void   seek_to(float sec) = 0;
+  virtual void   seek_to_sample(int sample) = 0;
 
+  void seek_to(float sec);
   /** Returns the length of the file in seconds */
-  virtual float  get_duration() const;
+  float get_duration() const;
+  int get_sample_duration() const;
 
 public:
   static std::unique_ptr<SoundFile> from_file(std::filesystem::path const& filename);

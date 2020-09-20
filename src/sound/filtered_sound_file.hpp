@@ -38,10 +38,7 @@ public:
   int    get_rate() const override;
   int    get_channels() const override;
 
-  void   seek_to(float sec) override;
-
-  /** Returns the length of the file in seconds */
-  float  get_duration() const override;
+  void seek_to_sample(int sample) override;
 
 private:
   std::unique_ptr<SoundFile> m_sound_file;

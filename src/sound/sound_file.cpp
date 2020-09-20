@@ -76,10 +76,13 @@ SoundFile::from_file(std::filesystem::path const& filename)
 float
 SoundFile::get_duration() const
 {
-  return static_cast<float>(get_size())
-    / static_cast<float>(get_rate())
-    / static_cast<float>(get_channels())
-    / (static_cast<float>(get_bits_per_sample())/8.0f);
+  return static_cast<float>(get_sample_duration()) / static_cast<float>(get_rate());
+}
+
+int
+SoundFile::get_sample_duration() const
+{
+  return 8 * static_cast<int>(get_size()) / get_channels() / get_bits_per_sample();
 }
 
 /* EOF */

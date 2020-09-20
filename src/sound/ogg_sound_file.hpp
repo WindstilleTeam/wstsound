@@ -38,7 +38,7 @@ public:
   int    get_rate() const override { return m_rate; }
   int    get_channels() const override { return m_channels; }
 
-  void seek_to(float sec) override;
+  void seek_to_sample(int sample) override;
 
 private:
   // I/O functions for ogg
