@@ -16,25 +16,57 @@
 **  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <iostream>
+#include <string.h>
 #include <unistd.h>
+
+#include <iostream>
 #include <random>
+#include <vector>
 
 #include "sound/sound_manager.hpp"
 #include "sound/sound_source.hpp"
 #include "sound/sound_file.hpp"
 #include "sound/filtered_sound_file.hpp"
 
+void print_usage(int argc, char** argv)
+{
+  std::cout << "Usage: " << argv[0] << " [OPTION]... SOUNDS...\n"
+            << "\n"
+            << "  --help   Display this help text\n"
+            << "  --loop   Loopt the sound\n";
+}
+
 int main(int argc, char** argv)
 {
   if (argc < 2)
   {
-    std::cout << "Usage: " << argv[0] << " SOUNDS..." << std::endl;
+    print_usage(argc, argv);
     return 1;
   }
   else
   {
-    std::default_random_engine generator{std::random_device()()};
+    bool loop = false;
+    SoundSourceType source_type = SoundSourceType::STREAM;
+
+    std::vector<std::string> files;
+    for (int i = 1; i < argc; ++i) {
+      if (argv[i][0] == '-') {
+        if (strcmp(argv[i], "--help") == 0) {
+          print_usage(argc, argv);
+          return 0;
+        } else if (strcmp(argv[i], "--loop") == 0) {
+          loop = true;
+        } else if (strcmp(argv[i], "--stream") == 0) {
+          source_type = SoundSourceType::STREAM;
+        } else if (strcmp(argv[i], "--static") == 0) {
+          source_type = SoundSourceType::STATIC;
+        } else {
+          std::cerr << "error: unknown option " << argv[i] << std::endl;
+        }
+      } else {
+        files.emplace_back(argv[i]);
+      }
+    }
 
     SoundManager sound_manager;
 
@@ -42,28 +74,21 @@ int main(int argc, char** argv)
     sound_manager.sound().set_gain(1.0f);
     sound_manager.voice().set_gain(1.0f);
 
-    std::cout << "Filter Test" << std::endl;
-
     std::vector<SoundSourcePtr> sources;
-    for(int i = 1; i < argc; ++i)
+    for (auto const& filename : files)
     {
-      SoundSourcePtr source = sound_manager.sound().prepare(argv[i], SoundSourceType::STREAM);
-
-      source->set_looping(true);
-
-      sources.push_back(source);
+      SoundSourcePtr source = sound_manager.sound().prepare(filename, source_type);
+      source->set_looping(loop);
+      sources.emplace_back(source);
     }
 
-    for(std::vector<SoundSourcePtr>::iterator i = sources.begin(); i != sources.end(); ++i)
-    {
-      (*i)->play();
+    for (auto& source : sources) {
+      source->play();
     }
 
-    while(true)
-    {
-      for(std::vector<SoundSourcePtr>::iterator i = sources.begin(); i != sources.end(); ++i)
-      {
-        std::cout << "pos: " << (*i)->get_pos() << std::endl;
+    while (!sources.empty()) {
+      for (auto& source : sources) {
+        std::cout << "pos: " << source->get_pos() << " / " << source->get_duration() << std::endl;
       }
 
       usleep(10000);
