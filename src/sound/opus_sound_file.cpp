@@ -18,6 +18,8 @@
 
 #include "sound/opus_sound_file.hpp"
 
+#include <iostream>
+
 OpusSoundFile::OpusSoundFile(std::unique_ptr<std::istream> istream) :
   m_istream(std::move(istream)),
   m_file_size(0),
@@ -26,7 +28,6 @@ OpusSoundFile::OpusSoundFile(std::unique_ptr<std::istream> istream) :
   m_rate(48000),
   m_bits_per_sample(16),
   m_size(0)
-
 {
   // get the file size
   m_istream->seekg(0, std::ios::end);
@@ -60,7 +61,13 @@ OpusSoundFile::OpusSoundFile(std::unique_ptr<std::istream> istream) :
   }
 
   m_channels = op_channel_count(m_opus_file, -1);
-  m_size = static_cast<size_t>(op_pcm_total(m_opus_file, -1) * m_channels * m_bits_per_sample / 8);
+
+  ogg_int64_t pcm_total = op_pcm_total(m_opus_file, -1);
+  if (pcm_total < 0) {
+    op_free(m_opus_file);
+    throw std::runtime_error("OpusSoundFile: op_pcm_total() failure");
+  }
+  m_size = static_cast<size_t>(pcm_total * m_channels * m_bits_per_sample / 8);
 }
 
 OpusSoundFile::~OpusSoundFile()
@@ -69,20 +76,25 @@ OpusSoundFile::~OpusSoundFile()
 }
 
 size_t
-OpusSoundFile::read(void* buffer_, size_t buffer_size)
+OpusSoundFile::read(void* buffer, size_t buffer_size)
 {
-  opus_int16* buffer = reinterpret_cast<opus_int16*>(buffer_);
-
   // returns number of samples per channel, not bytes
-  int pcm_read = op_read(m_opus_file, buffer, static_cast<int>(buffer_size / sizeof(opus_int16)), nullptr);
+  int const pcm_read = op_read(m_opus_file,
+                               static_cast<opus_int16*>(buffer),
+                               static_cast<int>(buffer_size / sizeof(opus_int16)),
+                               nullptr);
+  if (pcm_read < 0) {
+    std::cerr << "OpusSoundFile: decode failure: " << pcm_read << std::endl;
+    return 0;
+  }
 
-  return pcm_read * m_channels;
+  return (pcm_read * m_channels * m_bits_per_sample / 8);
 }
 
 void
 OpusSoundFile::reset()
 {
-  op_raw_seek(m_opus_file, 0);
+  op_pcm_seek(m_opus_file, 0);
 }
 
 void
@@ -96,13 +108,16 @@ OpusSoundFile::cb_read(void* stream, unsigned char* buffer, int nbytes)
 {
   OpusSoundFile& opus = *reinterpret_cast<OpusSoundFile*>(stream);
 
-  size_t read_len = nbytes;
+  if (!opus.m_istream->read(reinterpret_cast<char*>(buffer), nbytes))
+  {
+    if (!opus.m_istream->eof()) {
+      return -1;
+    } else {
+      opus.m_istream->clear(std::ios::eofbit);
+    }
+  }
 
-  // prevent std::istream from hitting eof(), needed as tellg() will
-  // return -1 in that case instead of the from cb_tell expected filesize
-  read_len = std::min(read_len, opus.m_file_size - opus.m_istream->tellg());
-
-  return static_cast<int>(opus.m_istream->read(reinterpret_cast<char*>(buffer), read_len).gcount());
+  return static_cast<int>(opus.m_istream->gcount());
 }
 
 int
@@ -113,24 +128,25 @@ OpusSoundFile::cb_seek(void* stream, opus_int64 offset, int whence)
   switch(whence)
   {
     case SEEK_SET:
-      //std::cout << "OpusSoundFile::cb_seek: " << offset << " BEG" << std::endl;
-      if (!opus.m_istream->seekg(offset, std::ios::beg))
+      if (!opus.m_istream->seekg(offset, std::ios::beg)) {
         return -1;
+      }
       break;
 
     case SEEK_CUR:
-      //std::cout << "OpusSoundFile::cb_seek: " << offset << " CUR" << std::endl;
-      if (!opus.m_istream->seekg(offset, std::ios::cur))
+      if (!opus.m_istream->seekg(offset, std::ios::cur)) {
         return -1;
+      }
       break;
 
     case SEEK_END:
-      //std::cout << "OpusSoundFile::cb_seek: " << offset << " END" << std::endl;
-      if (!opus.m_istream->seekg(offset, std::ios::end))
+      if (!opus.m_istream->seekg(offset, std::ios::end)) {
         return -1;
+      }
       break;
 
     default:
+      std::cerr << "OpusSoundFile: seek failure: <unknown>\n";
       return -1;
   }
   return 0;
