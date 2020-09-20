@@ -62,7 +62,7 @@ public:
                                      SoundSourceType type);
 
 private:
-  static ALuint load_file_into_buffer(std::filesystem::path const& filename);
+  ALuint load_file_into_buffer(std::filesystem::path const& filename);
 
 private:
   OpenALSystem m_openal;

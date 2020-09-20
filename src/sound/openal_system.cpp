@@ -27,7 +27,8 @@
 OpenALSystem::OpenALSystem() :
   m_device(nullptr),
   m_context(nullptr),
-  m_sound_enabled(false)
+  m_sound_enabled(false),
+  m_buffers()
 {
   try
   {
@@ -66,15 +67,35 @@ OpenALSystem::OpenALSystem() :
 
 OpenALSystem::~OpenALSystem()
 {
-  if (m_context)
-  {
+  alDeleteBuffers(static_cast<ALsizei>(m_buffers.size()), m_buffers.data());
+  m_buffers.clear();
+
+  if (m_context) {
     alcDestroyContext(m_context);
   }
 
-  if (m_device)
-  {
+  if (m_device) {
     alcCloseDevice(m_device);
   }
+}
+
+ALuint
+OpenALSystem::create_buffer(ALenum format,
+                            ALvoid const* data,
+                            ALsizei size,
+                            ALsizei freq)
+{
+  ALuint buffer;
+  alGenBuffers(1, &buffer);
+  OpenALSystem::check_al_error("Couldn't create audio buffer: ");
+
+  alBufferData(buffer, format, data, size, freq);
+
+  OpenALSystem::check_al_error("Couldn't fill audio buffer: ");
+
+  m_buffers.push_back(buffer);
+
+  return buffer;
 }
 
 void

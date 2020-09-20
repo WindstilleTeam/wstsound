@@ -21,6 +21,7 @@
 #define HEADER_WINDSTILLE_SOUND_OPENAL_SYSTEM_HPP
 
 #include <map>
+#include <vector>
 
 #include <alc.h>
 #include <al.h>
@@ -45,12 +46,16 @@ public:
 
   bool sound_enabled() const { return m_sound_enabled; }
 
+  /** Create an OpenAL buffer, the returned handle is held by
+      OpenALSystem and must not be deleted */
+  ALuint create_buffer(ALenum format, ALvoid const* data, ALsizei size, ALsizei freq);
   void update();
 
 private:
   ALCdevice*  m_device;
   ALCcontext* m_context;
   bool m_sound_enabled;
+  std::vector<ALuint> m_buffers;
 
 public:
   OpenALSystem(const OpenALSystem&) = delete;

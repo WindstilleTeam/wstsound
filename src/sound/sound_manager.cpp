@@ -43,42 +43,20 @@ SoundManager::~SoundManager()
   for(std::unique_ptr<SoundChannel>& channel : m_channels) {
     channel->clear();
   }
-
-  for(auto const& it : m_buffers)
-  {
-    alDeleteBuffers(1, &it.second);
-  }
 }
 
 ALuint
 SoundManager::load_file_into_buffer(std::filesystem::path const& filename)
 {
-  // open sound file
   std::unique_ptr<SoundFile> file(SoundFile::from_file(filename));
 
-  ALenum format = OpenALSystem::get_sample_format(file.get());
-  ALuint buffer;
-  alGenBuffers(1, &buffer);
-  OpenALSystem::check_al_error("Couldn't create audio buffer: ");
+  std::vector<char> samples(file->get_size());
+  file->read(samples.data(), file->get_size());
 
-  try
-  {
-    std::vector<char> samples(file->get_size());
-
-    file->read(samples.data(), file->get_size());
-
-    alBufferData(buffer, format, samples.data(),
-                 static_cast<ALsizei>(file->get_size()),
-                 file->get_rate());
-
-    OpenALSystem::check_al_error("Couldn't fill audio buffer: ");
-  }
-  catch(...)
-  {
-    throw;
-  }
-
-  return buffer;
+  return m_openal.create_buffer(OpenALSystem::get_sample_format(file.get()),
+                                samples.data(),
+                                static_cast<ALsizei>(file->get_size()),
+                                file->get_rate());
 }
 
 SoundSourcePtr
