@@ -170,15 +170,6 @@ SoundManager::create_sound_source(std::filesystem::path const& filename, SoundCh
 }
 
 void
-SoundManager::enable_sound(bool enable)
-{
-  if (m_device)
-  {
-    m_sound_enabled = enable;
-  }
-}
-
-void
 SoundManager::set_listener_position(float x, float y, float z)
 {
   alListener3f(AL_POSITION, x, y, z);

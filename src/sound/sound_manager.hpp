@@ -40,8 +40,6 @@ public:
   SoundManager();
   ~SoundManager();
 
-  void enable_sound(bool sound_enabled);
-
   void set_listener_position(float x, float y, float z);
   void set_listener_velocity(float x, float y, float z);
 
