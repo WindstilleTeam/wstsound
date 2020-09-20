@@ -34,8 +34,9 @@ void print_usage(int argc, char** argv)
 {
   std::cout << "Usage: " << argv[0] << " [OPTION]... SOUNDS...\n"
             << "\n"
-            << "  --help   Display this help text\n"
-            << "  --loop   Loopt the sound\n";
+            << "  --help      Display this help text\n"
+            << "  --loop      Loopt the sound\n"
+            << "  --seek SEC  Seek to position SEC\n";
 }
 
 } // namespace
@@ -51,6 +52,7 @@ int main(int argc, char** argv)
   {
     bool loop = false;
     SoundSourceType source_type = SoundSourceType::STREAM;
+    float seek = 0;
 
     std::vector<std::string> files;
     for (int i = 1; i < argc; ++i) {
@@ -64,6 +66,11 @@ int main(int argc, char** argv)
           source_type = SoundSourceType::STREAM;
         } else if (strcmp(argv[i], "--static") == 0) {
           source_type = SoundSourceType::STATIC;
+        } else if (strcmp(argv[i], "--seek") == 0) {
+          if (++i >= argc) {
+            throw std::runtime_error("--seek needs an argument");
+          }
+          seek = std::stof(argv[i]);
         } else {
           std::cerr << "error: unknown option " << argv[i] << std::endl;
         }
@@ -83,6 +90,9 @@ int main(int argc, char** argv)
     {
       SoundSourcePtr source = sound_manager.sound().prepare(filename, source_type);
       source->set_looping(loop);
+      if (seek != 0) {
+        source->seek_to(seek);
+      }
       sources.emplace_back(source);
     }
 
@@ -92,7 +102,7 @@ int main(int argc, char** argv)
 
     while (!sources.empty()) {
       for (auto& source : sources) {
-        std::cout << "pos: " << source->get_pos() << " / " << source->get_duration() << std::endl;
+        std::cout << "pos: " << source->get_sample_pos() << " / " << source->get_sample_duration() << std::endl;
       }
 
       std::erase_if(sources, [](SoundSourcePtr const& source){
