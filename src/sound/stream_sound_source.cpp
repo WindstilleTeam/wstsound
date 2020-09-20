@@ -28,7 +28,7 @@ StreamSoundSource::StreamSoundSource(SoundChannel& channel, std::unique_ptr<Soun
   OpenALSoundSource(channel),
   m_sound_file(std::move(sound_file)),
   m_buffers(),
-  m_format(SoundManager::get_sample_format(m_sound_file.get())),
+  m_format(OpenALSystem::get_sample_format(m_sound_file.get())),
   m_looping(false),
   m_total_buffers_processed(0),
   m_fade_state(),
@@ -37,7 +37,7 @@ StreamSoundSource::StreamSoundSource(SoundChannel& channel, std::unique_ptr<Soun
   m_total_time(0.0f)
 {
   alGenBuffers(static_cast<ALsizei>(m_buffers.size()), m_buffers.data());
-  SoundManager::check_al_error("Couldn't allocate audio buffers: ");
+  OpenALSystem::check_al_error("Couldn't allocate audio buffers: ");
 }
 
 StreamSoundSource::~StreamSoundSource()
@@ -45,7 +45,7 @@ StreamSoundSource::~StreamSoundSource()
   stop();
 
   alDeleteBuffers(static_cast<ALsizei>(m_buffers.size()), m_buffers.data());
-  SoundManager::check_al_error("Couldn't delete audio buffers: ");
+  OpenALSystem::check_al_error("Couldn't delete audio buffers: ");
 }
 
 void
@@ -65,7 +65,7 @@ StreamSoundSource::seek_to(float sec)
   { // FIXME: clear the buffer or not on seek? see ov_time_seek_lap()
     // in OggSoundFile for possible reason why jumping might not be a good idea
     alSourceUnqueueBuffers(m_source, static_cast<ALsizei>(m_buffers.size()), m_buffers.data());
-    SoundManager::check_al_error("Couldn't unqueue audio buffers: ");
+    OpenALSystem::check_al_error("Couldn't unqueue audio buffers: ");
 
     for(auto const& buffer : m_buffers) {
       fill_buffer_and_queue(buffer);
@@ -130,7 +130,7 @@ StreamSoundSource::update(float delta)
 
         ALuint buffer;
         alSourceUnqueueBuffers(m_source, 1, &buffer);
-        SoundManager::check_al_error("Couldn't unqueue audio buffer: ");
+        OpenALSystem::check_al_error("Couldn't unqueue audio buffer: ");
 
         fill_buffer_and_queue(buffer);
       }
@@ -208,11 +208,11 @@ StreamSoundSource::fill_buffer_and_queue(ALuint buffer)
   {
     // upload data to the OpenAL buffer
     alBufferData(buffer, m_format, bufferdata.data(), static_cast<ALsizei>(total_bytesread), m_sound_file->get_rate());
-    SoundManager::check_al_error("Couldn't refill audio buffer: ");
+    OpenALSystem::check_al_error("Couldn't refill audio buffer: ");
 
     // add buffer to the queue of this source
     alSourceQueueBuffers(m_source, 1, &buffer);
-    SoundManager::check_al_error("Couldn't queue audio buffer: ");
+    OpenALSystem::check_al_error("Couldn't queue audio buffer: ");
   }
 }
 

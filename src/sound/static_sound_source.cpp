@@ -49,7 +49,7 @@ StaticSoundSource::StaticSoundSource(SoundChannel& channel, ALuint buffer) :
   m_duration(buffer_get_duration(buffer))
 {
   alSourcei(m_source, AL_BUFFER, buffer);
-  SoundManager::check_al_error("StaticSoundSource: ");
+  OpenALSystem::check_al_error("StaticSoundSource: ");
 }
 
 /* EOF */

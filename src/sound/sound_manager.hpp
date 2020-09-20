@@ -25,9 +25,7 @@
 #include <vector>
 #include <map>
 
-#include <alc.h>
-#include <al.h>
-
+#include "sound/openal_system.hpp"
 #include "sound/sound_channel.hpp"
 
 class SoundFile;
@@ -63,25 +61,15 @@ public:
                                      SoundChannel& channel,
                                      SoundSourceType type);
 
-public:
-  static void check_al_error(const char* message);
-  static ALenum get_sample_format(SoundFile* file);
-
 private:
   static ALuint load_file_into_buffer(std::filesystem::path const& filename);
 
-  void print_openal_version();
-  void check_alc_error(const char* message);
-
-  ALCdevice*  m_device;
-  ALCcontext* m_context;
-  bool m_sound_enabled;
-
+private:
+  OpenALSystem m_openal;
   std::vector<std::unique_ptr<SoundChannel> > m_channels;
-
   std::map<std::filesystem::path, ALuint> m_buffers;
 
-private:
+public:
   SoundManager(const SoundManager&);
   SoundManager& operator=(const SoundManager&);
 };

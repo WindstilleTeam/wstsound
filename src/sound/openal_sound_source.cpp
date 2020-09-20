@@ -29,7 +29,7 @@ OpenALSoundSource::OpenALSoundSource(SoundChannel& channel) :
   m_gain(1.0f)
 {
   alGenSources(1, &m_source);
-  SoundManager::check_al_error("Couldn't create audio source: ");
+  OpenALSystem::check_al_error("Couldn't create audio source: ");
   set_reference_distance(128);
 }
 
@@ -37,7 +37,7 @@ OpenALSoundSource::~OpenALSoundSource()
 {
   stop();
   alDeleteSources(1, &m_source);
-  SoundManager::check_al_error("Couldn't delete source: ");
+  OpenALSystem::check_al_error("Couldn't delete source: ");
 }
 
 void
@@ -45,14 +45,14 @@ OpenALSoundSource::stop()
 {
   alSourceStop(m_source);
   alSourcei(m_source, AL_BUFFER, AL_NONE);
-  SoundManager::check_al_error("Problem stopping audio source: ");
+  OpenALSystem::check_al_error("Problem stopping audio source: ");
 }
 
 void
 OpenALSoundSource::play()
 {
   alSourcePlay(m_source);
-  SoundManager::check_al_error("Couldn't start audio source: ");
+  OpenALSystem::check_al_error("Couldn't start audio source: ");
 }
 
 void
@@ -60,7 +60,7 @@ OpenALSoundSource::seek_to(float sec)
 {
   // FIXME: Need to be adopted for streaming sound
   alSourcef(m_source, AL_SEC_OFFSET, sec);
-  SoundManager::check_al_error("OpenALSoundSource::seek_to: ");
+  OpenALSystem::check_al_error("OpenALSoundSource::seek_to: ");
 }
 
 float
@@ -68,7 +68,7 @@ OpenALSoundSource::get_pos() const
 {
   float sec = 0.0f;
   alGetSourcef(m_source, AL_SEC_OFFSET, &sec);
-  SoundManager::check_al_error("OpenALSoundSource::get_pos: ");
+  OpenALSystem::check_al_error("OpenALSoundSource::get_pos: ");
   return sec;
 }
 
@@ -77,7 +77,7 @@ OpenALSoundSource::get_sample_pos() const
 {
   ALint sample_pos;
   alGetSourcei(m_source, AL_SAMPLE_OFFSET, &sample_pos);
-  SoundManager::check_al_error("OpenALSoundSource::get_sample_pos: ");
+  OpenALSystem::check_al_error("OpenALSoundSource::get_sample_pos: ");
   return sample_pos;
 }
 
@@ -93,21 +93,21 @@ void
 OpenALSoundSource::set_looping(bool looping)
 {
   alSourcei(m_source, AL_LOOPING, looping ? AL_TRUE : AL_FALSE);
-  SoundManager::check_al_error("OpenALSoundSource::set_looping: ");
+  OpenALSystem::check_al_error("OpenALSoundSource::set_looping: ");
 }
 
 void
 OpenALSoundSource::set_position(float x, float y, float z)
 {
   alSource3f(m_source, AL_POSITION, x, y, z);
-  SoundManager::check_al_error("OpenALSoundSource::set_position: ");
+  OpenALSystem::check_al_error("OpenALSoundSource::set_position: ");
 }
 
 void
 OpenALSoundSource::set_velocity(float x, float y, float z)
 {
   alSource3f(m_source, AL_VELOCITY, x, y, z);
-  SoundManager::check_al_error("OpenALSoundSource::set_velocity: ");
+  OpenALSystem::check_al_error("OpenALSoundSource::set_velocity: ");
 }
 
 void
@@ -115,7 +115,7 @@ OpenALSoundSource::set_gain(float gain)
 {
   m_gain = gain;
   alSourcef(m_source, AL_GAIN, m_channel.get_gain() * m_gain);
-  SoundManager::check_al_error("OpenALSoundSource::set_gain: ");
+  OpenALSystem::check_al_error("OpenALSoundSource::set_gain: ");
 }
 
 float
@@ -128,21 +128,21 @@ void
 OpenALSoundSource::set_reference_distance(float distance)
 {
   alSourcef(m_source, AL_REFERENCE_DISTANCE, distance);
-  SoundManager::check_al_error("OpenALSoundSource::set_reference_distance: ");
+  OpenALSystem::check_al_error("OpenALSoundSource::set_reference_distance: ");
 }
 
 void
 OpenALSoundSource::set_rolloff_factor(float factor)
 {
   alSourcef(m_source, AL_ROLLOFF_FACTOR, factor);
-  SoundManager::check_al_error("OpenALSoundSource::set_rolloff_factor: ");
+  OpenALSystem::check_al_error("OpenALSoundSource::set_rolloff_factor: ");
 }
 
 void
 OpenALSoundSource::update_gain() const
 {
   alSourcef(m_source, AL_GAIN, m_channel.get_gain() * get_gain());
-  SoundManager::check_al_error("OpenALSoundSource::update_gain: ");
+  OpenALSystem::check_al_error("OpenALSoundSource::update_gain: ");
 }
 
 /* EOF */

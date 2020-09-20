@@ -22,52 +22,17 @@
 #include <iostream>
 #include <sstream>
 
+#include "sound/openal_system.hpp"
 #include "sound/sound_file.hpp"
-#include "sound/stream_sound_source.hpp"
-#include "sound/static_sound_source.hpp"
 #include "sound/sound_manager.hpp"
+#include "sound/static_sound_source.hpp"
+#include "sound/stream_sound_source.hpp"
 
-
 SoundManager::SoundManager() :
-  m_device(nullptr),
-  m_context(nullptr),
-  m_sound_enabled(false),
+  m_openal(),
   m_channels(),
   m_buffers()
 {
-  try
-  {
-    m_device = alcOpenDevice(nullptr);
-
-    if (!m_device)
-    {
-      print_openal_version();
-      throw std::runtime_error("Couldn't open audio device.");
-    }
-    else
-    {
-      m_context = alcCreateContext(m_device, nullptr);
-      check_alc_error("Couldn't create audio context: ");
-
-      alcMakeContextCurrent(m_context);
-      check_alc_error("Couldn't select audio context: ");
-
-      check_al_error("Audio error after init: ");
-      m_sound_enabled = true;
-    }
-  }
-  catch(std::exception& e)
-  { // disable sound
-    m_device  = nullptr;
-    m_context = nullptr;
-    m_sound_enabled = false;
-
-    std::cerr << "Couldn't initialize audio device:" << e.what() << "\n";
-    print_openal_version();
-
-    std::cout << "Disabling sound\n";
-  }
-
   m_channels.emplace_back(std::make_unique<SoundChannel>(*this));
   m_channels.emplace_back(std::make_unique<SoundChannel>(*this));
   m_channels.emplace_back(std::make_unique<SoundChannel>(*this));
@@ -83,16 +48,6 @@ SoundManager::~SoundManager()
   {
     alDeleteBuffers(1, &it.second);
   }
-
-  if (m_context)
-  {
-    alcDestroyContext(m_context);
-  }
-
-  if (m_device)
-  {
-    alcCloseDevice(m_device);
-  }
 }
 
 ALuint
@@ -101,10 +56,10 @@ SoundManager::load_file_into_buffer(std::filesystem::path const& filename)
   // open sound file
   std::unique_ptr<SoundFile> file(SoundFile::from_file(filename));
 
-  ALenum format = get_sample_format(file.get());
+  ALenum format = OpenALSystem::get_sample_format(file.get());
   ALuint buffer;
   alGenBuffers(1, &buffer);
-  check_al_error("Couldn't create audio buffer: ");
+  OpenALSystem::check_al_error("Couldn't create audio buffer: ");
 
   try
   {
@@ -116,7 +71,7 @@ SoundManager::load_file_into_buffer(std::filesystem::path const& filename)
                  static_cast<ALsizei>(file->get_size()),
                  file->get_rate());
 
-    check_al_error("Couldn't fill audio buffer: ");
+    OpenALSystem::check_al_error("Couldn't fill audio buffer: ");
   }
   catch(...)
   {
@@ -130,7 +85,7 @@ SoundSourcePtr
 SoundManager::create_sound_source(std::filesystem::path const& filename, SoundChannel& channel,
                                   SoundSourceType type)
 {
-  if (!m_sound_enabled)
+  if (!m_openal.sound_enabled())
   {
     return SoundSourcePtr();
   }
@@ -194,85 +149,7 @@ SoundManager::update(float delta)
     channel->update(delta);
   }
 
-  if (m_sound_enabled)
-  {
-    alcProcessContext(m_context);
-    check_alc_error("Error while processing audio context: ");
-  }
+  m_openal.update();
 }
 
-ALenum
-SoundManager::get_sample_format(SoundFile* file)
-{
-  if (file->get_channels() == 2)
-  {
-    if (file->get_bits_per_sample() == 16)
-    {
-      return AL_FORMAT_STEREO16;
-    }
-    else if (file->get_bits_per_sample() == 8)
-    {
-      return AL_FORMAT_STEREO8;
-    }
-    else
-    {
-      throw std::runtime_error("Only 16 and 8 bit samples supported");
-    }
-  }
-  else if (file->get_channels() == 1)
-  {
-    if (file->get_bits_per_sample() == 16)
-    {
-      return AL_FORMAT_MONO16;
-    }
-    else if (file->get_bits_per_sample() == 8)
-    {
-      return AL_FORMAT_MONO8;
-    }
-    else
-    {
-      throw std::runtime_error("Only 16 and 8 bit samples supported");
-    }
-  }
-  else
-  {
-    throw std::runtime_error("Only 1 and 2 channel samples supported");
-  }
-}
-
-void
-SoundManager::print_openal_version()
-{
-  std::cout << "OpenAL Vendor: " << alGetString(AL_VENDOR) << "\n"
-            << "OpenAL Version: " << alGetString(AL_VERSION) << "\n"
-            << "OpenAL Renderer: " << alGetString(AL_RENDERER) << "\n"
-            << "OpenAL Extensions: " << alGetString(AL_RENDERER) << "\n";
-}
-
-void
-SoundManager::check_alc_error(const char* message)
-{
-  int err = alcGetError(m_device);
-
-  if (err != ALC_NO_ERROR)
-  {
-    std::stringstream msg;
-    msg << message << alcGetString(m_device, err);
-    throw std::runtime_error(msg.str());
-  }
-}
-
-void
-SoundManager::check_al_error(const char* message)
-{
-  int err = alGetError();
-
-  if (err != AL_NO_ERROR)
-  {
-    std::stringstream msg;
-    msg << message << alGetString(err);
-    throw std::runtime_error(msg.str());
-  }
-}
-
 /* EOF */
