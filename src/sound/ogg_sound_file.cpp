@@ -128,7 +128,6 @@ OggSoundFile::seek_to_sample(int sample)
 size_t
 OggSoundFile::cb_read(void* ptr, size_t size, size_t nmemb, void* userdata)
 {
-  //std::cout << "OggSoundFile::cb_read: " << size * nmemb << std::endl;
   OggSoundFile& ogg = *reinterpret_cast<OggSoundFile*>(userdata);
 
   size_t read_len = size * nmemb;
@@ -149,19 +148,16 @@ OggSoundFile::cb_seek(void* userdata, ogg_int64_t offset, int whence)
   switch(whence)
   {
     case SEEK_SET:
-      //std::cout << "OggSoundFile::cb_seek: " << offset << " BEG" << std::endl;
       if (!ogg.m_istream->seekg(offset, std::ios::beg))
         return -1;
       break;
 
     case SEEK_CUR:
-      //std::cout << "OggSoundFile::cb_seek: " << offset << " CUR" << std::endl;
       if (!ogg.m_istream->seekg(offset, std::ios::cur))
         return -1;
       break;
 
     case SEEK_END:
-      //std::cout << "OggSoundFile::cb_seek: " << offset << " END" << std::endl;
       if (!ogg.m_istream->seekg(offset, std::ios::end))
         return -1;
       break;
@@ -175,7 +171,6 @@ OggSoundFile::cb_seek(void* userdata, ogg_int64_t offset, int whence)
 int
 OggSoundFile::cb_close(void* userdata)
 {
-  //std::cout << "OggSoundFile::cb_close" << std::endl;
   OggSoundFile& ogg = *reinterpret_cast<OggSoundFile*>(userdata);
 
   ogg.m_istream.reset();
@@ -186,7 +181,6 @@ OggSoundFile::cb_close(void* userdata)
 long
 OggSoundFile::cb_tell(void* userdata)
 {
-  //std::cout << "OggSoundFile::cb_tell" << std::endl;
   OggSoundFile& ogg = *reinterpret_cast<OggSoundFile*>(userdata);
   return static_cast<long>(ogg.m_istream->tellg());
 }

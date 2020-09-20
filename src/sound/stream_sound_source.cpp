@@ -82,7 +82,6 @@ StreamSoundSource::seek_to_sample(int sample)
     alSourceUnqueueBuffers(m_source, processed, unqueue_buffers.data());
     OpenALSystem::check_al_error("Couldn't unqueue audio buffer: ");
 
-    std::cout << "processed: " << processed << std::endl;
     for(int i = 0; i < processed; ++i) {
       fill_buffer_and_queue(unqueue_buffers[i]);
     }
