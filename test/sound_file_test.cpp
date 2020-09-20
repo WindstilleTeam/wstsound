@@ -22,6 +22,23 @@
 #include "sound/opus_sound_file.hpp"
 #include "sound/wav_sound_file.hpp"
 
+namespace {
+
+size_t get_real_sample_duration(SoundFile& soundfile) {
+  size_t total_bytesread = 0;
+  while (true) {
+    std::array<char, 1024 * 64> buffer;
+    size_t const bytesread = soundfile.read(buffer.data(), buffer.size());
+    if (bytesread == 0) {
+      break;
+    }
+    total_bytesread += bytesread;
+  }
+  return total_bytesread / soundfile.get_channels() / (soundfile.get_bits_per_sample() / 8);
+}
+
+} // namespace
+
 TEST(SoundFileTest, wav)
 {
   auto fin = std::make_unique<std::ifstream>("data/sound.wav");
@@ -32,6 +49,7 @@ TEST(SoundFileTest, wav)
   EXPECT_EQ(sound_file.get_rate(), 44100);
   EXPECT_EQ(sound_file.get_channels(), 1);
   EXPECT_FLOAT_EQ(sound_file.get_duration(), 0.25836736f);
+  EXPECT_EQ(sound_file.get_sample_duration(), get_real_sample_duration(sound_file));
 }
 
 TEST(SoundFileTest, ogg)
@@ -44,6 +62,7 @@ TEST(SoundFileTest, ogg)
   EXPECT_EQ(sound_file.get_rate(), 44100);
   EXPECT_EQ(sound_file.get_channels(), 1);
   EXPECT_FLOAT_EQ(sound_file.get_duration(), 0.25836736f);
+  EXPECT_EQ(sound_file.get_sample_duration(), get_real_sample_duration(sound_file));
 }
 
 TEST(SoundFileTest, opus)
@@ -56,6 +75,7 @@ TEST(SoundFileTest, opus)
   EXPECT_EQ(sound_file.get_rate(), 48000);
   EXPECT_EQ(sound_file.get_channels(), 1);
   EXPECT_FLOAT_EQ(sound_file.get_duration(), 0.25837499f);
+  EXPECT_EQ(sound_file.get_sample_duration(), get_real_sample_duration(sound_file));
 }
 
 /* EOF */
