@@ -20,6 +20,7 @@
 #ifndef HEADER_WINDSTILLE_SOUND_OPENAL_SYSTEM_HPP
 #define HEADER_WINDSTILLE_SOUND_OPENAL_SYSTEM_HPP
 
+#include <iosfwd>
 #include <map>
 #include <vector>
 
@@ -41,7 +42,7 @@ public:
   ALCdevice*  device() { return m_device; }
   ALCcontext* context() { return m_context; }
 
-  void print_openal_version();
+  void print_openal_version(std::ostream& out);
   void check_alc_error(char const* message);
 
   bool is_dummy() const { return m_device == nullptr; }

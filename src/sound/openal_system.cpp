@@ -35,7 +35,7 @@ OpenALSystem::OpenALSystem() :
 
     if (!m_device)
     {
-      print_openal_version();
+      print_openal_version(std::cerr);
       throw std::runtime_error("Couldn't open audio device.");
     }
     else
@@ -55,9 +55,9 @@ OpenALSystem::OpenALSystem() :
     m_context = nullptr;
 
     std::cerr << "Couldn't initialize audio device:" << e.what() << "\n";
-    print_openal_version();
+    print_openal_version(std::cerr);
 
-    std::cout << "Disabling sound\n";
+    std::cerr << "Disabling sound\n";
   }
 
 }
@@ -144,12 +144,12 @@ OpenALSystem::get_sample_format(SoundFile* file)
 }
 
 void
-OpenALSystem::print_openal_version()
+OpenALSystem::print_openal_version(std::ostream& out)
 {
-  std::cout << "OpenAL Vendor: " << alGetString(AL_VENDOR) << "\n"
-            << "OpenAL Version: " << alGetString(AL_VERSION) << "\n"
-            << "OpenAL Renderer: " << alGetString(AL_RENDERER) << "\n"
-            << "OpenAL Extensions: " << alGetString(AL_RENDERER) << "\n";
+  out << "OpenAL Vendor: " << alGetString(AL_VENDOR) << "\n"
+      << "OpenAL Version: " << alGetString(AL_VERSION) << "\n"
+      << "OpenAL Renderer: " << alGetString(AL_RENDERER) << "\n"
+      << "OpenAL Extensions: " << alGetString(AL_RENDERER) << "\n";
 }
 
 void
