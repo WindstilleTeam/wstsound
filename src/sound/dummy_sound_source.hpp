@@ -33,6 +33,7 @@ public:
   bool is_playing() const override { return false; }
 
   float get_duration() const override { return 0.0f; }
+  int get_sample_duration() const override { return 0; }
 
   void set_looping(bool looping) override {}
 
@@ -41,6 +42,7 @@ public:
   float get_gain() const override { return 1.0f; }
 
   void  seek_to(float sec) override {}
+  void  seek_to_sample(int sample) override {}
 
   /** Return the current position in seconds */
   float get_pos() const override { return 0.0f; }

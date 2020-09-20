@@ -39,18 +39,25 @@ public:
 
   void play() override;
   void update(float delta) override;
-  void seek_to(float sec) override;
+  void seek_to(float sec);
+  void seek_to_sample(int sample) override;
   void set_looping(bool looping) override;
 
   float get_pos() const override;
-  int   get_sample_pos() const override;
   float get_duration() const override;
+
+  int   get_sample_pos() const override;
+  int   get_sample_duration() const override;
 
   void set_fading(FadeState state, float fadetime);
   FadeState get_fade_state() const { return m_fade_state; }
 
 private:
   void fill_buffer_and_queue(ALuint buffer);
+
+  int samples_per_buffer() const;
+  int sec_to_sample(float sec) const;
+  float sample_to_sec(int sample) const;
 
 private:
   static const size_t STREAMFRAGMENTS    = 4;

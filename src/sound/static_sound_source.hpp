@@ -28,9 +28,11 @@ public:
   ~StaticSoundSource() override {}
 
   float get_duration() const { return m_duration; }
+  int get_sample_duration() const { return m_sample_duration; }
 
 private:
   float m_duration;
+  int m_sample_duration;
 
 private:
   StaticSoundSource(const StaticSoundSource&);

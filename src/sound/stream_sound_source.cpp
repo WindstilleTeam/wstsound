@@ -76,22 +76,22 @@ StreamSoundSource::seek_to(float sec)
 float
 StreamSoundSource::get_pos() const
 {
-  return static_cast<float>(get_sample_pos()) / static_cast<float>(m_sound_file->get_rate());
+  return sample_to_sec(get_sample_pos());
 }
 
 int
 StreamSoundSource::get_sample_pos() const
 {
-  int samples_total = m_total_buffers_processed * (static_cast<int>(STREAMFRAGMENTSIZE)
-                                                   / m_sound_file->get_channels()
-                                                   / (m_sound_file->get_bits_per_sample()/8));
+  ALint sample_offset;
+  alGetSourcei(m_source, AL_SAMPLE_OFFSET, &sample_offset);
 
-  ALint sample_pos;
-  alGetSourcei(m_source, AL_SAMPLE_OFFSET, &sample_pos);
+  return (m_total_samples_processed + sample_offset);
+}
 
-  return (samples_total + sample_pos) % (static_cast<int>(m_sound_file->get_size())
-                                         / m_sound_file->get_channels()
-                                         / (m_sound_file->get_bits_per_sample()/8));
+int
+StreamSoundSource::get_sample_duration() const
+{
+  return m_sound_file->get_sample_duration();
 }
 
 float
@@ -214,6 +214,26 @@ StreamSoundSource::fill_buffer_and_queue(ALuint buffer)
     alSourceQueueBuffers(m_source, 1, &buffer);
     OpenALSystem::check_al_error("Couldn't queue audio buffer: ");
   }
+}
+
+float
+StreamSoundSource::sample_to_sec(int sample) const
+{
+  return static_cast<float>(sample) / static_cast<float>(m_sound_file->get_rate());
+}
+
+int
+StreamSoundSource::sec_to_sample(float sec) const
+{
+  return static_cast<int>(sec * static_cast<float>(m_sound_file->get_rate()));
+}
+
+int
+StreamSoundSource::samples_per_buffer() const
+{
+  return (8 * static_cast<int>(STREAMFRAGMENTSIZE)
+          / m_sound_file->get_channels()
+          / m_sound_file->get_bits_per_sample());
 }
 
 /* EOF */

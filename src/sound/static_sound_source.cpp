@@ -22,6 +22,23 @@
 
 namespace {
 
+int buffer_get_sample_duration(ALuint buffer)
+{
+  ALint frequency;
+  alGetBufferi(buffer, AL_FREQUENCY, &frequency);
+
+  ALint bits;
+  alGetBufferi(buffer, AL_BITS, &bits);
+
+  ALint channels;
+  alGetBufferi(buffer, AL_CHANNELS, &channels);
+
+  ALint size;
+  alGetBufferi(buffer, AL_SIZE, &size);
+
+  return 8 * size / channels / bits;
+}
+
 float buffer_get_duration(ALuint buffer)
 {
   ALint frequency;
@@ -46,7 +63,8 @@ float buffer_get_duration(ALuint buffer)
 
 StaticSoundSource::StaticSoundSource(SoundChannel& channel, ALuint buffer) :
   OpenALSoundSource(channel),
-  m_duration(buffer_get_duration(buffer))
+  m_duration(buffer_get_duration(buffer)),
+  m_sample_duration(buffer_get_sample_duration(buffer))
 {
   alSourcei(m_source, AL_BUFFER, buffer);
   OpenALSystem::check_al_error("StaticSoundSource: ");

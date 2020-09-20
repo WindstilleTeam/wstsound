@@ -31,6 +31,7 @@ public:
   virtual bool is_playing() const = 0;
 
   virtual float get_duration() const = 0;
+  virtual int get_sample_duration() const = 0;
 
   virtual void set_looping(bool looping) = 0;
 
@@ -38,6 +39,7 @@ public:
   virtual void  set_gain(float gain) = 0;
   virtual float get_gain() const = 0;
 
+  virtual void  seek_to_sample(int sample) = 0;
   virtual void  seek_to(float sec) = 0;
 
   /** Return the current position in seconds */

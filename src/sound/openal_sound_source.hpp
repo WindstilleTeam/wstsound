@@ -42,6 +42,7 @@ public:
   float get_gain() const override;
 
   void  seek_to(float sec) override;
+  void  seek_to_sample(int sample) override;
 
   /** Return the current position in seconds */
   float get_pos() const override;

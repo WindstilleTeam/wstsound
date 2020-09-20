@@ -58,9 +58,15 @@ OpenALSoundSource::play()
 void
 OpenALSoundSource::seek_to(float sec)
 {
-  // FIXME: Need to be adopted for streaming sound
   alSourcef(m_source, AL_SEC_OFFSET, sec);
   OpenALSystem::check_al_error("OpenALSoundSource::seek_to: ");
+}
+
+void
+OpenALSoundSource::seek_to_sample(int sample)
+{
+  alSourcei(m_source, AL_SAMPLE_OFFSET, sample);
+  OpenALSystem::check_al_error("OpenALSoundSource::seek_to_sample: ");
 }
 
 float
