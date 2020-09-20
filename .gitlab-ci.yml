@@ -34,6 +34,7 @@ before_script:
     libopenal-dev
     libvorbis-dev
     libopusfile-dev
+    libgtest-dev
 
 .build_wstsound_template: &build_wstsound
   stage: build
@@ -42,7 +43,7 @@ before_script:
     - cd build
     - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DWARNINGS=ON -DWERROR=ON -DBUILD_TESTS=ON -DBUILD_EXTRA=ON
     - make -k VERBOSE=1
-    # - make test VERBOSE=1 ARGS="-V"
+    - make test VERBOSE=1 ARGS="-V"
 
 build:gcc:release:
   <<: *build_wstsound

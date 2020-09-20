@@ -38,7 +38,6 @@ pkg_search_module(VORBISFILE REQUIRED vorbisfile IMPORTED_TARGET)
 
 pkg_search_module(OPUSFILE REQUIRED opusfile IMPORTED_TARGET)
 
-# compile libgalapix
 file(GLOB WSTSOUND_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
   src/sound/*.cpp)
 add_library(wstsound STATIC ${WSTSOUND_SOURCES})
@@ -57,6 +56,28 @@ target_link_libraries(wstsound PUBLIC
   PkgConfig::VORBISFILE
   PkgConfig::OPUSFILE
   Threads::Threads)
+
+if(BUILD_TESTS)
+  find_package(GTest REQUIRED)
+
+  # build automatic tests
+  file(GLOB TEST_WSTSOUND_SOURCES test/*_test.cpp)
+  add_executable(test_wstsound ${TEST_WSTSOUND_SOURCES})
+  target_compile_options(test_wstsound PRIVATE ${WARNINGS_CXX_FLAGS})
+  set_target_properties(test_wstsound PROPERTIES
+      CXX_STANDARD 20
+      CXX_STANDARD_REQUIRED ON
+      CXX_EXTENSIONS OFF)
+  target_link_libraries(test_wstsound
+    GTest::GTest
+    GTest::Main
+    wstsound)
+
+  enable_testing()
+  add_test(NAME test_wstsound
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test/
+    COMMAND test_wstsound)
+endif()
 
 if(BUILD_EXTRA)
   file(GLOB EXTRA_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
