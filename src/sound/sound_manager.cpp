@@ -31,7 +31,7 @@
 SoundManager::SoundManager() :
   m_openal(),
   m_channels(),
-  m_buffers()
+  m_buffer_cache()
 {
   m_channels.emplace_back(std::make_unique<SoundChannel>(*this));
   m_channels.emplace_back(std::make_unique<SoundChannel>(*this));
@@ -73,12 +73,12 @@ SoundManager::create_sound_source(std::filesystem::path const& filename, SoundCh
         ALuint buffer;
 
         // reuse an existing static sound buffer
-        auto it = m_buffers.find(filename);
-        if (it != m_buffers.end()) {
+        auto it = m_buffer_cache.find(filename);
+        if (it != m_buffer_cache.end()) {
           buffer = it->second;
         } else {
           buffer = load_file_into_buffer(filename);
-          m_buffers.insert(std::make_pair(filename, buffer));
+          m_buffer_cache.insert(std::make_pair(filename, buffer));
         }
 
         return SoundSourcePtr(new StaticSoundSource(channel, buffer));

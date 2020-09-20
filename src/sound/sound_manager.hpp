@@ -67,7 +67,7 @@ private:
 private:
   OpenALSystem m_openal;
   std::vector<std::unique_ptr<SoundChannel> > m_channels;
-  std::map<std::filesystem::path, ALuint> m_buffers;
+  std::map<std::filesystem::path, ALuint> m_buffer_cache;
 
 public:
   SoundManager(const SoundManager&);
