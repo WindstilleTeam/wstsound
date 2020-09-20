@@ -22,29 +22,30 @@
 #include "sound/sound_manager.hpp"
 #include "sound/sound_source.hpp"
 
-TEST(SoundSourceTest, duration)
+class SoundSourceTest : public ::testing::TestWithParam<std::string> {};
+
+TEST_P(SoundSourceTest, duration)
 {
   SoundManager mgr;
+  if (mgr.is_dummy()) { return; }
 
-  auto wav_file = SoundFile::from_file("data/sound.wav");
-  auto ogg_file = SoundFile::from_file("data/sound.ogg");
-  auto opus_file = SoundFile::from_file("data/sound.opus");
+  std::string const& filename = GetParam();
 
-  auto wav_static = mgr.sound().prepare("data/sound.wav", SoundSourceType::STATIC);
-  auto ogg_static = mgr.sound().prepare("data/sound.ogg", SoundSourceType::STATIC);
-  auto opus_static = mgr.sound().prepare("data/sound.opus", SoundSourceType::STATIC);
+  auto sound_file = SoundFile::from_file(filename);
+  auto static_source = mgr.sound().prepare(filename, SoundSourceType::STATIC);
+  auto stream_source = mgr.sound().prepare(filename, SoundSourceType::STREAM);
 
-  auto wav_stream = mgr.sound().prepare("data/sound.wav", SoundSourceType::STREAM);
-  auto ogg_stream = mgr.sound().prepare("data/sound.ogg", SoundSourceType::STREAM);
-  auto opus_stream = mgr.sound().prepare("data/sound.opus", SoundSourceType::STREAM);
-
-  EXPECT_EQ(wav_file->get_duration(), wav_static->get_duration());
-  EXPECT_EQ(ogg_file->get_duration(), ogg_static->get_duration());
-  EXPECT_EQ(opus_file->get_duration(), opus_static->get_duration());
-
-  EXPECT_EQ(wav_file->get_duration(), wav_stream->get_duration());
-  EXPECT_EQ(ogg_file->get_duration(), ogg_stream->get_duration());
-  EXPECT_EQ(opus_file->get_duration(), opus_stream->get_duration());
+  EXPECT_EQ(sound_file->get_duration(), static_source->get_duration());
+  EXPECT_EQ(sound_file->get_duration(), stream_source->get_duration());
 }
+
+INSTANTIATE_TEST_CASE_P(
+  SoundSourceTests,
+  SoundSourceTest,
+  ::testing::Values(
+    "data/sound.wav",
+    "data/sound.ogg",
+    "data/sound.opus"
+    ));
 
 /* EOF */
