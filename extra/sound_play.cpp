@@ -28,6 +28,8 @@
 #include "sound/sound_file.hpp"
 #include "sound/filtered_sound_file.hpp"
 
+namespace {
+
 void print_usage(int argc, char** argv)
 {
   std::cout << "Usage: " << argv[0] << " [OPTION]... SOUNDS...\n"
@@ -35,6 +37,8 @@ void print_usage(int argc, char** argv)
             << "  --help   Display this help text\n"
             << "  --loop   Loopt the sound\n";
 }
+
+} // namespace
 
 int main(int argc, char** argv)
 {
@@ -90,6 +94,10 @@ int main(int argc, char** argv)
       for (auto& source : sources) {
         std::cout << "pos: " << source->get_pos() << " / " << source->get_duration() << std::endl;
       }
+
+      std::erase_if(sources, [](SoundSourcePtr const& source){
+        return !source->is_playing();
+      });
 
       usleep(10000);
 
