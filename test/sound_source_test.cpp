@@ -21,8 +21,33 @@
 #include "sound/sound_file.hpp"
 #include "sound/sound_manager.hpp"
 #include "sound/sound_source.hpp"
+#include "sound/static_sound_source.hpp"
+#include "sound/stream_sound_source.hpp"
+#include "sound/dummy_sound_source.hpp"
 
 class SoundSourceTest : public ::testing::TestWithParam<std::string> {};
+
+TEST(SoundSourceTest, dummy_creation)
+{
+  SoundManager mgr;
+  auto static_source = mgr.sound().prepare("data/sound.wav", SoundSourceType::STATIC);
+  auto stream_source = mgr.sound().prepare("data/sound.wav", SoundSourceType::STREAM);
+  auto nonexistant_source = mgr.sound().prepare("data/does_not_exist.wav");
+
+  EXPECT_TRUE(static_source);
+  EXPECT_TRUE(stream_source);
+  EXPECT_TRUE(nonexistant_source);
+
+  if (mgr.is_dummy()) {
+    EXPECT_TRUE(dynamic_cast<DummySoundSource*>(static_source.get()) != nullptr);
+    EXPECT_TRUE(dynamic_cast<DummySoundSource*>(stream_source.get()) != nullptr);
+    EXPECT_TRUE(dynamic_cast<DummySoundSource*>(nonexistant_source.get()) != nullptr);
+  } else {
+    EXPECT_TRUE(dynamic_cast<StaticSoundSource*>(static_source.get()) != nullptr);
+    EXPECT_TRUE(dynamic_cast<StreamSoundSource*>(stream_source.get()) != nullptr);
+    EXPECT_TRUE(dynamic_cast<DummySoundSource*>(nonexistant_source.get()) != nullptr);
+  }
+}
 
 TEST_P(SoundSourceTest, duration)
 {
