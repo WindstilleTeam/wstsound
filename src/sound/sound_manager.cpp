@@ -40,9 +40,6 @@ SoundManager::SoundManager() :
 
 SoundManager::~SoundManager()
 {
-  for(std::unique_ptr<SoundChannel>& channel : m_channels) {
-    channel->clear();
-  }
 }
 
 ALuint
