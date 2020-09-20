@@ -218,16 +218,14 @@ StreamSoundSource::fill_buffer_and_queue(ALuint buffer)
     size_t const bytesrequested = STREAMFRAGMENTSIZE - total_bytesread;
     size_t const bytesread = m_sound_file->read(bufferdata.data() + total_bytesread,
                                                 bytesrequested);
-    total_bytesread += bytesread;
-
-    if (bytesread < bytesrequested) // EOF reached
-    {
+    if (bytesread == 0) { // EOF reached
       if (m_looping) {
         m_sound_file->reset();
       } else {
         break;
       }
     }
+    total_bytesread += bytesread;
   } while(total_bytesread < STREAMFRAGMENTSIZE);
 
   if (total_bytesread > 0)
