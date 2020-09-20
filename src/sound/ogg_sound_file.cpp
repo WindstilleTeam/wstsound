@@ -78,7 +78,7 @@ OggSoundFile::OggSoundFile(std::unique_ptr<std::istream> istream) :
   m_channels = vi->channels;
   m_rate = static_cast<int>(vi->rate);
   m_bits_per_sample = 16;
-  m_size = static_cast<size_t> (ov_pcm_total(&m_vorbis_file, -1) * 2);
+  m_size = static_cast<size_t>(ov_pcm_total(&m_vorbis_file, -1) * m_channels * m_bits_per_sample / 8);
 }
 
 OggSoundFile::~OggSoundFile()

@@ -60,7 +60,7 @@ OpusSoundFile::OpusSoundFile(std::unique_ptr<std::istream> istream) :
   }
 
   m_channels = op_channel_count(m_opus_file, -1);
-  m_size = static_cast<size_t>(op_pcm_total(m_opus_file, -1) * 2);
+  m_size = static_cast<size_t>(op_pcm_total(m_opus_file, -1) * m_channels * m_bits_per_sample / 8);
 }
 
 OpusSoundFile::~OpusSoundFile()
