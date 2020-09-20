@@ -38,6 +38,8 @@ public:
   SoundManager();
   ~SoundManager();
 
+  bool is_dummy() const { return m_openal.is_dummy(); }
+
   void set_listener_position(float x, float y, float z);
   void set_listener_velocity(float x, float y, float z);
 

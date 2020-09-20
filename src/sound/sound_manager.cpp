@@ -25,6 +25,7 @@
 #include "sound/openal_system.hpp"
 #include "sound/sound_file.hpp"
 #include "sound/sound_manager.hpp"
+#include "sound/dummy_sound_source.hpp"
 #include "sound/static_sound_source.hpp"
 #include "sound/stream_sound_source.hpp"
 
@@ -60,9 +61,9 @@ SoundSourcePtr
 SoundManager::create_sound_source(std::filesystem::path const& filename, SoundChannel& channel,
                                   SoundSourceType type)
 {
-  if (!m_openal.sound_enabled())
+  if (m_openal.is_dummy())
   {
-    return SoundSourcePtr();
+    return SoundSourcePtr(new DummySoundSource());
   }
   else
   {
