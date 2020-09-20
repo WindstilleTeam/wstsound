@@ -39,7 +39,7 @@ float buffer_get_duration(ALuint buffer)
   return static_cast<float>(size)
     / static_cast<float>(frequency)
     / static_cast<float>(channels)
-    / static_cast<float>(bits) /8.0f;
+    / static_cast<float>(bits) * 8.0f;
 }
 
 } // namespace
