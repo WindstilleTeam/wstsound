@@ -49,11 +49,20 @@ SoundManager::load_file_into_buffer(std::filesystem::path const& filename)
   std::unique_ptr<SoundFile> file(SoundFile::from_file(filename));
 
   std::vector<char> samples(file->get_size());
-  file->read(samples.data(), file->get_size());
+  size_t total_bytesread = 0;
+  while (true) {
+    size_t bytesread = file->read(samples.data() + total_bytesread, 1024 * 64);
+    if (bytesread == 0) {
+      break;
+    }
+    total_bytesread += bytesread;
+
+    assert(total_bytesread <= file->get_size());
+  }
 
   return m_openal.create_buffer(OpenALSystem::get_sample_format(file.get()),
                                 samples.data(),
-                                static_cast<ALsizei>(file->get_size()),
+                                static_cast<ALsizei>(total_bytesread),
                                 file->get_rate());
 }
 
