@@ -18,8 +18,9 @@
 
 #include "sound/sound_channel.hpp"
 
-#include <iostream>
 #include <filesystem>
+#include <iostream>
+#include <stdexcept>
 
 #include "sound/dummy_sound_source.hpp"
 #include "sound/sound_file.hpp"
@@ -47,17 +48,14 @@ SoundSourcePtr
 SoundChannel::prepare(std::filesystem::path const& filename,
                       SoundSourceType type)
 {
-  SoundSourcePtr source = m_sound_manager.create_sound_source(filename, *this, type);
-  if (!source)
-  {
-    std::cout << "SourceChannel::prepare: Couldn't load " << filename << std::endl;
-    return SoundSourcePtr(new DummySoundSource());
-  }
-  else
-  {
+  try {
+    SoundSourcePtr source = m_sound_manager.create_sound_source(filename, *this, type);
     source->update_gain();
     m_sound_sources.push_back(source);
     return source;
+  } catch(std::exception const& err) {
+    std::cout << "SourceChannel::prepare: Couldn't load " << filename << ": " << err.what() << std::endl;
+    return SoundSourcePtr(new DummySoundSource());
   }
 }
 
