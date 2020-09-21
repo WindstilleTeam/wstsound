@@ -29,6 +29,7 @@ StreamSoundSource::StreamSoundSource(SoundChannel& channel, std::unique_ptr<Soun
   m_sound_file(std::move(sound_file)),
   m_buffers(),
   m_format(OpenALSystem::get_sample_format(m_sound_file.get())),
+  m_playing(false),
   m_looping(false),
   m_total_samples_processed(0),
   m_fade_state(),
@@ -70,9 +71,6 @@ StreamSoundSource::seek_to_sample(int sample)
   m_sound_file->seek_to_sample(sample);
 
   m_total_samples_processed = sample;
-
-  ALint queued = 0;
-  alGetSourcei(m_source, AL_BUFFERS_PROCESSED, &queued);
 
   {
     ALint processed = 0;
@@ -128,6 +126,8 @@ StreamSoundSource::get_duration() const
 void
 StreamSoundSource::play()
 {
+  m_playing = true;
+
   for(auto const& buffer : m_buffers) {
     fill_buffer_and_queue(buffer);
   }
@@ -140,32 +140,31 @@ StreamSoundSource::update(float delta)
 {
   m_total_time += delta;
 
+  if (!OpenALSoundSource::is_playing() && !m_looping) {
+    m_playing = false;
+  }
+
   if (is_playing())
   {
-    // fill the buffer queue with new data
-    {
+    { // fill the buffer queue with new data
       ALint processed = 0;
       alGetSourcei(m_source, AL_BUFFERS_PROCESSED, &processed);
 
-      while (processed > 0)
-      {
-        processed--;
+      std::array<ALuint, STREAMFRAGMENTS> unqueue_buffers;
+      alSourceUnqueueBuffers(m_source, processed, unqueue_buffers.data());
+      OpenALSystem::check_al_error("Couldn't unqueue audio buffer: ");
 
+      for(int i = 0; i < processed; ++i) {
+        fill_buffer_and_queue(unqueue_buffers[i]);
         m_total_samples_processed += samples_per_buffer();
-
-        ALuint buffer;
-        alSourceUnqueueBuffers(m_source, 1, &buffer);
-        OpenALSystem::check_al_error("Couldn't unqueue audio buffer: ");
-
-        fill_buffer_and_queue(buffer);
       }
     }
 
     // we might have to restart the source if we had a buffer underrun
-    if (!is_playing())
+    if (!OpenALSoundSource::is_playing())
     {
       std::cerr << "Restarting audio source because of buffer underrun.\n";
-      play();
+      OpenALSoundSource::play();
     }
 
     // handle fade-in/out

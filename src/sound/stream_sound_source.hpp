@@ -46,6 +46,8 @@ public:
   float get_pos() const override;
   float get_duration() const override;
 
+  bool is_playing() const override { return m_playing; }
+
   int   get_sample_pos() const override;
   int   get_sample_duration() const override;
 
@@ -67,6 +69,7 @@ private:
   std::array<ALuint, STREAMFRAGMENTS> m_buffers;
   ALenum m_format;
 
+  bool m_playing;
   bool m_looping;
   int  m_total_samples_processed;
 
