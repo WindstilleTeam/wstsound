@@ -19,10 +19,14 @@
 #ifndef HEADER_WINDSTILLE_SOUND_SOUND_SOURCE_TYPE_HPP
 #define HEADER_WINDSTILLE_SOUND_SOUND_SOURCE_TYPE_HPP
 
+namespace wstsound {
+
 enum class SoundSourceType {
   STATIC,
   STREAM
 };
+
+} // namespace wstsound
 
 #endif
 

@@ -27,6 +27,8 @@
 #include <alc.h>
 #include <al.h>
 
+namespace wstsound {
+
 class SoundFile;
 
 class OpenALSystem
@@ -61,6 +63,8 @@ public:
   OpenALSystem(const OpenALSystem&) = delete;
   OpenALSystem& operator=(const OpenALSystem&) = delete;
 };
+
+} // namespace wstsound
 
 #endif
 

@@ -16,9 +16,11 @@
 **  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "sound/opus_sound_file.hpp"
+#include "opus_sound_file.hpp"
 
 #include <iostream>
+
+namespace wstsound {
 
 OpusSoundFile::OpusSoundFile(std::unique_ptr<std::istream> istream) :
   m_istream(std::move(istream)),
@@ -166,5 +168,7 @@ OpusSoundFile::cb_tell(void* stream)
   OpusSoundFile& opus = *reinterpret_cast<OpusSoundFile*>(stream);
   return static_cast<long>(opus.m_istream->tellg());
 }
+
+} // namespace wstsound
 
 /* EOF */

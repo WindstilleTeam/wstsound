@@ -24,6 +24,8 @@
 
 #include "sound_file.hpp"
 
+namespace wstsound {
+
 class FilteredSoundFile : public SoundFile
 {
 public:
@@ -47,6 +49,8 @@ private:
   FilteredSoundFile(const FilteredSoundFile&);
   FilteredSoundFile& operator=(const FilteredSoundFile&);
 };
+
+} // namespace wstsound
 
 #endif
 

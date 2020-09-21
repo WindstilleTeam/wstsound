@@ -24,9 +24,11 @@
 #include <stdexcept>
 #include <string.h>
 
-#include "sound/ogg_sound_file.hpp"
-#include "sound/opus_sound_file.hpp"
-#include "sound/wav_sound_file.hpp"
+#include "ogg_sound_file.hpp"
+#include "opus_sound_file.hpp"
+#include "wav_sound_file.hpp"
+
+namespace wstsound {
 
 std::unique_ptr<SoundFile>
 SoundFile::from_stream(std::unique_ptr<std::istream> istream)
@@ -84,5 +86,7 @@ SoundFile::get_sample_duration() const
 {
   return 8 * static_cast<int>(get_size()) / get_channels() / get_bits_per_sample();
 }
+
+} // namespace wstsound
 
 /* EOF */

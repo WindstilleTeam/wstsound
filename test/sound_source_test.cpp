@@ -26,6 +26,8 @@
 #include "static_sound_source.hpp"
 #include "stream_sound_source.hpp"
 
+using namespace wstsound;
+
 class SoundSourceTest : public ::testing::TestWithParam<std::string> {};
 
 TEST(SoundSourceTest, dummy_creation)

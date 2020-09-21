@@ -20,6 +20,8 @@
 
 #include <wstsound/openal_system.hpp>
 
+using namespace wstsound;
+
 int main(int argc, char** argv)
 {
   OpenALSystem openal;

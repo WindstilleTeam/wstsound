@@ -21,6 +21,8 @@
 
 #include "sound_source.hpp"
 
+namespace wstsound {
+
 class DummySoundSource : public SoundSource
 {
 private:
@@ -70,6 +72,8 @@ private:
   DummySoundSource(const DummySoundSource&);
   DummySoundSource& operator=(const DummySoundSource&);
 };
+
+} // namespace wstsound
 
 #endif
 

@@ -23,6 +23,8 @@
 
 #include "sound_manager.hpp"
 
+namespace wstsound {
+
 OpenALSoundSource::OpenALSoundSource(SoundChannel& channel) :
   m_channel(channel),
   m_source(),
@@ -150,5 +152,7 @@ OpenALSoundSource::update_gain() const
   alSourcef(m_source, AL_GAIN, m_channel.get_gain() * get_gain());
   OpenALSystem::check_al_error("OpenALSoundSource::update_gain: ");
 }
+
+} // namespace wstsound
 
 /* EOF */

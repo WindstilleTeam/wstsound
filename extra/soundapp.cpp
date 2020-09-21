@@ -25,6 +25,8 @@
 #include <wstsound/sound_file.hpp>
 #include <wstsound/filtered_sound_file.hpp>
 
+using namespace wstsound;
+
 int main(int argc, char** argv)
 {
   if (argc < 2)

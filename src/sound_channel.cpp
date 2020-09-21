@@ -28,6 +28,8 @@
 #include "sound_source.hpp"
 #include "stream_sound_source.hpp"
 
+namespace wstsound {
+
 SoundChannel::SoundChannel(SoundManager& sound_manager) :
   m_sound_manager(sound_manager),
   m_sound_sources(),
@@ -108,5 +110,7 @@ SoundChannel::update(float delta)
     return !source->is_playing();
   });
 }
+
+} // namespace wstsound
 
 /* EOF */

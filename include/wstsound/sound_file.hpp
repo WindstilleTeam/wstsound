@@ -23,6 +23,8 @@
 #include <memory>
 #include <string>
 
+namespace wstsound {
+
 class SoundFile
 {
 public:
@@ -48,6 +50,8 @@ public:
   static std::unique_ptr<SoundFile> from_file(std::filesystem::path const& filename);
   static std::unique_ptr<SoundFile> from_stream(std::unique_ptr<std::istream> istream);
 };
+
+} // namespace wstsound
 
 #endif
 

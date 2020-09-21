@@ -25,6 +25,8 @@
 
 #include "openal_sound_source.hpp"
 
+namespace wstsound {
+
 class SoundFile;
 class SoundChannel;
 
@@ -84,6 +86,8 @@ public:
   StreamSoundSource(const StreamSoundSource&) = delete;
   StreamSoundSource& operator=(const StreamSoundSource&) = delete;
 };
+
+} // namespace wstsound
 
 #endif
 

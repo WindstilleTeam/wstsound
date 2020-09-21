@@ -24,6 +24,8 @@
 #include "sound_manager.hpp"
 #include "sound_file.hpp"
 
+namespace wstsound {
+
 StreamSoundSource::StreamSoundSource(SoundChannel& channel, std::unique_ptr<SoundFile> sound_file) :
   OpenALSoundSource(channel),
   m_sound_file(std::move(sound_file)),
@@ -257,5 +259,7 @@ StreamSoundSource::samples_per_buffer() const
           / m_sound_file->get_channels()
           / m_sound_file->get_bits_per_sample());
 }
+
+} // namespace wstsound
 
 /* EOF */

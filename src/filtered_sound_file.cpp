@@ -16,12 +16,14 @@
 **  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "sound/filtered_sound_file.hpp"
+#include "filtered_sound_file.hpp"
 
 #include <iostream>
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+
+namespace wstsound {
 
 FilteredSoundFile::FilteredSoundFile(std::unique_ptr<SoundFile> sound_file) :
   m_sound_file(std::move(sound_file))
@@ -83,5 +85,7 @@ FilteredSoundFile::seek_to_sample(int sample)
 {
   m_sound_file->seek_to_sample(sample);
 }
+
+} // namespace wstsound
 
 /* EOF */

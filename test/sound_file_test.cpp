@@ -22,6 +22,8 @@
 #include "opus_sound_file.hpp"
 #include "wav_sound_file.hpp"
 
+using namespace wstsound;
+
 namespace {
 
 size_t get_real_sample_duration(SoundFile& soundfile) {

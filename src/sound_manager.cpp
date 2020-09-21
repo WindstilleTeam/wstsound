@@ -29,6 +29,8 @@
 #include "static_sound_source.hpp"
 #include "stream_sound_source.hpp"
 
+namespace wstsound {
+
 SoundManager::SoundManager() :
   m_openal(),
   m_channels(),
@@ -163,5 +165,7 @@ SoundManager::update(float delta)
 
   m_openal.update();
 }
+
+} // namespace wstsound
 
 /* EOF */

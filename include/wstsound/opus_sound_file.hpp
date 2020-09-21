@@ -25,6 +25,8 @@
 
 #include "sound_file.hpp"
 
+namespace wstsound {
+
 class OpusSoundFile : public SoundFile
 {
 public:
@@ -61,6 +63,8 @@ private:
   OpusSoundFile(const OpusSoundFile&);
   OpusSoundFile& operator=(const OpusSoundFile&);
 };
+
+} // namespace wstsound
 
 #endif
 

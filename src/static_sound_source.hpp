@@ -21,6 +21,8 @@
 
 #include "openal_sound_source.hpp"
 
+namespace wstsound {
+
 class StaticSoundSource : public OpenALSoundSource
 {
 public:
@@ -38,6 +40,8 @@ private:
   StaticSoundSource(const StaticSoundSource&);
   StaticSoundSource& operator=(const StaticSoundSource&);
 };
+
+} // namespace wstsound
 
 #endif
 

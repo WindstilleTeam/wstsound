@@ -28,6 +28,8 @@
 #include <wstsound/sound_source.hpp>
 #include <wstsound/filtered_sound_file.hpp>
 
+using namespace wstsound;
+
 namespace {
 
 void print_usage(int argc, char** argv)

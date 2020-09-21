@@ -28,6 +28,8 @@
 #include "openal_system.hpp"
 #include "sound_channel.hpp"
 
+namespace wstsound {
+
 class SoundFile;
 class SoundSource;
 class StreamSoundSource;
@@ -79,6 +81,8 @@ public:
   SoundManager(const SoundManager&);
   SoundManager& operator=(const SoundManager&);
 };
+
+} // namespace wstsound
 
 #endif
 

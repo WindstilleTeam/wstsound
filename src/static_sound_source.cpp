@@ -61,6 +61,8 @@ float buffer_get_duration(ALuint buffer)
 
 } // namespace
 
+namespace wstsound {
+
 StaticSoundSource::StaticSoundSource(SoundChannel& channel, ALuint buffer) :
   OpenALSoundSource(channel),
   m_duration(buffer_get_duration(buffer)),
@@ -69,5 +71,7 @@ StaticSoundSource::StaticSoundSource(SoundChannel& channel, ALuint buffer) :
   alSourcei(m_source, AL_BUFFER, buffer);
   OpenALSystem::check_al_error("StaticSoundSource: ");
 }
+
+} // namespace wstsound
 
 /* EOF */

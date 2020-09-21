@@ -21,9 +21,13 @@
 
 #include <memory>
 
+namespace wstsound {
+
 class SoundSource;
 
-typedef std::shared_ptr<SoundSource> SoundSourcePtr;
+using SoundSourcePtr = std::shared_ptr<SoundSource>;
+
+} // namespace wstsound
 
 #endif
 

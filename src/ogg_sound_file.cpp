@@ -16,11 +16,13 @@
 **  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "sound/ogg_sound_file.hpp"
+#include "ogg_sound_file.hpp"
 
 #include <filesystem>
 #include <stdexcept>
 #include <sstream>
+
+namespace wstsound {
 
 OggSoundFile::OggSoundFile(std::unique_ptr<std::istream> istream) :
   m_istream(std::move(istream)),
@@ -184,5 +186,7 @@ OggSoundFile::cb_tell(void* userdata)
   OggSoundFile& ogg = *reinterpret_cast<OggSoundFile*>(userdata);
   return static_cast<long>(ogg.m_istream->tellg());
 }
+
+} // namespace wstsound
 
 /* EOF */

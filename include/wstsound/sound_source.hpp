@@ -19,6 +19,8 @@
 #ifndef HEADER_WINDSTILLE_SOUND_SOUND_SOURCE_HPP
 #define HEADER_WINDSTILLE_SOUND_SOUND_SOURCE_HPP
 
+namespace wstsound {
+
 class SoundSource
 {
 private:
@@ -69,6 +71,8 @@ private:
   SoundSource(const SoundSource&);
   SoundSource& operator=(const SoundSource&);
 };
+
+} // namespace wstsound
 
 #endif
 

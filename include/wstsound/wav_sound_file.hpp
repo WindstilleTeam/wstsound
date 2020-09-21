@@ -23,6 +23,8 @@
 
 #include "sound_file.hpp"
 
+namespace wstsound {
+
 class WavSoundFile : public SoundFile
 {
 public:
@@ -51,6 +53,8 @@ private:
   WavSoundFile(const WavSoundFile&);
   WavSoundFile& operator=(const WavSoundFile&);
 };
+
+} // namespace wstsound
 
 #endif
 

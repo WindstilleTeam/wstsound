@@ -23,6 +23,8 @@
 
 #include "sound_source.hpp"
 
+namespace wstsound {
+
 class SoundChannel;
 
 class OpenALSoundSource : public SoundSource
@@ -76,6 +78,8 @@ private:
   OpenALSoundSource(const OpenALSoundSource&);
   OpenALSoundSource& operator=(const OpenALSoundSource&);
 };
+
+} // namespace wstsound
 
 #endif
 

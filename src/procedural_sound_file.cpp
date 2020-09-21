@@ -16,7 +16,7 @@
 **  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "sound/procedural_sound_file.hpp"
+#include "procedural_sound_file.hpp"
 
 #include <iostream>
 #include <limits>
@@ -35,6 +35,8 @@ T map_to(float value)
 }
 
 } // namespace
+
+namespace wstsound {
 
 ProceduralSoundFile::ProceduralSoundFile() :
   m_bits_per_sample(16),
@@ -75,5 +77,7 @@ ProceduralSoundFile::seek_to_sample(int sample)
 {
   m_sample_pos = sample;
 }
+
+} // namespace wstsound
 
 /* EOF */

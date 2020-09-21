@@ -26,7 +26,7 @@
 #include <string.h>
 #include <typeinfo>
 
-#include "sound/wav_sound_file.hpp"
+#include "wav_sound_file.hpp"
 
 namespace {
 
@@ -60,6 +60,8 @@ T read_type(std::istream& in)
 }
 
 } // namespace
+
+namespace wstsound {
 
 WavSoundFile::WavSoundFile(std::unique_ptr<std::istream> istream) :
   m_istream(std::move(istream)),
@@ -213,5 +215,7 @@ WavSoundFile::read(void* buffer, size_t buffer_size)
     return bytesread;
   }
 }
+
+} // namespace wstsound
 
 /* EOF */

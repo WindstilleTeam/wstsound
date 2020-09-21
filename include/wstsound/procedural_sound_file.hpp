@@ -21,6 +21,8 @@
 
 #include "sound_file.hpp"
 
+namespace wstsound {
+
 class ProceduralSoundFile : public SoundFile
 {
 private:
@@ -48,6 +50,8 @@ private:
   ProceduralSoundFile(const ProceduralSoundFile&) = delete;
   ProceduralSoundFile& operator=(const ProceduralSoundFile&) = delete;
 };
+
+} // namespace wstsound
 
 #endif
 

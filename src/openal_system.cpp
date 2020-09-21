@@ -24,6 +24,8 @@
 
 #include "sound_file.hpp"
 
+namespace wstsound {
+
 OpenALSystem::OpenALSystem() :
   m_device(nullptr),
   m_context(nullptr),
@@ -177,5 +179,7 @@ OpenALSystem::check_al_error(const char* message)
     throw std::runtime_error(msg.str());
   }
 }
+
+} // namespace wstsound
 
 /* EOF */

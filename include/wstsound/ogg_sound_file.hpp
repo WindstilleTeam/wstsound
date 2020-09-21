@@ -24,6 +24,8 @@
 
 #include "sound_file.hpp"
 
+namespace wstsound {
+
 class OggSoundFile : public SoundFile
 {
 public:
@@ -60,6 +62,8 @@ private:
   OggSoundFile(const OggSoundFile&);
   OggSoundFile& operator=(const OggSoundFile&);
 };
+
+} // namespace wstsound
 
 #endif
 
