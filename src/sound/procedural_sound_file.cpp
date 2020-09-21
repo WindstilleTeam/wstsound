@@ -1,6 +1,6 @@
 /*
 **  Windstille - A Sci-Fi Action-Adventure Game
-**  Copyright (C) 2018 Ingo Ruhnke <grumbel@gmail.com>
+**  Copyright (C) 2020 Ingo Ruhnke <grumbel@gmail.com>
 **
 **  This program is free software: you can redistribute it and/or modify
 **  it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ ProceduralSoundFile::ProceduralSoundFile() :
   m_bits_per_sample(16),
   m_rate(48000),
   m_channels(1),
-  m_size(100000000000),
+  m_size(0),
   m_sample_pos(0)
 {
 }
@@ -48,7 +48,6 @@ ProceduralSoundFile::ProceduralSoundFile() :
 size_t
 ProceduralSoundFile::read(void* buffer, size_t buffer_size)
 {
-  std::cout << "read():" << buffer_size << std::endl;
   int16_t* samples = static_cast<int16_t*>(buffer);
   size_t len = buffer_size / sizeof(int16_t);
 
