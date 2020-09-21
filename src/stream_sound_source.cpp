@@ -33,11 +33,7 @@ StreamSoundSource::StreamSoundSource(SoundChannel& channel, std::unique_ptr<Soun
   m_format(OpenALSystem::get_sample_format(m_sound_file.get())),
   m_playing(false),
   m_looping(false),
-  m_total_samples_processed(0),
-  m_fade_state(),
-  m_fade_start_ticks(),
-  m_fade_time(),
-  m_total_time(0.0f)
+  m_total_samples_processed(0)
 {
   alGenBuffers(static_cast<ALsizei>(m_buffers.size()), m_buffers.data());
   OpenALSystem::check_al_error("Couldn't allocate audio buffers: ");
@@ -140,7 +136,7 @@ StreamSoundSource::play()
 void
 StreamSoundSource::update(float delta)
 {
-  m_total_time += delta;
+  OpenALSoundSource::update(delta);
 
   if (!OpenALSoundSource::is_playing() && !m_looping) {
     m_playing = false;
@@ -168,43 +164,7 @@ StreamSoundSource::update(float delta)
       std::cerr << "Restarting audio source because of buffer underrun.\n";
       OpenALSoundSource::play();
     }
-
-    // handle fade-in/out
-    if (m_fade_state == kFadingOn)
-    {
-      float time = m_fade_start_ticks - m_total_time;
-      if (time >= m_fade_time)
-      {
-        set_gain(1.0);
-        m_fade_state = kNoFading;
-      }
-      else
-      {
-        set_gain(time / m_fade_time);
-      }
-    }
-    else if (m_fade_state == kFadingOff)
-    {
-      float time = m_fade_start_ticks - m_total_time;
-      if (time >= m_fade_time)
-      {
-        stop();
-        m_fade_state = kNoFading;
-      }
-      else
-      {
-        set_gain( (m_fade_time - time) / m_fade_time);
-      }
-    }
   }
-}
-
-void
-StreamSoundSource::set_fading(FadeState fade_state, float fade_time)
-{
-  m_fade_state       = fade_state;
-  m_fade_time        = fade_time;
-  m_fade_start_ticks = m_total_time;
 }
 
 void

@@ -67,7 +67,7 @@ public:
   /** Needs to be called whenever the SoundChannels gain changes */
   void update_gain() const override;
 
-  void update(float delta) override {}
+  void update(float delta) override;
 
 protected:
   SoundChannel& m_channel;

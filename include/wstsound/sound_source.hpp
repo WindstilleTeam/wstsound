@@ -21,11 +21,17 @@
 
 namespace wstsound {
 
+enum class FadeState
+{
+  NoFading,
+  FadingOn,
+  FadingOff
+};
+
 class SoundSource
 {
-private:
 public:
-  SoundSource() {}
+  SoundSource();
   virtual ~SoundSource() {}
 
   virtual void play() = 0;
@@ -65,7 +71,18 @@ public:
   /** Needs to be called whenever the SoundChannels gain changes */
   virtual void update_gain() const = 0;
 
-  virtual void update(float delta) =0;
+  virtual void update(float delta);
+
+  void set_fading(FadeState fade_state, float fade_time);
+  FadeState get_fade_state() const { return m_fade_state; }
+
+private:
+  FadeState m_fade_state;
+  float m_fade_start_ticks;
+  float m_fade_time;
+
+  // FIXME: simple time counter that summarizes all deltas, could be done better
+  float m_total_time;
 
 private:
   SoundSource(const SoundSource&);

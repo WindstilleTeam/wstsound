@@ -153,6 +153,12 @@ OpenALSoundSource::update_gain() const
   OpenALSystem::check_al_error("OpenALSoundSource::update_gain: ");
 }
 
+void
+OpenALSoundSource::update(float delta)
+{
+  SoundSource::update(delta);
+}
+
 } // namespace wstsound
 
 /* EOF */

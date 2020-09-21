@@ -33,9 +33,6 @@ class SoundChannel;
 class StreamSoundSource : public OpenALSoundSource
 {
 public:
-  enum FadeState { kNoFading, kFadingOn, kFadingOff };
-
-public:
   StreamSoundSource(SoundChannel& channel, std::unique_ptr<SoundFile> sound_file);
   ~StreamSoundSource() override;
 
@@ -52,9 +49,6 @@ public:
 
   int   get_sample_pos() const override;
   int   get_sample_duration() const override;
-
-  void set_fading(FadeState state, float fadetime);
-  FadeState get_fade_state() const { return m_fade_state; }
 
 private:
   void fill_buffer_and_queue(ALuint buffer);
@@ -74,13 +68,6 @@ private:
   bool m_playing;
   bool m_looping;
   int  m_total_samples_processed;
-
-  FadeState m_fade_state;
-  float m_fade_start_ticks;
-  float m_fade_time;
-
-  // FIXME: simple time counter that summarizes all deltas, could be done better
-  float m_total_time;
 
 public:
   StreamSoundSource(const StreamSoundSource&) = delete;
