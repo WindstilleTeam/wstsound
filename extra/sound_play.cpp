@@ -38,10 +38,19 @@ void print_usage(int argc, char** argv)
             << "\n"
             << "  --help      Display this help text\n"
             << "  --loop      Loopt the sound\n"
+            << "  --fadein    Fade-in the sound\n"
             << "  --seek SEC  Seek to position SEC\n";
 }
 
 } // namespace
+
+struct Options
+{
+  bool loop = false;
+  SoundSourceType source_type = SoundSourceType::STREAM;
+  float seek = 0;
+  FadeState fade = FadeState::NoFading;
+};
 
 int main(int argc, char** argv)
 {
@@ -52,10 +61,7 @@ int main(int argc, char** argv)
   }
   else
   {
-    bool loop = false;
-    SoundSourceType source_type = SoundSourceType::STREAM;
-    float seek = 0;
-
+    Options opts;
     std::vector<std::string> files;
     for (int i = 1; i < argc; ++i) {
       if (argv[i][0] == '-') {
@@ -63,16 +69,20 @@ int main(int argc, char** argv)
           print_usage(argc, argv);
           return 0;
         } else if (strcmp(argv[i], "--loop") == 0) {
-          loop = true;
+          opts.loop = true;
         } else if (strcmp(argv[i], "--stream") == 0) {
-          source_type = SoundSourceType::STREAM;
+          opts.source_type = SoundSourceType::STREAM;
         } else if (strcmp(argv[i], "--static") == 0) {
-          source_type = SoundSourceType::STATIC;
+          opts.source_type = SoundSourceType::STATIC;
         } else if (strcmp(argv[i], "--seek") == 0) {
           if (++i >= argc) {
             throw std::runtime_error("--seek needs an argument");
           }
-          seek = std::stof(argv[i]);
+          opts.seek = std::stof(argv[i]);
+        } else if (strcmp(argv[i], "--fadein") == 0) {
+          opts.fade = FadeState::FadingOn;
+        } else if (strcmp(argv[i], "--fadeout") == 0) {
+          opts.fade = FadeState::FadingOff;
         } else {
           std::cerr << "error: unknown option " << argv[i] << std::endl;
         }
@@ -90,11 +100,18 @@ int main(int argc, char** argv)
     std::vector<SoundSourcePtr> sources;
     for (auto const& filename : files)
     {
-      SoundSourcePtr source = sound_manager.sound().prepare(filename, source_type);
-      source->set_looping(loop);
-      if (seek != 0) {
-        source->seek_to(seek);
+      SoundSourcePtr source = sound_manager.sound().prepare(filename, opts.source_type);
+
+      source->set_looping(opts.loop);
+
+      if (opts.seek != 0) {
+        source->seek_to(opts.seek);
       }
+
+      if (opts.fade != FadeState::NoFading) {
+        source->set_fading(opts.fade, 5.0f);
+      }
+
       sources.emplace_back(source);
     }
 
@@ -113,7 +130,7 @@ int main(int argc, char** argv)
 
       usleep(10000);
 
-      sound_manager.update(100);
+      sound_manager.update(0.01f);
     }
   }
 }
