@@ -63,6 +63,10 @@ public:
                                      SoundChannel& channel,
                                      SoundSourceType type);
 
+  SoundSourcePtr create_sound_source(std::unique_ptr<SoundFile> sound_file,
+                                     SoundChannel& channel,
+                                     SoundSourceType type);
+
 private:
   ALuint load_file_into_buffer(std::filesystem::path const& filename);
 

@@ -39,7 +39,7 @@ SoundSourcePtr
 SoundChannel::play(std::filesystem::path const& filename,
                    SoundSourceType type)
 {
-  SoundSourcePtr source = prepare(filename);
+  SoundSourcePtr source = prepare(filename, type);
   source->play();
   return source;
 }
@@ -57,6 +57,25 @@ SoundChannel::prepare(std::filesystem::path const& filename,
     std::cout << "SourceChannel::prepare: Couldn't load " << filename << ": " << err.what() << std::endl;
     return SoundSourcePtr(new DummySoundSource());
   }
+}
+
+SoundSourcePtr
+SoundChannel::play(std::unique_ptr<SoundFile> sound_file,
+                   SoundSourceType type)
+{
+  SoundSourcePtr source = prepare(std::move(sound_file), type);
+  source->play();
+  return source;
+}
+
+SoundSourcePtr
+SoundChannel::prepare(std::unique_ptr<SoundFile> sound_file,
+                      SoundSourceType type)
+{
+  SoundSourcePtr source = m_sound_manager.create_sound_source(std::move(sound_file), *this, type);
+  source->update_gain();
+  m_sound_sources.push_back(source);
+  return source;
 }
 
 void

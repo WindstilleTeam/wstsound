@@ -40,6 +40,12 @@ public:
   SoundSourcePtr prepare(std::filesystem::path const& filename,
                          SoundSourceType type = SoundSourceType::STATIC);
 
+  SoundSourcePtr play(std::unique_ptr<SoundFile> sound_file,
+                      SoundSourceType type = SoundSourceType::STATIC);
+
+  SoundSourcePtr prepare(std::unique_ptr<SoundFile> sound_file,
+                         SoundSourceType type = SoundSourceType::STATIC);
+
   void update(float delta);
 
   // volume is clamped to [0,1]

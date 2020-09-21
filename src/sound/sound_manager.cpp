@@ -67,6 +67,33 @@ SoundManager::load_file_into_buffer(std::filesystem::path const& filename)
 }
 
 SoundSourcePtr
+SoundManager::create_sound_source(std::unique_ptr<SoundFile> sound_file,
+                                  SoundChannel& channel,
+                                  SoundSourceType type)
+{
+  if (m_openal.is_dummy())
+  {
+    return SoundSourcePtr(new DummySoundSource());
+  }
+  else
+  {
+    switch(type)
+    {
+      case SoundSourceType::STATIC:
+        assert(false && "not supported");
+        return SoundSourcePtr(new DummySoundSource());
+
+      case SoundSourceType::STREAM:
+        return SoundSourcePtr(new StreamSoundSource(channel, std::move(sound_file)));
+
+      default:
+        assert(false && "never reached");
+        return SoundSourcePtr();
+    }
+  }
+}
+
+SoundSourcePtr
 SoundManager::create_sound_source(std::filesystem::path const& filename, SoundChannel& channel,
                                   SoundSourceType type)
 {
