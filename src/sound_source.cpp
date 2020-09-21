@@ -50,7 +50,7 @@ SoundSource::update(float delta)
     // handle fade-in/out
     if (m_fade_state == FadeState::FadingOn)
     {
-      float time = m_fade_start_ticks - m_total_time;
+      float time = m_total_time - m_fade_start_ticks;
       if (time >= m_fade_time)
       {
         set_gain(1.0);
@@ -63,7 +63,7 @@ SoundSource::update(float delta)
     }
     else if (m_fade_state == FadeState::FadingOff)
     {
-      float time = m_fade_start_ticks - m_total_time;
+      float time = m_total_time - m_fade_start_ticks;
       if (time >= m_fade_time)
       {
         stop();
