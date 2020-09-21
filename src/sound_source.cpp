@@ -34,6 +34,10 @@ SoundSource::set_fading(FadeState fade_state, float fade_time)
   m_fade_state       = fade_state;
   m_fade_time        = fade_time;
   m_fade_start_ticks = m_total_time;
+
+  if (m_fade_state == FadeState::FadingOn) {
+    set_gain(0.0f);
+  }
 }
 
 void
