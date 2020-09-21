@@ -20,10 +20,10 @@
 #include <unistd.h>
 #include <random>
 
-#include "sound/sound_manager.hpp"
-#include "sound/sound_source.hpp"
-#include "sound/sound_file.hpp"
-#include "sound/filtered_sound_file.hpp"
+#include <wstsound/sound_manager.hpp>
+#include <wstsound/sound_source.hpp>
+#include <wstsound/sound_file.hpp>
+#include <wstsound/filtered_sound_file.hpp>
 
 int main(int argc, char** argv)
 {

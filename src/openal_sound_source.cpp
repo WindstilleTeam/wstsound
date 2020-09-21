@@ -16,12 +16,12 @@
 **  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "sound/openal_sound_source.hpp"
+#include "openal_sound_source.hpp"
 
 #include <assert.h>
 #include <iostream>
 
-#include "sound/sound_manager.hpp"
+#include "sound_manager.hpp"
 
 OpenALSoundSource::OpenALSoundSource(SoundChannel& channel) :
   m_channel(channel),

@@ -18,7 +18,7 @@
 
 #include <iostream>
 
-#include "sound/openal_system.hpp"
+#include <wstsound/openal_system.hpp>
 
 int main(int argc, char** argv)
 {

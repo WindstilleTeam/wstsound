@@ -39,16 +39,16 @@ pkg_search_module(VORBISFILE REQUIRED vorbisfile IMPORTED_TARGET)
 pkg_search_module(OPUSFILE REQUIRED opusfile IMPORTED_TARGET)
 
 file(GLOB WSTSOUND_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-  src/sound/*.cpp)
+  src/*.cpp)
 add_library(wstsound STATIC ${WSTSOUND_SOURCES})
 target_compile_options(wstsound PUBLIC ${WARNINGS_CXX_FLAGS})
 set_target_properties(wstsound PROPERTIES
   CXX_STANDARD 20
   CXX_STANDARD_REQUIRED ON
   CXX_EXTENSIONS OFF)
-target_include_directories(wstsound SYSTEM PUBLIC
-  src/
-  ${OPENAL_INCLUDE_DIR})
+target_include_directories(wstsound SYSTEM PUBLIC ${OPENAL_INCLUDE_DIR})
+target_include_directories(wstsound PUBLIC include/)
+target_include_directories(wstsound PRIVATE src/ include/wstsound/)
 target_link_libraries(wstsound PUBLIC
   ${OPENAL_LIBRARY}
   PkgConfig::OGG
@@ -63,6 +63,7 @@ if(BUILD_TESTS)
   # build automatic tests
   file(GLOB TEST_WSTSOUND_SOURCES test/*_test.cpp)
   add_executable(test_wstsound ${TEST_WSTSOUND_SOURCES})
+  target_include_directories(test_wstsound PUBLIC src/ include/wstsound/)
   target_compile_options(test_wstsound PRIVATE ${WARNINGS_CXX_FLAGS})
   set_target_properties(test_wstsound PROPERTIES
       CXX_STANDARD 20
@@ -85,6 +86,7 @@ if(BUILD_EXTRA)
   foreach(SRC ${EXTRA_SOURCES})
     get_filename_component(SRC_BASENAME ${SRC} NAME_WE)
     add_executable(${SRC_BASENAME} ${SRC})
+    target_include_directories(${SRC_BASENAME} PUBLIC src/)
     target_link_libraries(${SRC_BASENAME} wstsound)
     set_target_properties(${SRC_BASENAME} PROPERTIES
       CXX_STANDARD 20

@@ -19,7 +19,7 @@
 #ifndef HEADER_WINDSTILLE_SOUND_DUMMY_SOUND_SOURCE_HPP
 #define HEADER_WINDSTILLE_SOUND_DUMMY_SOUND_SOURCE_HPP
 
-#include "sound/sound_source.hpp"
+#include "sound_source.hpp"
 
 class DummySoundSource : public SoundSource
 {

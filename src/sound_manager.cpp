@@ -22,12 +22,12 @@
 #include <iostream>
 #include <sstream>
 
-#include "sound/openal_system.hpp"
-#include "sound/sound_file.hpp"
-#include "sound/sound_manager.hpp"
-#include "sound/dummy_sound_source.hpp"
-#include "sound/static_sound_source.hpp"
-#include "sound/stream_sound_source.hpp"
+#include "openal_system.hpp"
+#include "sound_file.hpp"
+#include "sound_manager.hpp"
+#include "dummy_sound_source.hpp"
+#include "static_sound_source.hpp"
+#include "stream_sound_source.hpp"
 
 SoundManager::SoundManager() :
   m_openal(),

@@ -21,7 +21,7 @@
 
 #include <al.h>
 
-#include "sound/sound_source.hpp"
+#include "sound_source.hpp"
 
 class SoundChannel;
 

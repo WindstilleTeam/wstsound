@@ -16,13 +16,13 @@
 **  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "sound/stream_sound_source.hpp"
+#include "stream_sound_source.hpp"
 
 #include <array>
 #include <iostream>
 
-#include "sound/sound_manager.hpp"
-#include "sound/sound_file.hpp"
+#include "sound_manager.hpp"
+#include "sound_file.hpp"
 
 StreamSoundSource::StreamSoundSource(SoundChannel& channel, std::unique_ptr<SoundFile> sound_file) :
   OpenALSoundSource(channel),

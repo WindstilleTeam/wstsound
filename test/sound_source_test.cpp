@@ -18,12 +18,13 @@
 
 #include <gtest/gtest.h>
 
-#include "sound/sound_file.hpp"
-#include "sound/sound_manager.hpp"
-#include "sound/sound_source.hpp"
-#include "sound/static_sound_source.hpp"
-#include "sound/stream_sound_source.hpp"
-#include "sound/dummy_sound_source.hpp"
+#include <wstsound/sound_file.hpp>
+#include <wstsound/sound_manager.hpp>
+
+#include "dummy_sound_source.hpp"
+#include "sound_source.hpp"
+#include "static_sound_source.hpp"
+#include "stream_sound_source.hpp"
 
 class SoundSourceTest : public ::testing::TestWithParam<std::string> {};
 

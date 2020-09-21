@@ -18,7 +18,7 @@
 
 #include <iostream>
 
-#include "sound/sound_file.hpp"
+#include <wstsound/sound_file.hpp>
 
 int main(int argc, char** argv)
 {

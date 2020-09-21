@@ -1,6 +1,6 @@
 /*
 **  Windstille - A Sci-Fi Action-Adventure Game
-**  Copyright (C) 2005 Matthias Braun <matze@braunis.de>
+**  Copyright (C) 2020 Ingo Ruhnke <grumbel@gmail.com>
 **
 **  This program is free software: you can redistribute it and/or modify
 **  it under the terms of the GNU General Public License as published by
@@ -16,40 +16,37 @@
 **  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef HEADER_WINDSTILLE_SOUND_WAV_SOUND_FILE_HPP
-#define HEADER_WINDSTILLE_SOUND_WAV_SOUND_FILE_HPP
+#ifndef HEADER_WINDSTILLE_SOUND_PROCEDURAL_SOUND_FILE_HPP
+#define HEADER_WINDSTILLE_SOUND_PROCEDURAL_SOUND_FILE_HPP
 
-#include <fstream>
+#include "sound_file.hpp"
 
-#include "sound/sound_file.hpp"
-
-class WavSoundFile : public SoundFile
+class ProceduralSoundFile : public SoundFile
 {
+private:
 public:
-  WavSoundFile(std::unique_ptr<std::istream> istream);
-  ~WavSoundFile() override;
+  ProceduralSoundFile();
 
   size_t read(void* buffer, size_t buffer_size) override;
   void reset() override;
   void seek_to_sample(int sample) override;
 
-private:
-  std::unique_ptr<std::istream> m_istream;
-  std::streampos m_datastart;
-  int m_channels;
-  int m_rate;
-  int m_bits_per_sample;
-  size_t m_size; /// size in bytes
-
-public:
-  int    get_bits_per_sample() const override { return m_bits_per_sample; }
+  int get_bits_per_sample() const override { return m_bits_per_sample; }
+  int get_rate() const override { return m_rate; }
+  int get_channels() const override { return m_channels; }
   size_t get_size() const override { return m_size; }
-  int    get_rate() const override { return m_rate; }
-  int    get_channels() const override { return m_channels; }
 
 private:
-  WavSoundFile(const WavSoundFile&);
-  WavSoundFile& operator=(const WavSoundFile&);
+  int m_bits_per_sample;
+  int m_rate;
+  int m_channels;
+  size_t m_size;
+
+  size_t m_sample_pos;
+
+private:
+  ProceduralSoundFile(const ProceduralSoundFile&) = delete;
+  ProceduralSoundFile& operator=(const ProceduralSoundFile&) = delete;
 };
 
 #endif

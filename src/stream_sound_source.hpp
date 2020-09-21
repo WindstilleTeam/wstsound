@@ -23,7 +23,7 @@
 #include <memory>
 #include <stdio.h>
 
-#include "sound/openal_sound_source.hpp"
+#include "openal_sound_source.hpp"
 
 class SoundFile;
 class SoundChannel;
@@ -39,7 +39,7 @@ public:
 
   void play() override;
   void update(float delta) override;
-  void seek_to(float sec);
+  void seek_to(float sec) override;
   void seek_to_sample(int sample) override;
   void set_looping(bool looping) override;
 

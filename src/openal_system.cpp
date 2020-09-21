@@ -17,12 +17,12 @@
 **  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "sound/openal_system.hpp"
+#include "openal_system.hpp"
 
 #include <iostream>
 #include <stdexcept>
 
-#include "sound/sound_file.hpp"
+#include "sound_file.hpp"
 
 OpenALSystem::OpenALSystem() :
   m_device(nullptr),

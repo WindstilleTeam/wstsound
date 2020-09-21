@@ -1,6 +1,6 @@
 /*
 **  Windstille - A Sci-Fi Action-Adventure Game
-**  Copyright (C) 2018 Ingo Ruhnke <grumbel@gmail.com>
+**  Copyright (C) 2005 Matthias Braun <matze@braunis.de>
 **
 **  This program is free software: you can redistribute it and/or modify
 **  it under the terms of the GNU General Public License as published by
@@ -16,50 +16,40 @@
 **  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef HEADER_WINDSTILLE_SOUND_OPUS_SOUND_FILE_HPP
-#define HEADER_WINDSTILLE_SOUND_OPUS_SOUND_FILE_HPP
+#ifndef HEADER_WINDSTILLE_SOUND_WAV_SOUND_FILE_HPP
+#define HEADER_WINDSTILLE_SOUND_WAV_SOUND_FILE_HPP
 
-#include <istream>
-#include <memory>
-#include <opusfile.h>
+#include <fstream>
 
-#include "sound/sound_file.hpp"
+#include "sound_file.hpp"
 
-class OpusSoundFile : public SoundFile
+class WavSoundFile : public SoundFile
 {
 public:
-  OpusSoundFile(std::unique_ptr<std::istream> istream);
-  ~OpusSoundFile() override;
+  WavSoundFile(std::unique_ptr<std::istream> istream);
+  ~WavSoundFile() override;
 
   size_t read(void* buffer, size_t buffer_size) override;
   void reset() override;
-
-  int    get_bits_per_sample() const override { return m_bits_per_sample; }
-  size_t get_size() const override { return m_size; }
-  int    get_rate() const override { return m_rate; }
-  int    get_channels() const override { return m_channels; }
-
   void seek_to_sample(int sample) override;
 
 private:
-  static int cb_read(void* stream, unsigned char* buffer, int nbytes);
-  static int cb_seek(void* stream, opus_int64 offset, int whence);
-  static int cb_close(void* stream);
-  static opus_int64 cb_tell(void* stream);
-
-private:
   std::unique_ptr<std::istream> m_istream;
-  size_t m_file_size;
-  OggOpusFile* m_opus_file;
-
+  std::streampos m_datastart;
   int m_channels;
   int m_rate;
   int m_bits_per_sample;
   size_t m_size; /// size in bytes
 
+public:
+  int    get_bits_per_sample() const override { return m_bits_per_sample; }
+  size_t get_size() const override { return m_size; }
+  int    get_rate() const override { return m_rate; }
+  int    get_channels() const override { return m_channels; }
+
 private:
-  OpusSoundFile(const OpusSoundFile&);
-  OpusSoundFile& operator=(const OpusSoundFile&);
+  WavSoundFile(const WavSoundFile&);
+  WavSoundFile& operator=(const WavSoundFile&);
 };
 
 #endif

@@ -25,8 +25,8 @@
 #include <vector>
 #include <map>
 
-#include "sound/openal_system.hpp"
-#include "sound/sound_channel.hpp"
+#include "openal_system.hpp"
+#include "sound_channel.hpp"
 
 class SoundFile;
 class SoundSource;

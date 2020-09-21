@@ -18,9 +18,9 @@
 
 #include <gtest/gtest.h>
 
-#include "sound/ogg_sound_file.hpp"
-#include "sound/opus_sound_file.hpp"
-#include "sound/wav_sound_file.hpp"
+#include "ogg_sound_file.hpp"
+#include "opus_sound_file.hpp"
+#include "wav_sound_file.hpp"
 
 namespace {
 

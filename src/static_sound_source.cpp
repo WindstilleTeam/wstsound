@@ -16,9 +16,9 @@
 **  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "sound/static_sound_source.hpp"
+#include "static_sound_source.hpp"
 
-#include "sound/sound_manager.hpp"
+#include "sound_manager.hpp"
 
 namespace {
 

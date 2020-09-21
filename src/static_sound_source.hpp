@@ -16,36 +16,27 @@
 **  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef HEADER_WINDSTILLE_SOUND_FILTERED_SOUND_FILE_HPP
-#define HEADER_WINDSTILLE_SOUND_FILTERED_SOUND_FILE_HPP
+#ifndef HEADER_WINDSTILLE_SOUND_STATIC_SOUND_SOURCE_HPP
+#define HEADER_WINDSTILLE_SOUND_STATIC_SOUND_SOURCE_HPP
 
-#include <memory>
-#include <string>
+#include "openal_sound_source.hpp"
 
-#include "sound/sound_file.hpp"
-
-class FilteredSoundFile : public SoundFile
+class StaticSoundSource : public OpenALSoundSource
 {
 public:
-  FilteredSoundFile(std::unique_ptr<SoundFile> sound_file);
-  ~FilteredSoundFile() override;
+  StaticSoundSource(SoundChannel& channel, ALuint buffer);
+  ~StaticSoundSource() override {}
 
-  size_t read(void* buffer, size_t buffer_size) override;
-  void reset() override;
-
-  int    get_bits_per_sample() const override;
-  size_t get_size() const override;
-  int    get_rate() const override;
-  int    get_channels() const override;
-
-  void seek_to_sample(int sample) override;
+  float get_duration() const override { return m_duration; }
+  int get_sample_duration() const override  { return m_sample_duration; }
 
 private:
-  std::unique_ptr<SoundFile> m_sound_file;
+  float m_duration;
+  int m_sample_duration;
 
 private:
-  FilteredSoundFile(const FilteredSoundFile&);
-  FilteredSoundFile& operator=(const FilteredSoundFile&);
+  StaticSoundSource(const StaticSoundSource&);
+  StaticSoundSource& operator=(const StaticSoundSource&);
 };
 
 #endif

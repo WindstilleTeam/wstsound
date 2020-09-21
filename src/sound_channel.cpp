@@ -16,17 +16,17 @@
 **  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "sound/sound_channel.hpp"
+#include "sound_channel.hpp"
 
 #include <filesystem>
 #include <iostream>
 #include <stdexcept>
 
-#include "sound/dummy_sound_source.hpp"
-#include "sound/sound_file.hpp"
-#include "sound/sound_manager.hpp"
-#include "sound/sound_source.hpp"
-#include "sound/stream_sound_source.hpp"
+#include "dummy_sound_source.hpp"
+#include "sound_file.hpp"
+#include "sound_manager.hpp"
+#include "sound_source.hpp"
+#include "stream_sound_source.hpp"
 
 SoundChannel::SoundChannel(SoundManager& sound_manager) :
   m_sound_manager(sound_manager),

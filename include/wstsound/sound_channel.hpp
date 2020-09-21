@@ -22,8 +22,8 @@
 #include <filesystem>
 #include <vector>
 
-#include "sound/sound_source_type.hpp"
-#include "sound/sound_source_ptr.hpp"
+#include "sound_source_type.hpp"
+#include "sound_source_ptr.hpp"
 
 class SoundFile;
 class SoundManager;
