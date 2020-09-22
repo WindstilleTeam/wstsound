@@ -34,6 +34,7 @@ OpenALSoundSource::OpenALSoundSource(SoundChannel& channel) :
   m_channel(channel),
   m_source(),
   m_gain(1.0f),
+  m_direct_filter(),
   m_filter(),
   m_effect_slot()
 {
@@ -164,6 +165,18 @@ void
 OpenALSoundSource::update(float delta)
 {
   SoundSource::update(delta);
+}
+
+void
+OpenALSoundSource::set_direct_filter(FilterPtr const& filter)
+{
+  m_direct_filter = filter;
+
+  if (!filter) {
+    alSourcei(m_source, AL_DIRECT_FILTER, AL_FILTER_NULL);
+  } else {
+    alSourcei(m_source, AL_DIRECT_FILTER, filter->handle());
+  }
 }
 
 void

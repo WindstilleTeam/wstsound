@@ -64,6 +64,7 @@ public:
       0.0f disables distance based reduction completly */
   void set_rolloff_factor(float factor) override;
 
+  void set_direct_filter(FilterPtr const& filter) override;
   void set_effect_slot(EffectSlotPtr const& slot, FilterPtr const& filter = {}) override;
 
   /** Needs to be called whenever the SoundChannels gain changes */
@@ -75,6 +76,7 @@ protected:
   SoundChannel& m_channel;
   ALuint m_source;
   float m_gain;
+  FilterPtr m_direct_filter;
   FilterPtr m_filter;
   EffectSlotPtr m_effect_slot;
 

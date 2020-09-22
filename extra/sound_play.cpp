@@ -69,7 +69,10 @@ void print_usage(int argc, char** argv)
             << "                     List of effects parameter\n"
             << "  --filter FILTER    Add filter\n"
             << "  --flt-param VALUE:...\n"
-            << "                     List of filter parameter\n";
+            << "                     List of filter parameter\n"
+            << "  --direct-filter FILTER    Add filter\n"
+            << "  --dflt-param VALUE:...\n"
+            << "                     List of direct filter parameter\n";
 }
 
 int str2filter(std::string text) {
@@ -137,6 +140,8 @@ struct Options
   std::vector<std::optional<std::variant<float, int>>> fxparam = {};
   int filter = AL_FILTER_NULL;
   std::vector<std::optional<std::variant<float, int>>> fltparam = {};
+  int direct_filter = AL_FILTER_NULL;
+  std::vector<std::optional<std::variant<float, int>>> dfltparam = {};
 };
 
 int main(int argc, char** argv)
@@ -218,6 +223,30 @@ int main(int argc, char** argv)
               opts.fltparam.emplace_back();
             }
           }
+        } else if (strcmp(argv[i], "--direct-filter") == 0) {
+          if (++i >= argc) {
+            throw std::runtime_error("--direct-filter needs an argument");
+          }
+          opts.direct_filter = str2filter(argv[i]);
+        } else if (strcmp(argv[i], "--dflt-param") == 0) {
+          if (++i >= argc) {
+            throw std::runtime_error("--dflt-param needs an argument");
+          }
+
+          auto const& values = string_split(argv[i], ':');
+          for(auto const& value : values) {
+            if (!value.empty()) {
+              if (value.back() == 'f') {
+                opts.dfltparam.emplace_back(std::stof(value));
+              } else if (value.back() == 'i') {
+                opts.dfltparam.emplace_back(std::stoi(value));
+              } else {
+                throw std::runtime_error("--dflt-param must have a 'i' or 'f' suffix to indicate their type");
+              }
+            } else {
+              opts.dfltparam.emplace_back();
+            }
+          }
         } else {
           std::ostringstream os;
           os << "unknown option " << argv[i];
@@ -247,6 +276,20 @@ int main(int argc, char** argv)
 
       if (opts.fade != FadeState::NoFading) {
         source->set_fading(opts.fade, 5.0f);
+      }
+
+      if (opts.direct_filter != AL_FILTER_NULL) {
+        FilterPtr direct_filter = sound_manager.create_filter(opts.direct_filter);
+        for (size_t i = 0; i < opts.dfltparam.size(); ++i) {
+          if (opts.dfltparam[i]) {
+            if (std::holds_alternative<int>(*opts.dfltparam[i])) {
+              direct_filter->seti(static_cast<int>(i) + 1, std::get<int>(*opts.dfltparam[i]));
+            } else if (std::holds_alternative<float>(*opts.dfltparam[i])) {
+              direct_filter->setf(static_cast<int>(i) + 1, std::get<float>(*opts.dfltparam[i]));
+            }
+          }
+        }
+        source->set_direct_filter(direct_filter);
       }
 
       if (opts.effect != AL_EFFECT_NULL || opts.filter != AL_FILTER_NULL) {
