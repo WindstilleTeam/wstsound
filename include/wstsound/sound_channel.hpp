@@ -22,8 +22,8 @@
 #include <filesystem>
 #include <vector>
 
+#include "fwd.hpp"
 #include "sound_source_type.hpp"
-#include "sound_source_ptr.hpp"
 
 namespace wstsound {
 

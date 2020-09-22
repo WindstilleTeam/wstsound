@@ -1,6 +1,6 @@
 /*
 **  Windstille - A Sci-Fi Action-Adventure Game
-**  Copyright (C) 2010 Ingo Ruhnke <grumbel@gmail.com>
+**  Copyright (C) 2018 Ingo Ruhnke <grumbel@gmail.com>
 **
 **  This program is free software: you can redistribute it and/or modify
 **  it under the terms of the GNU General Public License as published by
@@ -16,16 +16,20 @@
 **  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef HEADER_WINDSTILLE_SOUND_SOUND_SOURCE_PTR_HPP
-#define HEADER_WINDSTILLE_SOUND_SOUND_SOURCE_PTR_HPP
+#ifndef HEADER_WSTSOUND_FWD_HPP
+#define HEADER_WSTSOUND_FWD_HPP
 
 #include <memory>
 
 namespace wstsound {
 
 class SoundSource;
+class Effect;
+class EffectSlot;
 
 using SoundSourcePtr = std::shared_ptr<SoundSource>;
+using EffectPtr = std::shared_ptr<Effect>;
+using EffectSlotPtr = std::shared_ptr<EffectSlot>;
 
 } // namespace wstsound
 
