@@ -18,6 +18,7 @@
 
 #include <gtest/gtest.h>
 
+#include "mp3_sound_file.hpp"
 #include "ogg_sound_file.hpp"
 #include "opus_sound_file.hpp"
 #include "wav_sound_file.hpp"
@@ -77,6 +78,19 @@ TEST(SoundFileTest, opus)
   EXPECT_EQ(sound_file.get_rate(), 48000);
   EXPECT_EQ(sound_file.get_channels(), 1);
   EXPECT_FLOAT_EQ(sound_file.get_duration(), 0.25837499f);
+  EXPECT_EQ(sound_file.get_sample_duration(), get_real_sample_duration(sound_file));
+}
+
+TEST(SoundFileTest, mp3)
+{
+  auto fin = std::make_unique<std::ifstream>("data/sound.mp3");
+  MP3SoundFile sound_file(std::move(fin));
+
+  EXPECT_EQ(sound_file.get_bits_per_sample(), 16);
+  EXPECT_EQ(sound_file.get_size(), 22788);
+  EXPECT_EQ(sound_file.get_rate(), 44100);
+  EXPECT_EQ(sound_file.get_channels(), 1);
+  EXPECT_FLOAT_EQ(sound_file.get_duration(), 0.25836736f);
   EXPECT_EQ(sound_file.get_sample_duration(), get_real_sample_duration(sound_file));
 }
 

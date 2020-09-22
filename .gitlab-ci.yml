@@ -35,6 +35,7 @@ before_script:
     libvorbis-dev
     libopusfile-dev
     libgtest-dev
+    libmpg123-dev
 
 .build_wstsound_template: &build_wstsound
   stage: build

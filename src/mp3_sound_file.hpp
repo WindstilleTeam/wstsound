@@ -19,7 +19,7 @@
 #ifndef HEADER_WSTSOUND_MP3_SOUND_FILE_HPP
 #define HEADER_WSTSOUND_MP3_SOUND_FILE_HPP
 
-#include <mad.h>
+#include <mpg123.h>
 #include <vector>
 
 #include "sound_file.hpp"
@@ -43,19 +43,15 @@ public:
   void seek_to_sample(int sample) override;
 
 private:
-  static mad_flow cb_input(void* data, mad_stream* stream);
-  static mad_flow cb_output(void* data, mad_header const* header, mad_pcm* pcm);
-  static mad_flow cb_error(void* data, struct mad_stream *stream, struct mad_frame* frame);
+  static ssize_t cb_read(void* userdata, void* buffer, size_t nbytes);
+  static off_t cb_lseek(void* userdata, off_t offset, int whence);
+  static void cb_cleanup(void* userdata);
 
 private:
   std::unique_ptr<std::istream> m_istream;
-  mad_decoder m_decoder;
+  mpg123_handle* m_mh;
   int m_samplerate;
   int m_channels;
-
-  std::vector<uint8_t> m_file_buffer;
-  std::vector<uint8_t> m_buffer;
-  size_t m_byte_pos;
 
 private:
   MP3SoundFile(const MP3SoundFile&) = delete;

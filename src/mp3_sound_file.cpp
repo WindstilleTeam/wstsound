@@ -19,81 +19,99 @@
 #include "mp3_sound_file.hpp"
 
 #include <algorithm>
-#include <iostream>
+#include <assert.h>
+
+class Mpg123System
+{
+public:
+  Mpg123System() {
+    int ret;
+    ret = mpg123_init();
+    if (ret != MPG123_OK) {
+      throw std::runtime_error("mpg123_init() failed");
+    }
+  }
+
+  ~Mpg123System() {
+    mpg123_exit();
+  }
+};
 
 namespace wstsound {
 
-namespace {
-
-// taken from /usr/share/doc/libmad0-dev/examples/minimad.c.gz
-static inline
-signed int scale(mad_fixed_t sample)
-{
-  /* round */
-  sample += (1L << (MAD_F_FRACBITS - 16));
-
-  /* clip */
-  if (sample >= MAD_F_ONE)
-    sample = MAD_F_ONE - 1;
-  else if (sample < -MAD_F_ONE)
-    sample = -MAD_F_ONE;
-
-  /* quantize */
-  return sample >> (MAD_F_FRACBITS + 1 - 16);
-}
-
-} // namespace
-
 MP3SoundFile::MP3SoundFile(std::unique_ptr<std::istream> istream) :
   m_istream(std::move(istream)),
-  m_decoder(),
+  m_mh(nullptr),
   m_samplerate(0),
-  m_channels(0),
-  m_file_buffer(),
-  m_buffer(),
-  m_byte_pos(0)
+  m_channels(0)
 {
-  mad_decoder_init(&m_decoder, this,
-                   cb_input,
-                   nullptr /* header */,
-                   nullptr /* filter */,
-                   cb_output,
-                   cb_error,
-                   nullptr /* message */);
+  // This is never cleaned up
+  static Mpg123System mpg123_system;
 
-  // this is crude and will decode the complete mp3
-  mad_decoder_run(&m_decoder, MAD_DECODER_MODE_SYNC);
+  int ret;
+
+  m_mh = mpg123_new(nullptr, &ret);
+
+  ret = mpg123_replace_reader_handle(m_mh, cb_read, cb_lseek, cb_cleanup);
+  if (ret != MPG123_OK) {
+    throw std::runtime_error("mpg123_replace_reader_handle() failed");
+  }
+
+  ret = mpg123_open_handle(m_mh, this);
+  if (ret != MPG123_OK) {
+    throw std::runtime_error("mpg123_open_handle() failed");
+  }
+
+  // set what we want
+  //mpg123_format(m_mh, 48000, MPG123_STEREO | MPG123_MONO, MPG123_ENC_SIGNED_16);
+
+  // see what we got
+  long rate;
+  int channels;
+  int encoding;
+  mpg123_getformat(m_mh, &rate, &channels, &encoding);
+
+  m_samplerate = static_cast<int>(rate);
+  m_channels = channels;
 }
 
 MP3SoundFile::~MP3SoundFile()
 {
-  mad_decoder_finish(&m_decoder);
+  mpg123_close(m_mh);
 }
 
 size_t
 MP3SoundFile::read(void* buffer, size_t buffer_size)
 {
-  uint8_t* const start = m_buffer.data() + m_byte_pos;
-  uint8_t* const end = m_buffer.data() + std::min(m_buffer.size(), m_byte_pos + buffer_size);
+  size_t bytes_decoded;
+  int ret = mpg123_read(m_mh,
+                        static_cast<unsigned char*>(buffer), buffer_size,
+                        &bytes_decoded);
+  switch(ret) {
+    case MPG123_OK:
+    case MPG123_DONE:
+      return bytes_decoded;
 
-  std::copy(start, end, static_cast<uint8_t*>(buffer));
-
-  size_t len = end - start;
-  m_byte_pos += len;
-  return len;
+    default: {
+      std::ostringstream os;
+      os << "mpg123_read() failed with " << ret;
+      throw std::runtime_error(os.str());
+    }
+  }
 }
 
 void
 MP3SoundFile::reset()
 {
-  m_byte_pos = 0;
+  mpg123_seek(m_mh, 0, SEEK_SET);
 }
 
 void
 MP3SoundFile::seek_to_sample(int sample)
 {
-  m_byte_pos = sample * get_channels() * get_bits_per_sample() / 8;
-  m_byte_pos = std::clamp(m_byte_pos, static_cast<size_t>(0), m_buffer.size());
+  if (mpg123_seek(m_mh, sample, SEEK_SET) < 0) {
+    throw std::runtime_error("mpg123_seek() failed");
+  }
 }
 
 int
@@ -105,7 +123,12 @@ MP3SoundFile::get_bits_per_sample() const
 size_t
 MP3SoundFile::get_size() const
 {
-  return m_buffer.size();
+  off_t samples_len = mpg123_length(m_mh);
+  if (samples_len < 0) {
+    return 0;
+  }  else {
+    return samples_len * get_channels() * get_bits_per_sample() / 8;
+  }
 }
 
 int
@@ -120,55 +143,60 @@ MP3SoundFile::get_channels() const
   return m_channels;
 }
 
-mad_flow
-MP3SoundFile::cb_input(void* data, mad_stream* stream)
+ssize_t
+MP3SoundFile::cb_read(void* userdata, void* buffer, size_t nbytes)
 {
-  MP3SoundFile& self = *reinterpret_cast<MP3SoundFile*>(data);
+  MP3SoundFile& self = *reinterpret_cast<MP3SoundFile*>(userdata);
 
-  if (self.m_file_buffer.size() != 0) {
-    return MAD_FLOW_STOP;
-  }
-
-  // get the file size
-  self.m_istream->seekg(0, std::ios::end);
-  size_t file_size = static_cast<size_t>(self.m_istream->tellg()) / 10;
-  self.m_istream->seekg(0, std::ios::beg);
-
-  self.m_file_buffer.resize(file_size);
-
-  self.m_istream->read(reinterpret_cast<char*>(self.m_file_buffer.data()), self.m_file_buffer.size());
-
-  //std::cerr << "OK: " << self.m_istream->gcount() << std::endl;
-  mad_stream_buffer(stream, self.m_file_buffer.data(), self.m_istream->gcount());
-  return MAD_FLOW_CONTINUE;
-}
-
-mad_flow
-MP3SoundFile::cb_output(void* data, mad_header const* header, mad_pcm* pcm)
-{
-  MP3SoundFile& self = *reinterpret_cast<MP3SoundFile*>(data);
-
-  self.m_samplerate = header->samplerate;
-  self.m_channels = (header->mode == MAD_MODE_SINGLE_CHANNEL) ? 1 : 2;
-
-  self.m_buffer.reserve(self.m_buffer.size() + pcm->length * pcm->channels * 2);
-  for (unsigned int i = 0; i < pcm->length; ++i) {
-    for(unsigned int c = 0; c < pcm->channels; ++c) {
-      int const sample = scale(pcm->samples[c][i]);
-      self.m_buffer.push_back(static_cast<uint8_t>((sample >> 0) & 0xff));
-      self.m_buffer.push_back(static_cast<uint8_t>((sample >> 8) & 0xff));
+  if (!self.m_istream->read(reinterpret_cast<char*>(buffer), nbytes))
+  {
+    if (!self.m_istream->eof()) {
+      return -1;
+    } else {
+      self.m_istream->clear(std::ios::eofbit);
     }
   }
 
-  return MAD_FLOW_CONTINUE;
+  return static_cast<int>(self.m_istream->gcount());
 }
 
-mad_flow
-MP3SoundFile::cb_error(void* data, mad_stream* stream, mad_frame* frame)
+off_t
+MP3SoundFile::cb_lseek(void* userdata, off_t offset, int whence)
 {
-  //MP3SoundFile& self = *reinterpret_cast<MP3SoundFile*>(data);
-  //std::cerr << "cb_error: " << mad_stream_errorstr(stream) << "\n";
-  return MAD_FLOW_CONTINUE;
+  MP3SoundFile& self = *reinterpret_cast<MP3SoundFile*>(userdata);
+
+  switch(whence)
+  {
+    case SEEK_SET:
+      if (!self.m_istream->seekg(offset, std::ios::beg)) {
+        return -1;
+      }
+      break;
+
+    case SEEK_CUR:
+      if (!self.m_istream->seekg(offset, std::ios::cur)) {
+        return -1;
+      }
+      break;
+
+    case SEEK_END:
+      if (!self.m_istream->seekg(offset, std::ios::end)) {
+        return -1;
+      }
+      break;
+
+    default:
+      assert(false && "incorrect whence value");
+  }
+  return self.m_istream->tellg();
+}
+
+void
+MP3SoundFile::cb_cleanup(void* userdata)
+{
+ MP3SoundFile& self = *reinterpret_cast<MP3SoundFile*>(userdata);
+
+ self.m_istream.reset();
 }
 
 } // namespace wstsound

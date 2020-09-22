@@ -38,7 +38,7 @@ pkg_search_module(VORBISFILE REQUIRED vorbisfile IMPORTED_TARGET)
 
 pkg_search_module(OPUSFILE REQUIRED opusfile IMPORTED_TARGET)
 
-find_package(Mad REQUIRED)
+pkg_search_module(LIBMPG123 REQUIRED libmpg123 IMPORTED_TARGET)
 
 file(GLOB WSTSOUND_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
   src/*.cpp)
@@ -57,7 +57,7 @@ target_link_libraries(wstsound PUBLIC
   PkgConfig::VORBIS
   PkgConfig::VORBISFILE
   PkgConfig::OPUSFILE
-  Mad::Mad
+  PkgConfig::LIBMPG123
   Threads::Threads)
 
 if(BUILD_TESTS)
