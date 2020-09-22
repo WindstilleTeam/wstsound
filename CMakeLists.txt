@@ -78,6 +78,8 @@ if(BUILD_TESTS)
   add_test(NAME test_wstsound
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test/
     COMMAND test_wstsound)
+  add_test(NAME openal_info
+    COMMAND openal_info)
 endif()
 
 if(BUILD_EXTRA)
