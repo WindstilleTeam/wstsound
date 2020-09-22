@@ -48,6 +48,24 @@ std::vector<std::string> string_split(std::string_view text, char delimiter)
   return result;
 }
 
+/** OpenAL string has embedded \0s, it's terminated by a double \0 */
+std::vector<std::string> al_string_split(char const* text)
+{
+  std::vector<std::string> result;
+
+  char const* cur = text;
+  while (*cur != '\0') {
+    char const* end = cur;
+    while(*end++ != '\0');
+
+    result.emplace_back(cur, end - 1);
+
+    cur = end + 1;
+  }
+
+  return result;
+}
+
 } // namespace
 
 namespace wstsound {
@@ -172,13 +190,28 @@ OpenALSystem::get_sample_format(SoundFile* file)
 void
 OpenALSystem::print_openal_version(std::ostream& out)
 {
-  out << "OpenAL Vendor: " << alGetString(AL_VENDOR) << "\n"
-      << "OpenAL Version: " << alGetString(AL_VERSION) << "\n"
-      << "OpenAL Renderer: " << alGetString(AL_RENDERER) << "\n"
-      << "OpenAL Extensions:\n";
+  if (m_context == nullptr) {
+    out << "error: print_openal_version() called without OpenAL context\n";
+  } else {
+    out << "OpenAL Vendor: " << alGetString(AL_VENDOR) << "\n"
+        << "OpenAL Version: " << alGetString(AL_VERSION) << "\n"
+        << "OpenAL Renderer: " << alGetString(AL_RENDERER) << "\n"
+        << "OpenAL Extensions:\n";
 
-  for (auto const& ext : string_split(alGetString(AL_EXTENSIONS), ' ')) {
-    out << "  " << ext << '\n';
+    for (auto const& ext : string_split(alGetString(AL_EXTENSIONS), ' ')) {
+      out << "  " << ext << '\n';
+    }
+  }
+
+  if (alcIsExtensionPresent(nullptr, "ALC_ENUMERATION_EXT") == AL_TRUE) {
+    out << "OpenAL Devices:\n";
+
+    ALCchar const* default_device_name = alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
+    for (auto const& device : al_string_split(alcGetString(nullptr, ALC_DEVICE_SPECIFIER))) {
+      out << "  " << device
+          << ((device == default_device_name) ? " (default)" : "")
+          << '\n';
+    }
   }
 }
 
