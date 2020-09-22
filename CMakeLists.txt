@@ -38,6 +38,8 @@ pkg_search_module(VORBISFILE REQUIRED vorbisfile IMPORTED_TARGET)
 
 pkg_search_module(OPUSFILE REQUIRED opusfile IMPORTED_TARGET)
 
+find_package(Mad REQUIRED)
+
 file(GLOB WSTSOUND_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
   src/*.cpp)
 add_library(wstsound STATIC ${WSTSOUND_SOURCES})
@@ -55,6 +57,7 @@ target_link_libraries(wstsound PUBLIC
   PkgConfig::VORBIS
   PkgConfig::VORBISFILE
   PkgConfig::OPUSFILE
+  Mad::Mad
   Threads::Threads)
 
 if(BUILD_TESTS)

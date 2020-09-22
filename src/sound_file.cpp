@@ -24,6 +24,7 @@
 #include <stdexcept>
 #include <string.h>
 
+#include "mp3_sound_file.hpp"
 #include "ogg_sound_file.hpp"
 #include "opus_sound_file.hpp"
 #include "wav_sound_file.hpp"
@@ -33,9 +34,9 @@ namespace wstsound {
 std::unique_ptr<SoundFile>
 SoundFile::from_stream(std::unique_ptr<std::istream> istream)
 {
-  char magic[64];
+  uint8_t magic[64];
 
-  if (!istream->read(magic, sizeof(magic))) {
+  if (!istream->read(reinterpret_cast<char*>(magic), sizeof(magic))) {
     throw std::runtime_error("Couldn't read magic, file too short");
   } else {
     // reset the stream before handing it over
@@ -43,11 +44,16 @@ SoundFile::from_stream(std::unique_ptr<std::istream> istream)
 
     // FIXME: this is a bit of a hack, there are probably better ways
     // to tell OggVorbis and Opus appart
-    if (strncmp(magic, "RIFF", 4) == 0) {
+    if (strncmp(reinterpret_cast<char*>(magic), "RIFF", 4) == 0) {
       return std::make_unique<WavSoundFile>(std::move(istream));
-    } else if (strncmp(magic, "OggS", 4) == 0 && strncmp(magic + 28, "OpusHead", 8) == 0) {
+    } else if ((magic[0] == 0xff && (magic[1] == 0xfb || magic[1] == 0xf3 || magic[1] == 0xf2)) ||
+               (magic[0] == 0x49 && magic[1] == 0x44 && magic[2] == 0x33)) {
+      return std::make_unique<MP3SoundFile>(std::move(istream));
+    } else if (strncmp(reinterpret_cast<char*>(magic), "OggS", 4) == 0 &&
+               strncmp(reinterpret_cast<char*>(magic) + 28, "OpusHead", 8) == 0) {
       return std::make_unique<OpusSoundFile>(std::move(istream));
-    } else if (strncmp(magic, "OggS", 4) == 0 && strncmp(magic + 29, "vorbis", 4) == 0) {
+    } else if (strncmp(reinterpret_cast<char*>(magic), "OggS", 4) == 0 &&
+               strncmp(reinterpret_cast<char*>(magic) + 29, "vorbis", 4) == 0) {
       return std::make_unique<OggSoundFile>(std::move(istream));
     } else {
       throw std::runtime_error("Unknown file format");
