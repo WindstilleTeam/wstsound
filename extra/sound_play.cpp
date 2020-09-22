@@ -23,10 +23,12 @@
 #include <random>
 #include <vector>
 
-#include <wstsound/sound_manager.hpp>
-#include <wstsound/sound_file.hpp>
-#include <wstsound/sound_source.hpp>
+#include <wstsound/effect.hpp>
+#include <wstsound/effect_slot.hpp>
 #include <wstsound/filtered_sound_file.hpp>
+#include <wstsound/sound_file.hpp>
+#include <wstsound/sound_manager.hpp>
+#include <wstsound/sound_source.hpp>
 
 using namespace wstsound;
 
@@ -36,10 +38,43 @@ void print_usage(int argc, char** argv)
 {
   std::cout << "Usage: " << argv[0] << " [OPTION]... SOUNDS...\n"
             << "\n"
-            << "  --help      Display this help text\n"
-            << "  --loop      Loopt the sound\n"
-            << "  --fadein    Fade-in the sound\n"
-            << "  --seek SEC  Seek to position SEC\n";
+            << "  --help       Display this help text\n"
+            << "  --loop       Loopt the sound\n"
+            << "  --fadein     Fade-in the sound\n"
+            << "  --fadeout    Fade-out the sound\n"
+            << "  --seek SEC   Seek to position SEC\n"
+            << "  --effect FX  Add effect\n";
+}
+
+int str2effect(std::string text) {
+  std::transform(text.begin(), text.end(), text.begin(), ::toupper);
+
+  std::map<std::string, int> str2int = {
+    { "REVERB", AL_EFFECT_REVERB },
+    { "CHORUS", AL_EFFECT_CHORUS },
+    { "DISTORTION", AL_EFFECT_DISTORTION },
+    { "ECHO", AL_EFFECT_ECHO },
+    { "FLANGER", AL_EFFECT_FLANGER },
+    { "FREQUENCY_SHIFTER", AL_EFFECT_FREQUENCY_SHIFTER },
+    { "VOCAL_MORPHER", AL_EFFECT_VOCAL_MORPHER },
+    { "PITCH_SHIFTER", AL_EFFECT_PITCH_SHIFTER },
+    { "RING_MODULATOR", AL_EFFECT_RING_MODULATOR },
+    { "AUTOWAH", AL_EFFECT_AUTOWAH },
+    { "COMPRESSOR", AL_EFFECT_COMPRESSOR },
+    { "EQUALIZER", AL_EFFECT_EQUALIZER },
+  };
+
+  auto it = str2int.find(text);
+  if (it == str2int.end()) {
+    std::ostringstream os;
+    os << "unknown effect string: " << text << ", valid values are:\n";
+    for(auto const& it2 : str2int) {
+      os << "   " << it2.first << "\n";
+    }
+    throw std::runtime_error(os.str());
+  } else {
+    return it->second;
+  }
 }
 
 } // namespace
@@ -50,6 +85,7 @@ struct Options
   SoundSourceType source_type = SoundSourceType::STREAM;
   float seek = 0;
   FadeState fade = FadeState::NoFading;
+  int effect = AL_EFFECT_NULL;
 };
 
 int main(int argc, char** argv)
@@ -83,6 +119,12 @@ int main(int argc, char** argv)
           opts.fade = FadeState::FadingOn;
         } else if (strcmp(argv[i], "--fadeout") == 0) {
           opts.fade = FadeState::FadingOff;
+
+        } else if (strcmp(argv[i], "--effect") == 0) {
+          if (++i >= argc) {
+            throw std::runtime_error("--effect needs an argument");
+          }
+          opts.effect = str2effect(argv[i]);
         } else {
           std::cerr << "error: unknown option " << argv[i] << std::endl;
         }
@@ -110,6 +152,12 @@ int main(int argc, char** argv)
 
       if (opts.fade != FadeState::NoFading) {
         source->set_fading(opts.fade, 5.0f);
+      }
+
+      if (opts.effect != AL_EFFECT_NULL) {
+        auto slot = sound_manager.create_effect_slot();
+        slot->set_effect(sound_manager.create_effect(opts.effect));
+        source->set_effect_slot(slot);
       }
 
       sources.emplace_back(source);
