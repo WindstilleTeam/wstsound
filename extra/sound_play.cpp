@@ -22,6 +22,7 @@
 #include <iostream>
 #include <random>
 #include <vector>
+#include <variant>
 
 #include <wstsound/effect.hpp>
 #include <wstsound/effect_slot.hpp>
@@ -34,16 +35,37 @@ using namespace wstsound;
 
 namespace {
 
+std::vector<std::string> string_split(std::string_view text, char delimiter)
+{
+  std::vector<std::string> result;
+
+  std::string::size_type start = 0;
+  for(std::string::size_type i = 0; i != text.size(); ++i)
+  {
+    if (text[i] == delimiter)
+    {
+      result.emplace_back(text.substr(start, i - start));
+      start = i + 1;
+    }
+  }
+
+  result.emplace_back(text.substr(start));
+
+  return result;
+}
+
 void print_usage(int argc, char** argv)
 {
   std::cout << "Usage: " << argv[0] << " [OPTION]... SOUNDS...\n"
             << "\n"
-            << "  --help       Display this help text\n"
-            << "  --loop       Loopt the sound\n"
-            << "  --fadein     Fade-in the sound\n"
-            << "  --fadeout    Fade-out the sound\n"
-            << "  --seek SEC   Seek to position SEC\n"
-            << "  --effect FX  Add effect\n";
+            << "  --help             Display this help text\n"
+            << "  --loop             Loopt the sound\n"
+            << "  --fadein           Fade-in the sound\n"
+            << "  --fadeout          Fade-out the sound\n"
+            << "  --seek SEC         Seek to position SEC\n"
+            << "  --effect FX        Add effect\n"
+            << "  --fx-param VALUE:...\n"
+            << "                     List of effects values\n";
 }
 
 int str2effect(std::string text) {
@@ -86,6 +108,7 @@ struct Options
   float seek = 0;
   FadeState fade = FadeState::NoFading;
   int effect = AL_EFFECT_NULL;
+  std::vector<std::optional<std::variant<float, int>>> fxparam = {};
 };
 
 int main(int argc, char** argv)
@@ -125,8 +148,29 @@ int main(int argc, char** argv)
             throw std::runtime_error("--effect needs an argument");
           }
           opts.effect = str2effect(argv[i]);
+        } else if (strcmp(argv[i], "--fx-param") == 0) {
+          if (++i >= argc) {
+            throw std::runtime_error("--fx-param needs an argument");
+          }
+
+          auto const& values = string_split(argv[i], ':');
+          for(auto const& value : values) {
+            if (!value.empty()) {
+              if (value.back() == 'f') {
+                opts.fxparam.emplace_back(std::stof(value));
+              } else if (value.back() == 'i') {
+                opts.fxparam.emplace_back(std::stoi(value));
+              } else {
+                throw std::runtime_error("--fx-param must have a 'i' or 'f' suffix to indicate their type");
+              }
+            } else {
+              opts.fxparam.emplace_back();
+            }
+          }
         } else {
-          std::cerr << "error: unknown option " << argv[i] << std::endl;
+          std::ostringstream os;
+          os << "unknown option " << argv[i];
+          throw std::runtime_error(os.str());
         }
       } else {
         files.emplace_back(argv[i]);
@@ -156,7 +200,19 @@ int main(int argc, char** argv)
 
       if (opts.effect != AL_EFFECT_NULL) {
         auto slot = sound_manager.create_effect_slot();
-        slot->set_effect(sound_manager.create_effect(opts.effect));
+        auto effect = sound_manager.create_effect(opts.effect);
+
+        for (size_t i = 0; i < opts.fxparam.size(); ++i) {
+          if (opts.fxparam[i]) {
+            if (std::holds_alternative<int>(*opts.fxparam[i])) {
+              effect->seti(static_cast<int>(i) + 1, std::get<int>(*opts.fxparam[i]));
+            } else if (std::holds_alternative<float>(*opts.fxparam[i])) {
+                effect->setf(static_cast<int>(i) + 1, std::get<float>(*opts.fxparam[i]));
+            }
+          }
+        }
+
+        slot->set_effect(effect);
         source->set_effect_slot(slot);
       }
 
