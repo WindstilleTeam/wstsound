@@ -26,6 +26,7 @@
 
 #include <wstsound/effect.hpp>
 #include <wstsound/effect_slot.hpp>
+#include <wstsound/filter.hpp>
 #include <wstsound/filtered_sound_file.hpp>
 #include <wstsound/sound_file.hpp>
 #include <wstsound/sound_manager.hpp>
@@ -65,13 +66,38 @@ void print_usage(int argc, char** argv)
             << "  --seek SEC         Seek to position SEC\n"
             << "  --effect FX        Add effect\n"
             << "  --fx-param VALUE:...\n"
-            << "                     List of effects values\n";
+            << "                     List of effects parameter\n"
+            << "  --filter FILTER    Add filter\n"
+            << "  --flt-param VALUE:...\n"
+            << "                     List of filter parameter\n";
+}
+
+int str2filter(std::string text) {
+  std::transform(text.begin(), text.end(), text.begin(), ::toupper);
+
+  static std::map<std::string, int> const str2int = {
+    { "LOWPASS", AL_FILTER_LOWPASS },
+    { "HIGHPASS", AL_FILTER_HIGHPASS },
+    { "BANDPASS", AL_FILTER_BANDPASS },
+  };
+
+  auto it = str2int.find(text);
+  if (it == str2int.end()) {
+    std::ostringstream os;
+    os << "unknown filter string: " << text << ", valid values are:\n";
+    for(auto const& it2 : str2int) {
+      os << "   " << it2.first << "\n";
+    }
+    throw std::runtime_error(os.str());
+  } else {
+    return it->second;
+  }
 }
 
 int str2effect(std::string text) {
   std::transform(text.begin(), text.end(), text.begin(), ::toupper);
 
-  std::map<std::string, int> str2int = {
+  static std::map<std::string, int> const str2int = {
     { "REVERB", AL_EFFECT_REVERB },
     { "CHORUS", AL_EFFECT_CHORUS },
     { "DISTORTION", AL_EFFECT_DISTORTION },
@@ -109,6 +135,8 @@ struct Options
   FadeState fade = FadeState::NoFading;
   int effect = AL_EFFECT_NULL;
   std::vector<std::optional<std::variant<float, int>>> fxparam = {};
+  int filter = AL_FILTER_NULL;
+  std::vector<std::optional<std::variant<float, int>>> fltparam = {};
 };
 
 int main(int argc, char** argv)
@@ -142,7 +170,6 @@ int main(int argc, char** argv)
           opts.fade = FadeState::FadingOn;
         } else if (strcmp(argv[i], "--fadeout") == 0) {
           opts.fade = FadeState::FadingOff;
-
         } else if (strcmp(argv[i], "--effect") == 0) {
           if (++i >= argc) {
             throw std::runtime_error("--effect needs an argument");
@@ -165,6 +192,30 @@ int main(int argc, char** argv)
               }
             } else {
               opts.fxparam.emplace_back();
+            }
+          }
+        } else if (strcmp(argv[i], "--filter") == 0) {
+          if (++i >= argc) {
+            throw std::runtime_error("--filter needs an argument");
+          }
+          opts.filter = str2filter(argv[i]);
+        } else if (strcmp(argv[i], "--flt-param") == 0) {
+          if (++i >= argc) {
+            throw std::runtime_error("--flt-param needs an argument");
+          }
+
+          auto const& values = string_split(argv[i], ':');
+          for(auto const& value : values) {
+            if (!value.empty()) {
+              if (value.back() == 'f') {
+                opts.fltparam.emplace_back(std::stof(value));
+              } else if (value.back() == 'i') {
+                opts.fltparam.emplace_back(std::stoi(value));
+              } else {
+                throw std::runtime_error("--flt-param must have a 'i' or 'f' suffix to indicate their type");
+              }
+            } else {
+              opts.fltparam.emplace_back();
             }
           }
         } else {
@@ -198,22 +249,38 @@ int main(int argc, char** argv)
         source->set_fading(opts.fade, 5.0f);
       }
 
-      if (opts.effect != AL_EFFECT_NULL) {
+      if (opts.effect != AL_EFFECT_NULL || opts.filter != AL_FILTER_NULL) {
         auto slot = sound_manager.create_effect_slot();
-        auto effect = sound_manager.create_effect(opts.effect);
 
-        for (size_t i = 0; i < opts.fxparam.size(); ++i) {
-          if (opts.fxparam[i]) {
-            if (std::holds_alternative<int>(*opts.fxparam[i])) {
-              effect->seti(static_cast<int>(i) + 1, std::get<int>(*opts.fxparam[i]));
-            } else if (std::holds_alternative<float>(*opts.fxparam[i])) {
+        if (opts.effect != AL_EFFECT_NULL) {
+          auto effect = sound_manager.create_effect(opts.effect);
+          for (size_t i = 0; i < opts.fxparam.size(); ++i) {
+            if (opts.fxparam[i]) {
+              if (std::holds_alternative<int>(*opts.fxparam[i])) {
+                effect->seti(static_cast<int>(i) + 1, std::get<int>(*opts.fxparam[i]));
+              } else if (std::holds_alternative<float>(*opts.fxparam[i])) {
                 effect->setf(static_cast<int>(i) + 1, std::get<float>(*opts.fxparam[i]));
+              }
+            }
+          }
+          slot->set_effect(effect);
+        }
+
+        FilterPtr filter;
+        if (opts.filter != AL_FILTER_NULL) {
+          filter = sound_manager.create_filter(opts.filter);
+          for (size_t i = 0; i < opts.fltparam.size(); ++i) {
+            if (opts.fltparam[i]) {
+              if (std::holds_alternative<int>(*opts.fltparam[i])) {
+                filter->seti(static_cast<int>(i) + 1, std::get<int>(*opts.fltparam[i]));
+              } else if (std::holds_alternative<float>(*opts.fltparam[i])) {
+                filter->setf(static_cast<int>(i) + 1, std::get<float>(*opts.fltparam[i]));
+              }
             }
           }
         }
 
-        slot->set_effect(effect);
-        source->set_effect_slot(slot);
+        source->set_effect_slot(slot, filter);
       }
 
       sources.emplace_back(source);
