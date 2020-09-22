@@ -21,6 +21,10 @@
 #include <assert.h>
 #include <iostream>
 
+#define AL_ALEXT_PROTOTYPES
+#include <efx.h>
+
+#include "effect_slot.hpp"
 #include "sound_manager.hpp"
 
 namespace wstsound {
@@ -28,7 +32,8 @@ namespace wstsound {
 OpenALSoundSource::OpenALSoundSource(SoundChannel& channel) :
   m_channel(channel),
   m_source(),
-  m_gain(1.0f)
+  m_gain(1.0f),
+  m_effect_slot()
 {
   alGenSources(1, &m_source);
   OpenALSystem::check_al_error("Couldn't create audio source: ");
@@ -157,6 +162,15 @@ void
 OpenALSoundSource::update(float delta)
 {
   SoundSource::update(delta);
+}
+
+void
+OpenALSoundSource::set_effect_slot(EffectSlotPtr const& slot)
+{
+  m_effect_slot = slot;
+
+  alSource3i(m_source,AL_AUXILIARY_SEND_FILTER, slot->handle(), 1, 0);
+  OpenALSystem::check_al_error("OpenALSoundSource::update_set_effect_slot: ");
 }
 
 } // namespace wstsound

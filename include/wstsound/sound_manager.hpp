@@ -69,6 +69,9 @@ public:
                                      SoundChannel& channel,
                                      SoundSourceType type);
 
+  EffectSlotPtr create_effect_slot();
+  EffectPtr create_effect(ALuint effect_type);
+
 private:
   ALuint load_file_into_buffer(std::filesystem::path const& filename);
 

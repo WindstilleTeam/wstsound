@@ -22,6 +22,8 @@
 #include <iostream>
 #include <sstream>
 
+#include "effect.hpp"
+#include "effect_slot.hpp"
 #include "openal_system.hpp"
 #include "sound_file.hpp"
 #include "sound_manager.hpp"
@@ -164,6 +166,18 @@ SoundManager::update(float delta)
   }
 
   m_openal.update();
+}
+
+EffectSlotPtr
+SoundManager::create_effect_slot()
+{
+  return std::make_shared<EffectSlot>();
+}
+
+EffectPtr
+SoundManager::create_effect(ALuint effect_type)
+{
+  return std::make_shared<Effect>(effect_type);
 }
 
 } // namespace wstsound

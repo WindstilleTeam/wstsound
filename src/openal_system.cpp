@@ -22,6 +22,9 @@
 #include <iostream>
 #include <stdexcept>
 
+#define AL_ALEXT_PROTOTYPES
+#include <alext.h>
+
 #include "sound_file.hpp"
 
 namespace {
@@ -60,7 +63,6 @@ OpenALSystem::OpenALSystem() :
 
     if (!m_device)
     {
-      print_openal_version(std::cerr);
       throw std::runtime_error("Couldn't open audio device.");
     }
     else
@@ -84,7 +86,6 @@ OpenALSystem::OpenALSystem() :
 
     std::cerr << "Disabling sound\n";
   }
-
 }
 
 OpenALSystem::~OpenALSystem()
