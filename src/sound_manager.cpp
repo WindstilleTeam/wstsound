@@ -24,6 +24,7 @@
 
 #include "effect.hpp"
 #include "effect_slot.hpp"
+#include "filter.hpp"
 #include "openal_system.hpp"
 #include "sound_file.hpp"
 #include "sound_manager.hpp"
@@ -178,6 +179,12 @@ EffectPtr
 SoundManager::create_effect(ALuint effect_type)
 {
   return std::make_shared<Effect>(effect_type);
+}
+
+FilterPtr
+SoundManager::create_filter(ALuint filter_type)
+{
+  return std::make_shared<Filter>(filter_type);
 }
 
 } // namespace wstsound

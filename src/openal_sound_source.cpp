@@ -25,6 +25,7 @@
 #include <efx.h>
 
 #include "effect_slot.hpp"
+#include "filter.hpp"
 #include "sound_manager.hpp"
 
 namespace wstsound {
@@ -33,6 +34,7 @@ OpenALSoundSource::OpenALSoundSource(SoundChannel& channel) :
   m_channel(channel),
   m_source(),
   m_gain(1.0f),
+  m_filter(),
   m_effect_slot()
 {
   alGenSources(1, &m_source);
@@ -165,11 +167,15 @@ OpenALSoundSource::update(float delta)
 }
 
 void
-OpenALSoundSource::set_effect_slot(EffectSlotPtr const& slot)
+OpenALSoundSource::set_effect_slot(EffectSlotPtr const& slot, FilterPtr const& filter)
 {
   m_effect_slot = slot;
+  m_filter = filter;
 
-  alSource3i(m_source,AL_AUXILIARY_SEND_FILTER, slot->handle(), 1, 0);
+  alSource3i(m_source, AL_AUXILIARY_SEND_FILTER,
+             slot->handle(),
+             1,
+             filter ? m_filter->handle() : AL_FILTER_NULL);
   OpenALSystem::check_al_error("OpenALSoundSource::update_set_effect_slot: ");
 }
 

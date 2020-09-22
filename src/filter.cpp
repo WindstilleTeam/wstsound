@@ -16,25 +16,36 @@
 **  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef HEADER_WSTSOUND_FWD_HPP
-#define HEADER_WSTSOUND_FWD_HPP
-
-#include <memory>
+#include "filter.hpp"
 
 namespace wstsound {
 
-class SoundSource;
-class Effect;
-class EffectSlot;
-class Filter;
+Filter::Filter(int filter_type) :
+  m_handle()
+{
+  alGenFilters(1, &m_handle);
+  alFilteri(m_handle, AL_FILTER_TYPE, filter_type);
+}
 
-using SoundSourcePtr = std::shared_ptr<SoundSource>;
-using EffectPtr = std::shared_ptr<Effect>;
-using EffectSlotPtr = std::shared_ptr<EffectSlot>;
-using FilterPtr = std::shared_ptr<Filter>;
+Filter::~Filter()
+{
+  alDeleteFilters(1, &m_handle);
+}
+
+
+void
+Filter::seti(int param, int value)
+{
+  alFilteri(m_handle, param, value);
+}
+
+void
+Filter::setf(int param, float value)
+{
+  alFilterf(m_handle, param, value);
+}
+
 
 } // namespace wstsound
-
-#endif
 
 /* EOF */

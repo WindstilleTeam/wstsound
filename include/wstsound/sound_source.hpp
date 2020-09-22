@@ -70,7 +70,7 @@ public:
       0.0f disables distance based reduction completly */
   virtual void set_rolloff_factor(float factor) = 0;
 
-  virtual void set_effect_slot(EffectSlotPtr const& slot) = 0;
+  virtual void set_effect_slot(EffectSlotPtr const& slot, FilterPtr const& filter = {}) = 0;
 
   /** Needs to be called whenever the SoundChannels gain changes */
   virtual void update_gain() const = 0;

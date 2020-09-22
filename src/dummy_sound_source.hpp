@@ -63,7 +63,7 @@ public:
       0.0f disables distance based reduction completly */
   void set_rolloff_factor(float factor) override {}
 
-  void set_effect_slot(EffectSlotPtr const& slot) override {}
+  void set_effect_slot(EffectSlotPtr const& slot, FilterPtr const& filter = {}) override {}
 
   /** Needs to be called whenever the SoundChannels gain changes */
   void update_gain() const override {}
