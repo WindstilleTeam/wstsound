@@ -24,6 +24,29 @@
 
 #include "sound_file.hpp"
 
+namespace {
+
+std::vector<std::string> string_split(std::string_view text, char delimiter)
+{
+  std::vector<std::string> result;
+
+  std::string::size_type start = 0;
+  for(std::string::size_type i = 0; i != text.size(); ++i)
+  {
+    if (text[i] == delimiter)
+    {
+      result.emplace_back(text.substr(start, i - start));
+      start = i + 1;
+    }
+  }
+
+  result.emplace_back(text.substr(start));
+
+  return result;
+}
+
+} // namespace
+
 namespace wstsound {
 
 OpenALSystem::OpenALSystem() :
@@ -151,7 +174,11 @@ OpenALSystem::print_openal_version(std::ostream& out)
   out << "OpenAL Vendor: " << alGetString(AL_VENDOR) << "\n"
       << "OpenAL Version: " << alGetString(AL_VERSION) << "\n"
       << "OpenAL Renderer: " << alGetString(AL_RENDERER) << "\n"
-      << "OpenAL Extensions: " << alGetString(AL_EXTENSIONS) << "\n";
+      << "OpenAL Extensions:\n";
+
+  for (auto const& ext : string_split(alGetString(AL_EXTENSIONS), ' ')) {
+    out << "  " << ext << '\n';
+  }
 }
 
 void
