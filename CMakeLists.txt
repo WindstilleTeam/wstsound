@@ -19,6 +19,7 @@ project(wstsound VERSION 0.3.0)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/external/cmake-modules/)
 
+include(GNUInstallDirs)
 include(ClangTidy)
 include(MaximumWarnings)
 
@@ -35,9 +36,12 @@ pkg_search_module(OPUSFILE REQUIRED opusfile IMPORTED_TARGET)
 pkg_search_module(LIBMPG123 REQUIRED libmpg123 IMPORTED_TARGET)
 pkg_search_module(LIBMODPLUG REQUIRED libmodplug IMPORTED_TARGET)
 
+file(GLOB WSTSOUND_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+  include/wstsound/*.hpp)
 file(GLOB WSTSOUND_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
   src/*.cpp)
 add_library(wstsound STATIC ${WSTSOUND_SOURCES})
+set_target_properties(wstsound PROPERTIES PUBLIC_HEADER "${WSTSOUND_HEADERS}")
 target_compile_options(wstsound PUBLIC ${WARNINGS_CXX_FLAGS})
 set_target_properties(wstsound PROPERTIES
   CXX_STANDARD 20
@@ -95,5 +99,9 @@ if(BUILD_EXTRA)
       CXX_EXTENSIONS OFF)
   endforeach(SRC)
 endif()
+
+install(TARGETS wstsound
+  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+  PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}")
 
 # EOF #
