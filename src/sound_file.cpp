@@ -24,6 +24,7 @@
 #include <stdexcept>
 #include <string.h>
 
+#include "modplug_sound_file.hpp"
 #include "mp3_sound_file.hpp"
 #include "ogg_sound_file.hpp"
 #include "opus_sound_file.hpp"
@@ -55,6 +56,8 @@ SoundFile::from_stream(std::unique_ptr<std::istream> istream)
     } else if (strncmp(reinterpret_cast<char*>(magic), "OggS", 4) == 0 &&
                strncmp(reinterpret_cast<char*>(magic) + 29, "vorbis", 4) == 0) {
       return std::make_unique<OggSoundFile>(std::move(istream));
+    } else if (strncmp(reinterpret_cast<char*>(magic), "IMPM", 4) == 0) {
+      return std::make_unique<ModplugSoundFile>(std::move(istream));
     } else {
       throw std::runtime_error("Unknown file format");
     }

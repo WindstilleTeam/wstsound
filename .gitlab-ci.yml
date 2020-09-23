@@ -36,6 +36,7 @@ before_script:
     libopusfile-dev
     libgtest-dev
     libmpg123-dev
+    libmodplug-dev
 
 .build_wstsound_template: &build_wstsound
   stage: build

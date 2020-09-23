@@ -40,6 +40,8 @@ pkg_search_module(OPUSFILE REQUIRED opusfile IMPORTED_TARGET)
 
 pkg_search_module(LIBMPG123 REQUIRED libmpg123 IMPORTED_TARGET)
 
+pkg_search_module(LIBMODPLUG REQUIRED libmodplug IMPORTED_TARGET)
+
 file(GLOB WSTSOUND_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
   src/*.cpp)
 add_library(wstsound STATIC ${WSTSOUND_SOURCES})
@@ -58,6 +60,7 @@ target_link_libraries(wstsound PUBLIC
   PkgConfig::VORBISFILE
   PkgConfig::OPUSFILE
   PkgConfig::LIBMPG123
+  PkgConfig::LIBMODPLUG
   Threads::Threads)
 
 if(BUILD_TESTS)
