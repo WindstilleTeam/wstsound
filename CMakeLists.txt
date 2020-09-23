@@ -29,17 +29,10 @@ if(NOT TARGET Threads::Threads)
 endif()
 
 find_package(OpenAL REQUIRED)
-
 find_package(PkgConfig REQUIRED)
-
-pkg_search_module(OGG REQUIRED ogg IMPORTED_TARGET)
-pkg_search_module(VORBIS REQUIRED vorbis IMPORTED_TARGET)
 pkg_search_module(VORBISFILE REQUIRED vorbisfile IMPORTED_TARGET)
-
 pkg_search_module(OPUSFILE REQUIRED opusfile IMPORTED_TARGET)
-
 pkg_search_module(LIBMPG123 REQUIRED libmpg123 IMPORTED_TARGET)
-
 pkg_search_module(LIBMODPLUG REQUIRED libmodplug IMPORTED_TARGET)
 
 file(GLOB WSTSOUND_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
@@ -55,8 +48,6 @@ target_include_directories(wstsound PUBLIC include/)
 target_include_directories(wstsound PRIVATE src/ include/wstsound/)
 target_link_libraries(wstsound PUBLIC
   ${OPENAL_LIBRARY}
-  PkgConfig::OGG
-  PkgConfig::VORBIS
   PkgConfig::VORBISFILE
   PkgConfig::OPUSFILE
   PkgConfig::LIBMPG123
