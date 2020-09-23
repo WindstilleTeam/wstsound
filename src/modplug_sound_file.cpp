@@ -59,12 +59,6 @@ ModplugSoundFile::read(void* buffer, size_t buffer_size)
 }
 
 void
-ModplugSoundFile::reset()
-{
-  ModPlug_Seek(m_file, 0);
-}
-
-void
 ModplugSoundFile::seek_to_sample(int sample)
 {
   long int msec = (1000L * static_cast<long>(sample) / static_cast<long>(get_rate()));

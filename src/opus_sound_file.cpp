@@ -94,12 +94,6 @@ OpusSoundFile::read(void* buffer, size_t buffer_size)
 }
 
 void
-OpusSoundFile::reset()
-{
-  op_pcm_seek(m_opus_file, 0);
-}
-
-void
 OpusSoundFile::seek_to_sample(int sample)
 {
   op_pcm_seek(m_opus_file, sample);

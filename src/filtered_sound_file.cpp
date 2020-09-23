@@ -50,12 +50,6 @@ FilteredSoundFile::read(void* buffer, size_t buffer_size)
   return len;
 }
 
-void
-FilteredSoundFile::reset()
-{
-  return m_sound_file->reset();
-}
-
 int
 FilteredSoundFile::get_bits_per_sample() const
 {

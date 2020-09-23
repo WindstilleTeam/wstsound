@@ -115,12 +115,6 @@ OggSoundFile::read(void* _buffer, size_t buffer_size)
 }
 
 void
-OggSoundFile::reset()
-{
-  ov_raw_seek(&m_vorbis_file, 0);
-}
-
-void
 OggSoundFile::seek_to_sample(int sample)
 {
   ov_pcm_seek_lap(&m_vorbis_file, sample);

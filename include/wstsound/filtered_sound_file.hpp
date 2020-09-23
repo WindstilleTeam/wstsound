@@ -33,14 +33,12 @@ public:
   ~FilteredSoundFile() override;
 
   size_t read(void* buffer, size_t buffer_size) override;
-  void reset() override;
+  void seek_to_sample(int sample) override;
 
   int    get_bits_per_sample() const override;
   size_t get_size() const override;
   int    get_rate() const override;
   int    get_channels() const override;
-
-  void seek_to_sample(int sample) override;
 
 private:
   std::unique_ptr<SoundFile> m_sound_file;

@@ -66,18 +66,6 @@ ProceduralSoundFile::read(void* buffer, size_t buffer_size)
   return buffer_size;
 }
 
-void
-ProceduralSoundFile::reset()
-{
-  m_sample_pos = 0;
-}
-
-void
-ProceduralSoundFile::seek_to_sample(int sample)
-{
-  m_sample_pos = sample;
-}
-
 } // namespace wstsound
 
 /* EOF */

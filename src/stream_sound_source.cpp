@@ -180,7 +180,7 @@ StreamSoundSource::fill_buffer_and_queue(ALuint buffer)
                                                 bytesrequested);
     if (bytesread == 0) { // EOF reached
       if (m_looping) {
-        m_sound_file->reset();
+        m_sound_file->seek_to_sample(0);
       } else {
         break;
       }

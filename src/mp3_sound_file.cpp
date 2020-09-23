@@ -101,12 +101,6 @@ MP3SoundFile::read(void* buffer, size_t buffer_size)
 }
 
 void
-MP3SoundFile::reset()
-{
-  mpg123_seek(m_mh, 0, SEEK_SET);
-}
-
-void
 MP3SoundFile::seek_to_sample(int sample)
 {
   if (mpg123_seek(m_mh, sample, SEEK_SET) < 0) {

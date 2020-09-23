@@ -172,14 +172,6 @@ WavSoundFile::~WavSoundFile()
 }
 
 void
-WavSoundFile::reset()
-{
-  if (!m_istream->seekg(m_datastart)) {
-    throw std::runtime_error("Couldn't seek to data start");
-  }
-}
-
-void
 WavSoundFile::seek_to_sample(int sample)
 {
   std::streamoff byte_pos = sample * m_channels * m_bits_per_sample / 8;
