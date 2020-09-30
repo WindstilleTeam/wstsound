@@ -68,6 +68,8 @@ void print_usage(int argc, char** argv)
             << "  --fadein           Fade-in the sound\n"
             << "  --fadeout          Fade-out the sound\n"
             << "  --seek SEC         Seek to position SEC\n"
+            << "  --position X,Y,Z   Set sound position\n"
+            << "  --velocity X,Y,Z   Set sound velocity\n"
             << "  --effect FX        Add effect\n"
             << "  --fx-param VALUE:...\n"
             << "                     List of effects parameter\n"
@@ -138,6 +140,8 @@ struct FileOptions
   bool loop = false;
   SoundSourceType source_type = SoundSourceType::STREAM;
   float seek = 0;
+  std::array<float, 3> position = { 0.0f, 0.0f, 0.0f };
+  std::array<float, 3> velocity = { 0.0f, 0.0f, 0.0f };
   FadeState fade = FadeState::NoFading;
   int effect = AL_EFFECT_NULL;
   std::vector<std::optional<std::variant<float, int>>> fxparam = {};
@@ -179,6 +183,20 @@ Options parse_args(int argc, char** argv)
       return opts.files.back();
     };
 
+    auto arg_parse_vec3 = [&](std::string_view text) {
+      auto const& values = string_split(argv[i], ',');
+      if (values.size() > 3) {
+        std::ostringstream os;
+        os << argv[i - 1] << " must have no more than X,Y,Z arguments";
+        throw std::runtime_error(os.str());
+      } else {
+        std::array<float, 3> result = { 0.0f, 0.0f, 0.0f };
+        std::transform(values.begin(), values.end(), result.begin(),
+                       [](std::string const& v){ return std::stof(v); });
+        return result;
+      }
+    };
+
     auto arg_parse_list = [&](){
       std::vector<std::optional<std::variant<float, int>>> result;
       auto const& values = string_split(argv[i], ':');
@@ -213,6 +231,12 @@ Options parse_args(int argc, char** argv)
       } else if (strcmp(argv[i], "--seek") == 0) {
         next_arg();
         file_opts().seek = std::stof(argv[i]);
+      } else if (strcmp(argv[i], "--position") == 0) {
+        next_arg();
+        file_opts().position = arg_parse_vec3(argv[i]);
+      } else if (strcmp(argv[i], "--velocity") == 0) {
+        next_arg();
+        file_opts().velocity = arg_parse_vec3(argv[i]);
       } else if (strcmp(argv[i], "--fadein") == 0) {
         file_opts().fade = FadeState::FadingOn;
       } else if (strcmp(argv[i], "--fadeout") == 0) {
@@ -265,6 +289,8 @@ int run(int argc, char** argv)
     SoundSourcePtr source = sound_manager.sound().prepare(file_opts.filename, file_opts.source_type);
 
     source->set_looping(file_opts.loop);
+    source->set_position(file_opts.position[0], file_opts.position[1], file_opts.position[2]);
+    source->set_velocity(file_opts.velocity[0], file_opts.velocity[1], file_opts.velocity[2]);
 
     if (file_opts.seek != 0) {
       source->seek_to(file_opts.seek);
