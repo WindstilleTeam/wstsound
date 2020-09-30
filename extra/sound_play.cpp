@@ -19,10 +19,11 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <filesystem>
 #include <iostream>
 #include <random>
-#include <vector>
 #include <variant>
+#include <vector>
 
 #include <wstsound/effect.hpp>
 #include <wstsound/effect_slot.hpp>
@@ -57,9 +58,12 @@ std::vector<std::string> string_split(std::string_view text, char delimiter)
 
 void print_usage(int argc, char** argv)
 {
-  std::cout << "Usage: " << argv[0] << " [OPTION]... SOUNDS...\n"
+  std::cout << "Usage: " << argv[0] << " [GLOBALOPTION]... ( SOUND [SOUNDOPTION] )...\n"
             << "\n"
+            << "Global Option:\n"
             << "  --help             Display this help text\n"
+            << "\n"
+            << "Sound Option:\n"
             << "  --loop             Loopt the sound\n"
             << "  --fadein           Fade-in the sound\n"
             << "  --fadeout          Fade-out the sound\n"
@@ -128,9 +132,9 @@ int str2effect(std::string text) {
   }
 }
 
-struct Options
+struct FileOptions
 {
-  std::vector<std::string> files = {};
+  std::filesystem::path filename = {};
   bool loop = false;
   SoundSourceType source_type = SoundSourceType::STREAM;
   float seek = 0;
@@ -141,6 +145,11 @@ struct Options
   std::vector<std::optional<std::variant<float, int>>> fltparam = {};
   int direct_filter = AL_FILTER_NULL;
   std::vector<std::optional<std::variant<float, int>>> dfltparam = {};
+};
+
+struct Options
+{
+  std::vector<FileOptions> files = {};
 };
 
 Options parse_args(int argc, char** argv)
@@ -159,6 +168,15 @@ Options parse_args(int argc, char** argv)
         msg << argv[i - 1] << " needs an argument";
         throw std::runtime_error(msg.str());
       }
+    };
+
+    auto file_opts = [&]() -> FileOptions& {
+      if (opts.files.empty()) {
+        std::ostringstream os;
+        os << argv[i - 1] << " option must follow filename, not precede it";
+        throw std::runtime_error(os.str());
+      }
+      return opts.files.back();
     };
 
     auto arg_parse_list = [&](){
@@ -187,43 +205,44 @@ Options parse_args(int argc, char** argv)
         print_usage(argc, argv);
         exit(EXIT_SUCCESS);
       } else if (strcmp(argv[i], "--loop") == 0) {
-        opts.loop = true;
+        file_opts().loop = true;
       } else if (strcmp(argv[i], "--stream") == 0) {
-        opts.source_type = SoundSourceType::STREAM;
+        file_opts().source_type = SoundSourceType::STREAM;
       } else if (strcmp(argv[i], "--static") == 0) {
-        opts.source_type = SoundSourceType::STATIC;
+        file_opts().source_type = SoundSourceType::STATIC;
       } else if (strcmp(argv[i], "--seek") == 0) {
         next_arg();
-        opts.seek = std::stof(argv[i]);
+        file_opts().seek = std::stof(argv[i]);
       } else if (strcmp(argv[i], "--fadein") == 0) {
-        opts.fade = FadeState::FadingOn;
+        file_opts().fade = FadeState::FadingOn;
       } else if (strcmp(argv[i], "--fadeout") == 0) {
-        opts.fade = FadeState::FadingOff;
+        file_opts().fade = FadeState::FadingOff;
       } else if (strcmp(argv[i], "--effect") == 0) {
         next_arg();
-        opts.effect = str2effect(argv[i]);
+        file_opts().effect = str2effect(argv[i]);
       } else if (strcmp(argv[i], "--fx-param") == 0) {
         next_arg();
-        opts.fxparam = arg_parse_list();
+        file_opts().fxparam = arg_parse_list();
       } else if (strcmp(argv[i], "--filter") == 0) {
         next_arg();
-        opts.filter = str2filter(argv[i]);
+        file_opts().filter = str2filter(argv[i]);
       } else if (strcmp(argv[i], "--flt-param") == 0) {
         next_arg();
-        opts.fltparam = arg_parse_list();
+        file_opts().fltparam = arg_parse_list();
       } else if (strcmp(argv[i], "--direct-filter") == 0) {
         next_arg();
-        opts.direct_filter = str2filter(argv[i]);
+        file_opts().direct_filter = str2filter(argv[i]);
       } else if (strcmp(argv[i], "--dflt-param") == 0) {
         next_arg();
-        opts.dfltparam = arg_parse_list();
+        file_opts().dfltparam = arg_parse_list();
       } else {
         std::ostringstream os;
         os << "unknown option " << argv[i];
         throw std::runtime_error(os.str());
       }
     } else {
-      opts.files.emplace_back(argv[i]);
+      opts.files.emplace_back();
+      file_opts().filename = argv[i];
     }
   }
 
@@ -241,45 +260,45 @@ int run(int argc, char** argv)
   sound_manager.voice().set_gain(1.0f);
 
   std::vector<SoundSourcePtr> sources;
-  for (auto const& filename : opts.files)
+  for (FileOptions const& file_opts : opts.files)
   {
-    SoundSourcePtr source = sound_manager.sound().prepare(filename, opts.source_type);
+    SoundSourcePtr source = sound_manager.sound().prepare(file_opts.filename, file_opts.source_type);
 
-    source->set_looping(opts.loop);
+    source->set_looping(file_opts.loop);
 
-    if (opts.seek != 0) {
-      source->seek_to(opts.seek);
+    if (file_opts.seek != 0) {
+      source->seek_to(file_opts.seek);
     }
 
-    if (opts.fade != FadeState::NoFading) {
-      source->set_fading(opts.fade, 5.0f);
+    if (file_opts.fade != FadeState::NoFading) {
+      source->set_fading(file_opts.fade, 5.0f);
     }
 
-    if (opts.direct_filter != AL_FILTER_NULL) {
-      FilterPtr direct_filter = sound_manager.create_filter(opts.direct_filter);
-      for (size_t i = 0; i < opts.dfltparam.size(); ++i) {
-        if (opts.dfltparam[i]) {
-          if (std::holds_alternative<int>(*opts.dfltparam[i])) {
-            direct_filter->seti(static_cast<int>(i) + 1, std::get<int>(*opts.dfltparam[i]));
-          } else if (std::holds_alternative<float>(*opts.dfltparam[i])) {
-            direct_filter->setf(static_cast<int>(i) + 1, std::get<float>(*opts.dfltparam[i]));
+    if (file_opts.direct_filter != AL_FILTER_NULL) {
+      FilterPtr direct_filter = sound_manager.create_filter(file_opts.direct_filter);
+      for (size_t i = 0; i < file_opts.dfltparam.size(); ++i) {
+        if (file_opts.dfltparam[i]) {
+          if (std::holds_alternative<int>(*file_opts.dfltparam[i])) {
+            direct_filter->seti(static_cast<int>(i) + 1, std::get<int>(*file_opts.dfltparam[i]));
+          } else if (std::holds_alternative<float>(*file_opts.dfltparam[i])) {
+            direct_filter->setf(static_cast<int>(i) + 1, std::get<float>(*file_opts.dfltparam[i]));
           }
         }
       }
       source->set_direct_filter(direct_filter);
     }
 
-    if (opts.effect != AL_EFFECT_NULL || opts.filter != AL_FILTER_NULL) {
+    if (file_opts.effect != AL_EFFECT_NULL || file_opts.filter != AL_FILTER_NULL) {
       auto slot = sound_manager.create_effect_slot();
 
-      if (opts.effect != AL_EFFECT_NULL) {
-        auto effect = sound_manager.create_effect(opts.effect);
-        for (size_t i = 0; i < opts.fxparam.size(); ++i) {
-          if (opts.fxparam[i]) {
-            if (std::holds_alternative<int>(*opts.fxparam[i])) {
-              effect->seti(static_cast<int>(i) + 1, std::get<int>(*opts.fxparam[i]));
-            } else if (std::holds_alternative<float>(*opts.fxparam[i])) {
-              effect->setf(static_cast<int>(i) + 1, std::get<float>(*opts.fxparam[i]));
+      if (file_opts.effect != AL_EFFECT_NULL) {
+        auto effect = sound_manager.create_effect(file_opts.effect);
+        for (size_t i = 0; i < file_opts.fxparam.size(); ++i) {
+          if (file_opts.fxparam[i]) {
+            if (std::holds_alternative<int>(*file_opts.fxparam[i])) {
+              effect->seti(static_cast<int>(i) + 1, std::get<int>(*file_opts.fxparam[i]));
+            } else if (std::holds_alternative<float>(*file_opts.fxparam[i])) {
+              effect->setf(static_cast<int>(i) + 1, std::get<float>(*file_opts.fxparam[i]));
             }
           }
         }
@@ -287,14 +306,14 @@ int run(int argc, char** argv)
       }
 
       FilterPtr filter;
-      if (opts.filter != AL_FILTER_NULL) {
-        filter = sound_manager.create_filter(opts.filter);
-        for (size_t i = 0; i < opts.fltparam.size(); ++i) {
-          if (opts.fltparam[i]) {
-            if (std::holds_alternative<int>(*opts.fltparam[i])) {
-              filter->seti(static_cast<int>(i) + 1, std::get<int>(*opts.fltparam[i]));
-            } else if (std::holds_alternative<float>(*opts.fltparam[i])) {
-              filter->setf(static_cast<int>(i) + 1, std::get<float>(*opts.fltparam[i]));
+      if (file_opts.filter != AL_FILTER_NULL) {
+        filter = sound_manager.create_filter(file_opts.filter);
+        for (size_t i = 0; i < file_opts.fltparam.size(); ++i) {
+          if (file_opts.fltparam[i]) {
+            if (std::holds_alternative<int>(*file_opts.fltparam[i])) {
+              filter->seti(static_cast<int>(i) + 1, std::get<int>(*file_opts.fltparam[i]));
+            } else if (std::holds_alternative<float>(*file_opts.fltparam[i])) {
+              filter->setf(static_cast<int>(i) + 1, std::get<float>(*file_opts.fltparam[i]));
             }
           }
         }
