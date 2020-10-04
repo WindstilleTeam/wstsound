@@ -51,8 +51,6 @@ public:
   void print_openal_version(std::ostream& out);
   void check_alc_error(char const* message);
 
-  bool is_dummy() const { return !m_device; }
-
   /** Create an OpenAL buffer, the returned handle is held by
       OpenALSystem and must not be deleted */
   ALuint create_buffer(ALenum format, ALvoid const* data, ALsizei size, ALsizei freq);

@@ -34,14 +34,33 @@
 
 namespace wstsound {
 
-SoundManager::SoundManager(OpenALSystem& openal) :
-  m_openal(openal),
+SoundManager::SoundManager(std::unique_ptr<OpenALSystem> openal) :
+  m_openal(std::move(openal)),
   m_channels(),
   m_buffer_cache()
 {
   m_channels.emplace_back(std::make_unique<SoundChannel>(*this));
   m_channels.emplace_back(std::make_unique<SoundChannel>(*this));
   m_channels.emplace_back(std::make_unique<SoundChannel>(*this));
+}
+
+SoundManager::SoundManager() :
+  m_openal(),
+  m_channels(),
+  m_buffer_cache()
+{
+  m_channels.emplace_back(std::make_unique<SoundChannel>(*this));
+  m_channels.emplace_back(std::make_unique<SoundChannel>(*this));
+  m_channels.emplace_back(std::make_unique<SoundChannel>(*this));
+
+  m_openal = std::make_unique<OpenALSystem>();
+  try {
+    m_openal->open_real_device();
+  } catch(std::exception& err) {
+    std::cerr << "Couldn't initialize audio device:" << err.what() << "\n";
+    std::cerr << "Disabling sound\n";
+    m_openal.reset();
+  }
 }
 
 SoundManager::~SoundManager()
@@ -65,7 +84,7 @@ SoundManager::load_file_into_buffer(std::filesystem::path const& filename)
     assert(total_bytesread <= file->get_size());
   }
 
-  return m_openal.create_buffer(OpenALSystem::get_sample_format(file.get()),
+  return m_openal->create_buffer(OpenALSystem::get_sample_format(file.get()),
                                 samples.data(),
                                 static_cast<ALsizei>(total_bytesread),
                                 file->get_rate());
@@ -76,7 +95,7 @@ SoundManager::create_sound_source(std::unique_ptr<SoundFile> sound_file,
                                   SoundChannel& channel,
                                   SoundSourceType type)
 {
-  if (m_openal.is_dummy())
+  if (!m_openal)
   {
     return SoundSourcePtr(new DummySoundSource());
   }
@@ -102,7 +121,7 @@ SoundSourcePtr
 SoundManager::create_sound_source(std::filesystem::path const& filename, SoundChannel& channel,
                                   SoundSourceType type)
 {
-  if (m_openal.is_dummy())
+  if (!m_openal)
   {
     return SoundSourcePtr(new DummySoundSource());
   }
@@ -166,7 +185,7 @@ SoundManager::update(float delta)
     channel->update(delta);
   }
 
-  m_openal.update();
+  m_openal->update();
 }
 
 EffectSlotPtr

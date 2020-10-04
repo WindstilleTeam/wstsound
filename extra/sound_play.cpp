@@ -30,11 +30,10 @@
 #include <wstsound/effect_slot.hpp>
 #include <wstsound/filter.hpp>
 #include <wstsound/filtered_sound_file.hpp>
+#include <wstsound/openal_loopback_device.hpp>
 #include <wstsound/sound_file.hpp>
 #include <wstsound/sound_manager.hpp>
 #include <wstsound/sound_source.hpp>
-
-#include "openal_loopback_device.hpp"
 
 using namespace wstsound;
 
@@ -311,17 +310,17 @@ int run(int argc, char** argv)
 {
   Options opts = parse_args(argc, argv);
 
-  OpenALSystem openal;
+  auto openal = std::make_unique<OpenALSystem>();
 
   std::unique_ptr<LoopbackWriter> output_writer;
   if (opts.output_filename) {
-    OpenALLoopbackDevice& loopback_device = openal.open_loopback_device();
+    OpenALLoopbackDevice& loopback_device = openal->open_loopback_device();
     output_writer = std::make_unique<LoopbackWriter>(loopback_device, *opts.output_filename);
   } else {
-    openal.open_real_device();
+    openal->open_real_device();
   }
 
-  SoundManager sound_manager(openal);
+  SoundManager sound_manager(std::move(openal));
 
   sound_manager.set_gain(1.0f);
   sound_manager.sound().set_gain(1.0f);
