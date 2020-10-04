@@ -19,6 +19,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <fstream>
 #include <filesystem>
 #include <iostream>
 #include <random>
@@ -32,6 +33,8 @@
 #include <wstsound/sound_file.hpp>
 #include <wstsound/sound_manager.hpp>
 #include <wstsound/sound_source.hpp>
+
+#include "openal_loopback_device.hpp"
 
 using namespace wstsound;
 
@@ -62,6 +65,7 @@ void print_usage(int argc, char** argv)
             << "\n"
             << "Global Option:\n"
             << "  --help             Display this help text\n"
+            << "  --output FILE      Write samples to FILE\n"
             << "\n"
             << "Sound Option:\n"
             << "  --loop             Loopt the sound\n"
@@ -153,6 +157,7 @@ struct FileOptions
 
 struct Options
 {
+  std::optional<std::string> output_filename = {};
   std::vector<FileOptions> files = {};
 };
 
@@ -222,6 +227,9 @@ Options parse_args(int argc, char** argv)
       if (strcmp(argv[i], "--help") == 0) {
         print_usage(argc, argv);
         exit(EXIT_SUCCESS);
+      } else if (strcmp(argv[i], "--output") == 0) {
+        next_arg();
+        opts.output_filename = argv[i];
       } else if (strcmp(argv[i], "--loop") == 0) {
         file_opts().loop = true;
       } else if (strcmp(argv[i], "--stream") == 0) {
@@ -273,11 +281,46 @@ Options parse_args(int argc, char** argv)
   return opts;
 }
 
+class LoopbackWriter
+{
+public:
+  LoopbackWriter(OpenALLoopbackDevice& loopback_device, std::filesystem::path const& filename) :
+    m_loopback_device(loopback_device),
+    m_out()
+  {
+    m_out.open(filename, std::ios::binary);
+  }
+
+  void update()
+  {
+    std::array<char, 1024 * 16 * 16> buffer;
+    size_t len = m_loopback_device.read(buffer.data(), buffer.size());
+    m_out.write(buffer.data(), len);
+  }
+
+private:
+  OpenALLoopbackDevice& m_loopback_device;
+  std::ofstream m_out;
+
+private:
+  LoopbackWriter(const LoopbackWriter&) = delete;
+  LoopbackWriter& operator=(const LoopbackWriter&) = delete;
+};
+
 int run(int argc, char** argv)
 {
   Options opts = parse_args(argc, argv);
 
   SoundManager sound_manager;
+  OpenALSystem& openal = sound_manager.openal();
+
+  std::unique_ptr<LoopbackWriter> output_writer;
+  if (opts.output_filename) {
+    OpenALLoopbackDevice& loopback_device = openal.open_loopback_device();
+    output_writer = std::make_unique<LoopbackWriter>(loopback_device, *opts.output_filename);
+  } else {
+    openal.open_real_device();
+  }
 
   sound_manager.set_gain(1.0f);
   sound_manager.sound().set_gain(1.0f);
@@ -367,6 +410,10 @@ int run(int argc, char** argv)
     usleep(10000);
 
     sound_manager.update(0.01f);
+
+    if (output_writer) {
+      output_writer->update();
+    }
   }
 
   return 0;
