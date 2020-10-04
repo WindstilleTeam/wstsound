@@ -95,9 +95,9 @@ OpenALSystem::open_real_device()
 }
 
 OpenALLoopbackDevice&
-OpenALSystem::open_loopback_device()
+OpenALSystem::open_loopback_device(int frequency, int channels)
 {
-  std::unique_ptr<OpenALLoopbackDevice> loopback_device = std::make_unique<OpenALLoopbackDevice>(*this, 44100, 2);
+  std::unique_ptr<OpenALLoopbackDevice> loopback_device = std::make_unique<OpenALLoopbackDevice>(*this, frequency, channels);
   OpenALLoopbackDevice& loopback_device_ref = *loopback_device;
   m_device = std::move(loopback_device);
   return loopback_device_ref;

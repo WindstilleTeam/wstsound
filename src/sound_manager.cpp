@@ -34,8 +34,8 @@
 
 namespace wstsound {
 
-SoundManager::SoundManager() :
-  m_openal(),
+SoundManager::SoundManager(OpenALSystem& openal) :
+  m_openal(openal),
   m_channels(),
   m_buffer_cache()
 {

@@ -37,10 +37,9 @@ class StreamSoundSource;
 class SoundManager
 {
 public:
-  SoundManager();
+  SoundManager(OpenALSystem& openal);
   ~SoundManager();
 
-  OpenALSystem& openal() { return m_openal; }
   bool is_dummy() const { return m_openal.is_dummy(); }
 
   void set_listener_position(float x, float y, float z);
@@ -78,7 +77,7 @@ private:
   ALuint load_file_into_buffer(std::filesystem::path const& filename);
 
 private:
-  OpenALSystem m_openal;
+  OpenALSystem& m_openal;
   std::vector<std::unique_ptr<SoundChannel> > m_channels;
   std::map<std::filesystem::path, ALuint> m_buffer_cache;
 

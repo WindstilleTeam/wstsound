@@ -311,8 +311,7 @@ int run(int argc, char** argv)
 {
   Options opts = parse_args(argc, argv);
 
-  SoundManager sound_manager;
-  OpenALSystem& openal = sound_manager.openal();
+  OpenALSystem openal;
 
   std::unique_ptr<LoopbackWriter> output_writer;
   if (opts.output_filename) {
@@ -321,6 +320,8 @@ int run(int argc, char** argv)
   } else {
     openal.open_real_device();
   }
+
+  SoundManager sound_manager(openal);
 
   sound_manager.set_gain(1.0f);
   sound_manager.sound().set_gain(1.0f);
