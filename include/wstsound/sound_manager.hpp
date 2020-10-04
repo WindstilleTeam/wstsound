@@ -40,6 +40,7 @@ public:
   SoundManager();
   ~SoundManager();
 
+  OpenALSystem& openal() { return m_openal; }
   bool is_dummy() const { return m_openal.is_dummy(); }
 
   void set_listener_position(float x, float y, float z);

@@ -25,6 +25,9 @@
 #define AL_ALEXT_PROTOTYPES
 #include <alext.h>
 
+#include "openal_device.hpp"
+#include "openal_loopback_device.hpp"
+#include "openal_real_device.hpp"
 #include "sound_file.hpp"
 
 namespace {
@@ -71,53 +74,33 @@ std::vector<std::string> al_string_split(char const* text)
 namespace wstsound {
 
 OpenALSystem::OpenALSystem() :
-  m_device(nullptr),
-  m_context(nullptr),
+  m_device(),
   m_buffers()
 {
-  try
-  {
-    m_device = alcOpenDevice(nullptr);
-
-    if (!m_device)
-    {
-      throw std::runtime_error("Couldn't open audio device.");
-    }
-    else
-    {
-      m_context = alcCreateContext(m_device, nullptr);
-      check_alc_error("Couldn't create audio context: ");
-
-      alcMakeContextCurrent(m_context);
-      check_alc_error("Couldn't select audio context: ");
-
-      check_al_error("Audio error after init: ");
-    }
-  }
-  catch(std::exception& e)
-  { // disable sound
-    m_device  = nullptr;
-    m_context = nullptr;
-
-    std::cerr << "Couldn't initialize audio device:" << e.what() << "\n";
-    print_openal_version(std::cerr);
-
-    std::cerr << "Disabling sound\n";
-  }
 }
 
 OpenALSystem::~OpenALSystem()
 {
   alDeleteBuffers(static_cast<ALsizei>(m_buffers.size()), m_buffers.data());
   m_buffers.clear();
+}
 
-  if (m_context) {
-    alcDestroyContext(m_context);
-  }
+OpenALRealDevice&
+OpenALSystem::open_real_device()
+{
+  std::unique_ptr<OpenALRealDevice> real_device = std::make_unique<OpenALRealDevice>(*this);
+  OpenALRealDevice& real_device_ref = *real_device;
+  m_device = std::move(real_device);
+  return real_device_ref;
+}
 
-  if (m_device) {
-    alcCloseDevice(m_device);
-  }
+OpenALLoopbackDevice&
+OpenALSystem::open_loopback_device()
+{
+  std::unique_ptr<OpenALLoopbackDevice> loopback_device = std::make_unique<OpenALLoopbackDevice>(*this, 44100, 2);
+  OpenALLoopbackDevice& loopback_device_ref = *loopback_device;
+  m_device = std::move(loopback_device);
+  return loopback_device_ref;
 }
 
 ALuint
@@ -142,9 +125,8 @@ OpenALSystem::create_buffer(ALenum format,
 void
 OpenALSystem::update()
 {
-  if (m_context) {
-    alcProcessContext(m_context);
-    check_alc_error("Error while processing audio context: ");
+  if (m_device) {
+    m_device->update();
   }
 }
 
@@ -190,7 +172,7 @@ OpenALSystem::get_sample_format(SoundFile* file)
 void
 OpenALSystem::print_openal_version(std::ostream& out)
 {
-  if (m_context == nullptr) {
+  if (!m_device) {
     out << "error: print_openal_version() called without OpenAL context\n";
   } else {
     out << "OpenAL Vendor: " << alGetString(AL_VENDOR) << "\n"
@@ -212,19 +194,6 @@ OpenALSystem::print_openal_version(std::ostream& out)
           << ((device == default_device_name) ? " (default)" : "")
           << '\n';
     }
-  }
-}
-
-void
-OpenALSystem::check_alc_error(const char* message)
-{
-  int err = alcGetError(m_device);
-
-  if (err != ALC_NO_ERROR)
-  {
-    std::stringstream msg;
-    msg << message << alcGetString(m_device, err);
-    throw std::runtime_error(msg.str());
   }
 }
 

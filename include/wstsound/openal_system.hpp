@@ -22,6 +22,7 @@
 
 #include <iosfwd>
 #include <map>
+#include <memory>
 #include <vector>
 
 #include <alc.h>
@@ -29,6 +30,9 @@
 
 namespace wstsound {
 
+class OpenALDevice;
+class OpenALLoopbackDevice;
+class OpenALRealDevice;
 class SoundFile;
 
 class OpenALSystem
@@ -41,13 +45,16 @@ public:
   OpenALSystem();
   ~OpenALSystem();
 
-  ALCdevice*  device() { return m_device; }
-  ALCcontext* context() { return m_context; }
+  OpenALRealDevice& open_real_device();
+  OpenALLoopbackDevice& open_loopback_device();
+
+  //ALCdevice*  device() { return m_device; }
+  //ALCcontext* context() { return m_context; }
 
   void print_openal_version(std::ostream& out);
   void check_alc_error(char const* message);
 
-  bool is_dummy() const { return m_device == nullptr; }
+  bool is_dummy() const { return !m_device; }
 
   /** Create an OpenAL buffer, the returned handle is held by
       OpenALSystem and must not be deleted */
@@ -55,8 +62,7 @@ public:
   void update();
 
 private:
-  ALCdevice*  m_device;
-  ALCcontext* m_context;
+  std::unique_ptr<OpenALDevice> m_device;
   std::vector<ALuint> m_buffers;
 
 public:
