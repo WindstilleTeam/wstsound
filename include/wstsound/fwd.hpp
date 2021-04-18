@@ -23,15 +23,32 @@
 
 namespace wstsound {
 
-class SoundSource;
 class Effect;
 class EffectSlot;
 class Filter;
+class FilteredSoundFile;
+class OggSoundFile;
+class OpenALDevice;
+class OpenALLoopbackDevice;
+class OpenALRealDevice;
+class OpenALSoundSource;
+class OpenALSystem;
+class OpenalContext;
+class OpusSoundFile;
+class ProceduralSoundFile;
+class SoundChannel;
+class SoundFile;
+class SoundManager;
+class SoundSource;
+class WavSoundFile;
 
-using SoundSourcePtr = std::shared_ptr<SoundSource>;
+enum class FadeState;
+enum class SoundSourceType;
+
 using EffectPtr = std::shared_ptr<Effect>;
 using EffectSlotPtr = std::shared_ptr<EffectSlot>;
 using FilterPtr = std::shared_ptr<Filter>;
+using SoundSourcePtr = std::shared_ptr<SoundSource>;
 
 } // namespace wstsound
 
