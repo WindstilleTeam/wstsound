@@ -38,7 +38,7 @@ OpenALRealDevice::OpenALRealDevice(OpenALSystem& openal) :
     alcMakeContextCurrent(m_context);
     check_alc_error("Couldn't select audio context: ");
 
-    m_openal.check_al_error("Audio error after init: ");
+    OpenALSystem::check_al_error("Audio error after init: ");
   }
 }
 
