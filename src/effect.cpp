@@ -37,13 +37,13 @@ Effect::~Effect()
 }
 
 void
-Effect::seti(int param, int value)
+Effect::seti(int param, int value) // NOLINT
 {
   alEffecti(m_effect, param, value);
 }
 
 void
-Effect::setf(int param, float value)
+Effect::setf(int param, float value) // NOLINT
 {
   alEffectf(m_effect, param, value);
 }

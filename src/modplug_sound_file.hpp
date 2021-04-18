@@ -30,7 +30,7 @@ class ModplugSoundFile : public SoundFile
 private:
 public:
   ModplugSoundFile(std::unique_ptr<std::istream> istream);
-  ~ModplugSoundFile();
+  ~ModplugSoundFile() override;
 
   size_t read(void* buffer, size_t buffer_size) override;
   void   seek_to_sample(int sample) override;

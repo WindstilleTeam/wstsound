@@ -34,13 +34,13 @@ Filter::~Filter()
 
 
 void
-Filter::seti(int param, int value)
+Filter::seti(int param, int value) // NOLINT
 {
   alFilteri(m_handle, param, value);
 }
 
 void
-Filter::setf(int param, float value)
+Filter::setf(int param, float value) // NOLINT
 {
   alFilterf(m_handle, param, value);
 }
