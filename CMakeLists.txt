@@ -42,7 +42,7 @@ file(GLOB WSTSOUND_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
   src/*.cpp)
 add_library(wstsound STATIC ${WSTSOUND_SOURCES})
 set_target_properties(wstsound PROPERTIES PUBLIC_HEADER "${WSTSOUND_HEADERS}")
-target_compile_options(wstsound PUBLIC ${WARNINGS_CXX_FLAGS})
+target_compile_options(wstsound PRIVATE ${WARNINGS_CXX_FLAGS})
 set_target_properties(wstsound PROPERTIES
   CXX_STANDARD 20
   CXX_STANDARD_REQUIRED ON
