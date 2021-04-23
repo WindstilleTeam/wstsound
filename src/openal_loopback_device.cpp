@@ -43,8 +43,8 @@ OpenALLoopbackDevice::OpenALLoopbackDevice(OpenALSystem& openal, int frequency, 
   }
 
   std::vector<ALCint> attrs = {
-    ALC_FREQUENCY, 44100,
-    ALC_FORMAT_CHANNELS_SOFT, ALC_STEREO_SOFT,
+    ALC_FREQUENCY, m_frequency,
+    ALC_FORMAT_CHANNELS_SOFT, channels_al,
     ALC_FORMAT_TYPE_SOFT, ALC_SHORT_SOFT,
     0
   };

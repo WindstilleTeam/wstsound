@@ -36,6 +36,9 @@ public:
 
   size_t read(void* buffer, size_t buffer_size);
 
+  int get_frequency() const { return m_frequency; }
+  int get_channels() const { return m_channels; }
+
 private:
   int m_frequency;
   int m_channels;
