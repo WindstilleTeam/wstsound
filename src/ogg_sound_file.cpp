@@ -18,6 +18,7 @@
 
 #include "ogg_sound_file.hpp"
 
+#include <algorithm>
 #include <filesystem>
 #include <stdexcept>
 #include <sstream>
