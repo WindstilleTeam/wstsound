@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <assert.h>
+#include <sstream>
 
 class Mpg123System
 {
