@@ -96,6 +96,12 @@ SoundFile::get_sample_duration() const
   return 8 * static_cast<int>(get_size()) / get_channels() / get_bits_per_sample();
 }
 
+size_t
+SoundFile::sample2bytes(int sample)
+{
+  return sample * get_channels() * get_bits_per_sample() * 8;
+}
+
 } // namespace wstsound
 
 /* EOF */

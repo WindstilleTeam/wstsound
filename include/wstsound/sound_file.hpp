@@ -57,6 +57,8 @@ public:
   /** Returns the number of samples in the file */
   int get_sample_duration() const;
 
+  size_t sample2bytes(int sample);
+
 public:
   static std::unique_ptr<SoundFile> from_file(std::filesystem::path const& filename);
   static std::unique_ptr<SoundFile> from_stream(std::unique_ptr<std::istream> istream);
