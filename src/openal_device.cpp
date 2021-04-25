@@ -20,7 +20,8 @@
 
 #include <assert.h>
 #include <sstream>
-#include <stdexcept>
+
+#include "sound_error.hpp"
 
 namespace wstsound {
 
@@ -59,7 +60,7 @@ OpenALDevice::check_alc_error(char const* message)
   if (err != ALC_NO_ERROR) {
     std::ostringstream msg;
     msg << message << alcGetString(m_device, err);
-    throw std::runtime_error(msg.str());
+    throw SoundError(msg.str());
   }
 }
 

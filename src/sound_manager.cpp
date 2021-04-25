@@ -18,17 +18,17 @@
 
 #include <assert.h>
 #include <filesystem>
-#include <stdexcept>
 #include <iostream>
 #include <sstream>
 
+#include "dummy_sound_source.hpp"
 #include "effect.hpp"
 #include "effect_slot.hpp"
 #include "filter.hpp"
 #include "openal_system.hpp"
+#include "sound_error.hpp"
 #include "sound_file.hpp"
 #include "sound_manager.hpp"
-#include "dummy_sound_source.hpp"
 #include "static_sound_source.hpp"
 #include "stream_sound_source.hpp"
 

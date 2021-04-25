@@ -21,13 +21,13 @@
 #include <filesystem>
 #include <fstream>
 #include <sstream>
-#include <stdexcept>
 #include <string.h>
 
 #include "modplug_sound_file.hpp"
 #include "mp3_sound_file.hpp"
 #include "ogg_sound_file.hpp"
 #include "opus_sound_file.hpp"
+#include "sound_error.hpp"
 #include "wav_sound_file.hpp"
 
 namespace wstsound {
@@ -38,7 +38,7 @@ SoundFile::from_stream(std::unique_ptr<std::istream> istream)
   uint8_t magic[64];
 
   if (!istream->read(reinterpret_cast<char*>(magic), sizeof(magic))) {
-    throw std::runtime_error("Couldn't read magic, file too short");
+    throw SoundError("Couldn't read magic, file too short");
   } else {
     // reset the stream before handing it over
     istream->seekg(0, std::ios::beg);
@@ -59,7 +59,7 @@ SoundFile::from_stream(std::unique_ptr<std::istream> istream)
     } else if (strncmp(reinterpret_cast<char*>(magic), "IMPM", 4) == 0) {
       return std::make_unique<ModplugSoundFile>(std::move(istream));
     } else {
-      throw std::runtime_error("Unknown file format");
+      throw SoundError("Unknown file format");
     }
   }
 }
@@ -72,14 +72,14 @@ SoundFile::from_file(std::filesystem::path const& filename)
   if (!in) {
     std::stringstream msg;
     msg << "Couldn't open '" << filename << "'";
-    throw std::runtime_error(msg.str());
+    throw SoundError(msg.str());
   } else {
     try {
       return from_stream(std::make_unique<std::ifstream>(std::move(in)));
     } catch(std::exception& e) {
       std::stringstream msg;
       msg << "Couldn't read '" << filename << "': " << e.what();
-      throw std::runtime_error(msg.str());
+      throw SoundError(msg.str());
     }
   }
 }

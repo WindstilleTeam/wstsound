@@ -20,8 +20,9 @@
 
 #include <algorithm>
 #include <filesystem>
-#include <stdexcept>
 #include <sstream>
+
+#include "sound_error.hpp"
 
 namespace wstsound {
 
@@ -74,7 +75,7 @@ OggSoundFile::OggSoundFile(std::unique_ptr<std::istream> istream) :
         break;
     }
 
-    throw std::runtime_error(str.str());
+    throw SoundError(str.str());
   }
 
   vorbis_info* vi = ov_info(&m_vorbis_file, -1);

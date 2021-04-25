@@ -18,9 +18,8 @@
 
 #include "openal_real_device.hpp"
 
-#include <stdexcept>
-
 #include "openal_system.hpp"
+#include "sound_error.hpp"
 
 namespace wstsound {
 
@@ -30,7 +29,7 @@ OpenALRealDevice::OpenALRealDevice(OpenALSystem& openal) :
   m_device = alcOpenDevice(nullptr);
 
   if (!m_device) {
-    throw std::runtime_error("Couldn't open audio device.");
+    throw SoundError("Couldn't open audio device.");
   } else {
     m_context = alcCreateContext(m_device, nullptr);
     check_alc_error("Couldn't create audio context: ");

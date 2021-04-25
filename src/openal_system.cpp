@@ -20,7 +20,6 @@
 #include "openal_system.hpp"
 
 #include <iostream>
-#include <stdexcept>
 
 #define AL_ALEXT_PROTOTYPES
 #include <alext.h>
@@ -28,6 +27,7 @@
 #include "openal_device.hpp"
 #include "openal_loopback_device.hpp"
 #include "openal_real_device.hpp"
+#include "sound_error.hpp"
 #include "sound_file.hpp"
 
 namespace {
@@ -145,7 +145,7 @@ OpenALSystem::get_sample_format(SoundFile* file)
     }
     else
     {
-      throw std::runtime_error("Only 16 and 8 bit samples supported");
+      throw SoundError("Only 16 and 8 bit samples supported");
     }
   }
   else if (file->get_channels() == 1)
@@ -160,12 +160,12 @@ OpenALSystem::get_sample_format(SoundFile* file)
     }
     else
     {
-      throw std::runtime_error("Only 16 and 8 bit samples supported");
+      throw SoundError("Only 16 and 8 bit samples supported");
     }
   }
   else
   {
-    throw std::runtime_error("Only 1 and 2 channel samples supported");
+    throw SoundError("Only 1 and 2 channel samples supported");
   }
 }
 
@@ -206,7 +206,7 @@ OpenALSystem::check_al_error(const char* message)
   {
     std::stringstream msg;
     msg << message << alGetString(err);
-    throw std::runtime_error(msg.str());
+    throw SoundError(msg.str());
   }
 }
 

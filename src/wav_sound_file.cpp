@@ -19,14 +19,16 @@
 #include <algorithm>
 #include <bit>
 #include <filesystem>
-#include <stdexcept>
 #include <stdint.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 #include <typeinfo>
 
+#include "sound_error.hpp"
 #include "wav_sound_file.hpp"
+
+namespace wstsound {
 
 namespace {
 
@@ -47,7 +49,7 @@ T read_type(std::istream& in)
   {
     std::ostringstream msg;
     msg << "Problem reading " << typeid(T).name() << ": " << strerror(errno);
-    throw std::runtime_error(msg.str());
+    throw SoundError(msg.str());
   }
   else
   {
@@ -61,8 +63,6 @@ T read_type(std::istream& in)
 
 } // namespace
 
-namespace wstsound {
-
 WavSoundFile::WavSoundFile(std::unique_ptr<std::istream> istream) :
   m_istream(std::move(istream)),
   m_datastart(),
@@ -74,25 +74,25 @@ WavSoundFile::WavSoundFile(std::unique_ptr<std::istream> istream) :
   char magic[4];
   if (!m_istream->read(magic, sizeof(magic)))
   {
-    throw std::runtime_error("Couldn't read file magic (not a wave file)");
+    throw SoundError("Couldn't read file magic (not a wave file)");
   }
 
   if(strncmp(magic, "RIFF", 4) != 0)
   {
     printf("MAGIC: %4s.\n", magic);
-    throw std::runtime_error("file is not a RIFF wav file");
+    throw SoundError("file is not a RIFF wav file");
   }
 
   /*uint32_t wavelen =*/ read_type<uint32_t>(*m_istream);
 
   if (!m_istream->read( magic, sizeof(magic)))
   {
-    throw std::runtime_error("Couldn't read chunk header (not a wav file?)");
+    throw SoundError("Couldn't read chunk header (not a wav file?)");
   }
 
   if(strncmp(magic, "WAVE", 4) != 0)
   {
-    throw std::runtime_error("file is not a valid RIFF/WAVE file");
+    throw SoundError("file is not a valid RIFF/WAVE file");
   }
 
   char chunkmagic[4];
@@ -102,7 +102,7 @@ WavSoundFile::WavSoundFile(std::unique_ptr<std::istream> istream) :
   do {
     if (!m_istream->read(chunkmagic, sizeof(chunkmagic)))
     {
-      throw std::runtime_error("EOF while searching format chunk");
+      throw SoundError("EOF while searching format chunk");
     }
     chunklen = read_type<uint32_t>(*m_istream);
 
@@ -117,17 +117,17 @@ WavSoundFile::WavSoundFile(std::unique_ptr<std::istream> istream) :
 
       if (!m_istream->seekg(chunklen, std::ios::cur))
       {
-        throw std::runtime_error("EOF while searching fmt chunk");
+        throw SoundError("EOF while searching fmt chunk");
       }
     }
     else
     {
-      throw std::runtime_error("complex WAVE files not supported");
+      throw SoundError("complex WAVE files not supported");
     }
   } while(true);
 
   if (chunklen < 16)
-    throw std::runtime_error("Format chunk too short");
+    throw SoundError("Format chunk too short");
 
   // parse format
   uint16_t encoding = read_type<uint16_t>(*m_istream);
@@ -135,7 +135,7 @@ WavSoundFile::WavSoundFile(std::unique_ptr<std::istream> istream) :
   {
     std::ostringstream str;
     str << "WavSoundFile(): only PCM encoding supported, got " << encoding;
-    throw std::runtime_error(str.str());
+    throw SoundError(str.str());
   }
   m_channels = read_type<uint16_t>(*m_istream);
   m_rate = read_type<uint32_t>(*m_istream);
@@ -146,13 +146,13 @@ WavSoundFile::WavSoundFile(std::unique_ptr<std::istream> istream) :
   if(chunklen > 16)
   {
     if(m_istream->seekg(chunklen-16, std::ios::cur).fail())
-      throw std::runtime_error("EOF while reading reast of format chunk");
+      throw SoundError("EOF while reading reast of format chunk");
   }
 
   // set file offset to DATA chunk data
   do {
     if (!m_istream->read(chunkmagic, sizeof(chunkmagic)))
-      throw std::runtime_error("EOF while searching data chunk");
+      throw SoundError("EOF while searching data chunk");
     chunklen = read_type<uint32_t>(*m_istream);
 
     if(strncmp(chunkmagic, "data", 4) == 0)
@@ -160,7 +160,7 @@ WavSoundFile::WavSoundFile(std::unique_ptr<std::istream> istream) :
 
     // skip chunk
     if(m_istream->seekg(chunklen, std::ios::cur).fail())
-      throw std::runtime_error("EOF while searching fmt chunk");
+      throw SoundError("EOF while searching fmt chunk");
   } while(true);
 
   m_datastart = m_istream->tellg();
@@ -177,7 +177,7 @@ WavSoundFile::seek_to_sample(int sample)
   std::streamoff byte_pos = sample * m_channels * m_bits_per_sample / 8;
 
   if (!m_istream->seekg(m_datastart + byte_pos, std::ios::beg)) {
-    throw std::runtime_error("Couldn't seek to data start");
+    throw SoundError("Couldn't seek to data start");
   }
 }
 
@@ -187,7 +187,7 @@ WavSoundFile::read(void* buffer, size_t buffer_size)
   if (!m_istream->read(static_cast<char*>(buffer), buffer_size))
   {
     if (!m_istream->eof()) {
-      throw std::runtime_error("read error while reading samples");
+      throw SoundError("read error while reading samples");
     }
     m_istream->clear();
     return m_istream->gcount();

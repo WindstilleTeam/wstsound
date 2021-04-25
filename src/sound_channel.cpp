@@ -20,9 +20,9 @@
 
 #include <filesystem>
 #include <iostream>
-#include <stdexcept>
 
 #include "dummy_sound_source.hpp"
+#include "sound_error.hpp"
 #include "sound_file.hpp"
 #include "sound_manager.hpp"
 #include "sound_source.hpp"

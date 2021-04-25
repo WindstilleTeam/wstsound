@@ -20,6 +20,8 @@
 
 #include <iostream>
 
+#include "sound_error.hpp"
+
 namespace wstsound {
 
 OpusSoundFile::OpusSoundFile(std::unique_ptr<std::istream> istream) :
@@ -59,7 +61,7 @@ OpusSoundFile::OpusSoundFile(std::unique_ptr<std::istream> istream) :
         str << "op_open_callbacks() failed with " << err;
     }
 
-    throw std::runtime_error(str.str());
+    throw SoundError(str.str());
   }
 
   m_channels = op_channel_count(m_opus_file, -1);
@@ -67,7 +69,7 @@ OpusSoundFile::OpusSoundFile(std::unique_ptr<std::istream> istream) :
   ogg_int64_t pcm_total = op_pcm_total(m_opus_file, -1);
   if (pcm_total < 0) {
     op_free(m_opus_file);
-    throw std::runtime_error("OpusSoundFile: op_pcm_total() failure");
+    throw SoundError("OpusSoundFile: op_pcm_total() failure");
   }
   m_size = static_cast<size_t>(pcm_total * m_channels * m_bits_per_sample / 8);
 }

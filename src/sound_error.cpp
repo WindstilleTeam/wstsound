@@ -14,7 +14,9 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "audio/sound_error.hpp"
+#include "sound_error.hpp"
+
+namespace wstsound {
 
 SoundError::SoundError(const std::string& message) throw() :
   m_message(message)
@@ -29,5 +31,7 @@ SoundError::what() const throw()
 {
   return m_message.c_str();
 }
+
+} // namespace wstsound
 
 /* EOF */

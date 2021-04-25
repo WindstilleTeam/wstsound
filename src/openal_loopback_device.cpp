@@ -21,6 +21,7 @@
 #include <stdexcept>
 
 #include "openal_system.hpp"
+#include "sound_error.hpp"
 
 namespace wstsound {
 
@@ -31,7 +32,7 @@ OpenALLoopbackDevice::OpenALLoopbackDevice(OpenALSystem& openal, int frequency, 
 {
   m_device = alcLoopbackOpenDeviceSOFT(nullptr);
   if (!m_device) {
-    throw std::runtime_error("Couldn't open audio loopback device.");
+    throw SoundError("Couldn't open audio loopback device.");
   }
 
   ALCenum channels_al = (m_channels == 2) ? ALC_STEREO_SOFT : ALC_MONO_SOFT;
@@ -39,7 +40,7 @@ OpenALLoopbackDevice::OpenALLoopbackDevice(OpenALSystem& openal, int frequency, 
 
   if (alcIsRenderFormatSupportedSOFT(m_device, m_frequency, channels_al, format_al) != AL_TRUE) {
     alcCloseDevice(m_device);
-    throw std::runtime_error("OpenALLoopbackDevice: format not supported");
+    throw SoundError("OpenALLoopbackDevice: format not supported");
   }
 
   std::vector<ALCint> attrs = {

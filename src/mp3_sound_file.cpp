@@ -22,6 +22,12 @@
 #include <assert.h>
 #include <sstream>
 
+#include "sound_error.hpp"
+
+namespace wstsound {
+
+namespace {
+
 class Mpg123System
 {
 public:
@@ -29,7 +35,7 @@ public:
     int ret;
     ret = mpg123_init();
     if (ret != MPG123_OK) {
-      throw std::runtime_error("mpg123_init() failed");
+      throw SoundError("mpg123_init() failed");
     }
   }
 
@@ -38,7 +44,7 @@ public:
   }
 };
 
-namespace wstsound {
+} // namespace
 
 MP3SoundFile::MP3SoundFile(std::unique_ptr<std::istream> istream) :
   m_istream(std::move(istream)),
@@ -55,12 +61,12 @@ MP3SoundFile::MP3SoundFile(std::unique_ptr<std::istream> istream) :
 
   ret = mpg123_replace_reader_handle(m_mh, cb_read, cb_lseek, cb_cleanup);
   if (ret != MPG123_OK) {
-    throw std::runtime_error("mpg123_replace_reader_handle() failed");
+    throw SoundError("mpg123_replace_reader_handle() failed");
   }
 
   ret = mpg123_open_handle(m_mh, this);
   if (ret != MPG123_OK) {
-    throw std::runtime_error("mpg123_open_handle() failed");
+    throw SoundError("mpg123_open_handle() failed");
   }
 
   // set what we want
@@ -96,7 +102,7 @@ MP3SoundFile::read(void* buffer, size_t buffer_size)
     default: {
       std::ostringstream os;
       os << "mpg123_read() failed with " << ret;
-      throw std::runtime_error(os.str());
+      throw SoundError(os.str());
     }
   }
 }
@@ -105,7 +111,7 @@ void
 MP3SoundFile::seek_to_sample(int sample)
 {
   if (mpg123_seek(m_mh, sample, SEEK_SET) < 0) {
-    throw std::runtime_error("mpg123_seek() failed");
+    throw SoundError("mpg123_seek() failed");
   }
 }
 
