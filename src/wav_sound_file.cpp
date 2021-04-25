@@ -41,7 +41,7 @@ To bit_cast(const From& src) noexcept
 }
 
 template<typename T>
-T read_type(std::istream& in)
+T read_le(std::istream& in)
 {
   char data[sizeof(T)];
 
@@ -83,7 +83,7 @@ WavSoundFile::WavSoundFile(std::unique_ptr<std::istream> istream) :
     throw SoundError("file is not a RIFF wav file");
   }
 
-  /*uint32_t wavelen =*/ read_type<uint32_t>(*m_istream);
+  /*uint32_t wavelen =*/ read_le<uint32_t>(*m_istream);
 
   if (!m_istream->read( magic, sizeof(magic)))
   {
@@ -104,7 +104,7 @@ WavSoundFile::WavSoundFile(std::unique_ptr<std::istream> istream) :
     {
       throw SoundError("EOF while searching format chunk");
     }
-    chunklen = read_type<uint32_t>(*m_istream);
+    chunklen = read_le<uint32_t>(*m_istream);
 
     if (strncmp(chunkmagic, "fmt ", 4) == 0)
     {
@@ -130,18 +130,18 @@ WavSoundFile::WavSoundFile(std::unique_ptr<std::istream> istream) :
     throw SoundError("Format chunk too short");
 
   // parse format
-  uint16_t encoding = read_type<uint16_t>(*m_istream);
+  uint16_t encoding = read_le<uint16_t>(*m_istream);
   if (encoding != 1)
   {
     std::ostringstream str;
     str << "WavSoundFile(): only PCM encoding supported, got " << encoding;
     throw SoundError(str.str());
   }
-  m_channels = read_type<uint16_t>(*m_istream);
-  m_rate = read_type<uint32_t>(*m_istream);
-  /*uint32_t byterate =*/ read_type<uint32_t>(*m_istream);
-  /*uint16_t blockalign =*/ read_type<uint16_t>(*m_istream);
-  m_bits_per_sample = read_type<uint16_t>(*m_istream);
+  m_channels = read_le<uint16_t>(*m_istream);
+  m_rate = read_le<uint32_t>(*m_istream);
+  /*uint32_t byterate =*/ read_le<uint32_t>(*m_istream);
+  /*uint16_t blockalign =*/ read_le<uint16_t>(*m_istream);
+  m_bits_per_sample = read_le<uint16_t>(*m_istream);
 
   if(chunklen > 16)
   {
@@ -153,7 +153,7 @@ WavSoundFile::WavSoundFile(std::unique_ptr<std::istream> istream) :
   do {
     if (!m_istream->read(chunkmagic, sizeof(chunkmagic)))
       throw SoundError("EOF while searching data chunk");
-    chunklen = read_type<uint32_t>(*m_istream);
+    chunklen = read_le<uint32_t>(*m_istream);
 
     if(strncmp(chunkmagic, "data", 4) == 0)
       break;
