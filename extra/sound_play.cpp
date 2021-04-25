@@ -67,7 +67,8 @@ void print_usage(int argc, char** argv)
             << "  --output FILE      Write samples to FILE\n"
             << "\n"
             << "Sound Option:\n"
-            << "  --loop             Loopt the sound\n"
+            << "  --loop             Loop the sound\n"
+            << "  --abloop A:B       Loop the sample range A:B\n"
             << "  --fadein           Fade-in the sound\n"
             << "  --fadeout          Fade-out the sound\n"
             << "  --seek SEC         Seek to position SEC\n"
@@ -141,6 +142,7 @@ struct FileOptions
 {
   std::filesystem::path filename = {};
   bool loop = false;
+  std::optional<std::tuple<int, int>> abloop = {};
   SoundSourceType source_type = SoundSourceType::STREAM;
   float seek = 0;
   std::array<float, 3> position = { 0.0f, 0.0f, 0.0f };
@@ -201,6 +203,17 @@ Options parse_args(int argc, char** argv)
       }
     };
 
+    auto arg_parse_tuple2i = [&](std::string_view text) {
+      auto const& values = string_split(argv[i], ':');
+      if (values.size() != 2) {
+        std::ostringstream os;
+        os << argv[i - 1] << " must have exactly INT:INT arguments";
+        throw std::runtime_error(os.str());
+      } else {
+        return std::tuple<int, int>{std::stoi(values[0]), std::stoi(values[1])};
+      }
+    };
+
     auto arg_parse_list = [&](){
       std::vector<std::optional<std::variant<float, int>>> result;
       auto const& values = string_split(argv[i], ':');
@@ -231,6 +244,9 @@ Options parse_args(int argc, char** argv)
         opts.output_filename = argv[i];
       } else if (strcmp(argv[i], "--loop") == 0) {
         file_opts().loop = true;
+      } else if (strcmp(argv[i], "--abloop") == 0) {
+        next_arg();
+        file_opts().abloop = arg_parse_tuple2i(argv[i]);
       } else if (strcmp(argv[i], "--stream") == 0) {
         file_opts().source_type = SoundSourceType::STREAM;
       } else if (strcmp(argv[i], "--static") == 0) {
@@ -332,6 +348,11 @@ int run(int argc, char** argv)
     SoundSourcePtr source = sound_manager.sound().prepare(file_opts.filename, file_opts.source_type);
 
     source->set_looping(file_opts.loop);
+    if (file_opts.abloop) {
+      source->set_loop(std::get<0>(*file_opts.abloop),
+                       std::get<1>(*file_opts.abloop));
+    }
+
     source->set_position(file_opts.position[0], file_opts.position[1], file_opts.position[2]);
     source->set_velocity(file_opts.velocity[0], file_opts.velocity[1], file_opts.velocity[2]);
 
