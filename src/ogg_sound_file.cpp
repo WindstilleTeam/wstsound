@@ -122,7 +122,6 @@ OggSoundFile::seek_to_sample(int sample)
   ov_pcm_seek_lap(&m_vorbis_file, sample);
 }
 
-
 size_t
 OggSoundFile::cb_read(void* ptr, size_t size, size_t nmemb, void* userdata)
 {
@@ -132,7 +131,11 @@ OggSoundFile::cb_read(void* ptr, size_t size, size_t nmemb, void* userdata)
 
   // prevent std::istream from hitting eof(), needed as tellg() will
   // return -1 in that case instead of the from cb_tell expected filesize
-  read_len = std::min(read_len, ogg.m_file_size - ogg.m_istream->tellg());
+  std::streamsize ogg_pos = ogg.m_istream->tellg();
+  if (ogg_pos < 0) {
+    throw SoundError("OggSoundFile::cb_read() tellg() failed");
+  }
+  read_len = std::min(read_len, ogg.m_file_size - static_cast<size_t>(ogg_pos));
 
   size_t len = ogg.m_istream->read(static_cast<char*>(ptr), read_len).gcount();
   return len;
