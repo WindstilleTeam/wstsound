@@ -37,6 +37,10 @@ public:
   void stop() override;
   bool is_playing() const override;
 
+  void pause();
+  bool is_paused() const;
+  void resume();
+
   void set_looping(bool looping) override;
 
   /// Set volume (0.0 is silent, 1.0 is normal)

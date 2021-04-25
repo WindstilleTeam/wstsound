@@ -66,6 +66,36 @@ OpenALSoundSource::play()
 }
 
 void
+OpenALSoundSource::pause()
+{
+  alSourcePause(m_source);
+  try
+  {
+    OpenALSystem::check_al_error("Couldn't pause audio source: ");
+  }
+  catch(const std::exception& e)
+  {
+    log_warning << e.what() << std::endl;
+  }
+}
+
+void
+OpenALSoundSource::resume()
+{
+  if (!is_paused()) { return; }
+
+  play();
+}
+
+bool
+OpenALSoundSource::is_paused() const
+{
+  ALint state = AL_PAUSED;
+  alGetSourcei(m_source, AL_SOURCE_STATE, &state);
+  return state == AL_PAUSED;
+}
+
+void
 OpenALSoundSource::seek_to(float sec)
 {
   alSourcef(m_source, AL_SEC_OFFSET, sec);
