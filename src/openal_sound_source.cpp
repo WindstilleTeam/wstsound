@@ -147,6 +147,12 @@ OpenALSoundSource::get_gain() const
 }
 
 void
+OpenALSoundSource::set_pitch(float pitch)
+{
+  alSourcef(m_source, AL_PITCH, pitch);
+}
+
+void
 OpenALSoundSource::set_reference_distance(float distance)
 {
   alSourcef(m_source, AL_REFERENCE_DISTANCE, distance);

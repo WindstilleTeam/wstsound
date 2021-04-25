@@ -48,6 +48,7 @@ public:
   /// Set volume (0.0 is silent, 1.0 is normal)
   virtual void  set_gain(float gain) = 0;
   virtual float get_gain() const = 0;
+  virtual void set_pitch(float pitch) = 0;
 
   virtual void  seek_to_sample(int sample) = 0;
   virtual void  seek_to(float sec) = 0;

@@ -41,6 +41,7 @@ public:
   /// Set volume (0.0 is silent, 1.0 is normal)
   void  set_gain(float gain) override {}
   float get_gain() const override { return 1.0f; }
+  void set_pitch(float pitch) override {}
 
   void  seek_to(float sec) override {}
   void  seek_to_sample(int sample) override {}
