@@ -25,14 +25,13 @@ namespace wstsound {
 
 class DummySoundSource : public SoundSource
 {
-private:
 public:
-  DummySoundSource() {}
+  DummySoundSource() : m_is_playing(false) {}
   ~DummySoundSource() override {}
 
-  void play() override {}
-  void stop() override {}
-  bool is_playing() const override { return false; }
+  void play() override { m_is_playing = true; }
+  void stop() override { m_is_playing = false; }
+  bool is_playing() const override { return m_is_playing; }
 
   float get_duration() const override { return 0.0f; }
   int get_sample_duration() const override { return 0; }
@@ -69,7 +68,12 @@ public:
   /** Needs to be called whenever the SoundChannels gain changes */
   void update_gain() const override {}
 
-  void update(float delta) override {}
+  void update(float delta) override {
+    m_is_playing = false;
+  }
+
+private:
+  bool m_is_playing;
 
 private:
   DummySoundSource(const DummySoundSource&);
