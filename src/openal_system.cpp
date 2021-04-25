@@ -210,6 +210,17 @@ OpenALSystem::check_al_error(const char* message)
   }
 }
 
+void
+OpenALSystem::warn_al_error(const char* message)
+{
+  int err = alGetError();
+
+  if (err != AL_NO_ERROR)
+  {
+    std::cerr << message << alGetString(err) << std::endl;
+  }
+}
+
 } // namespace wstsound
 
 /* EOF */

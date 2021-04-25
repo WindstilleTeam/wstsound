@@ -39,7 +39,11 @@ OpenALSoundSource::OpenALSoundSource(SoundChannel& channel) :
   m_effect_slot()
 {
   alGenSources(1, &m_source);
+
+  // Don't catch anything here: force the caller to catch the error, so that
+  // the caller won't handle an object in an invalid state thinking it's clean
   OpenALSystem::check_al_error("Couldn't create audio source: ");
+
   set_reference_distance(128);
 }
 
@@ -47,7 +51,7 @@ OpenALSoundSource::~OpenALSoundSource()
 {
   stop();
   alDeleteSources(1, &m_source);
-  OpenALSystem::check_al_error("Couldn't delete source: ");
+  OpenALSystem::warn_al_error("Couldn't delete source: ");
 }
 
 void
@@ -55,28 +59,21 @@ OpenALSoundSource::stop()
 {
   alSourceStop(m_source);
   alSourcei(m_source, AL_BUFFER, AL_NONE);
-  OpenALSystem::check_al_error("Problem stopping audio source: ");
+  OpenALSystem::warn_al_error("Problem stopping audio source: ");
 }
 
 void
 OpenALSoundSource::play()
 {
   alSourcePlay(m_source);
-  OpenALSystem::check_al_error("Couldn't start audio source: ");
+  OpenALSystem::warn_al_error("Couldn't start audio source: ");
 }
 
 void
 OpenALSoundSource::pause()
 {
   alSourcePause(m_source);
-  try
-  {
-    OpenALSystem::check_al_error("Couldn't pause audio source: ");
-  }
-  catch(const std::exception& e)
-  {
-    log_warning << e.what() << std::endl;
-  }
+  OpenALSystem::warn_al_error("Couldn't pause audio source: ");
 }
 
 void
@@ -92,6 +89,7 @@ OpenALSoundSource::is_paused() const
 {
   ALint state = AL_PAUSED;
   alGetSourcei(m_source, AL_SOURCE_STATE, &state);
+  OpenALSystem::warn_al_error("OpenALSoundSource::is_paused: ");
   return state == AL_PAUSED;
 }
 
@@ -99,14 +97,14 @@ void
 OpenALSoundSource::seek_to(float sec)
 {
   alSourcef(m_source, AL_SEC_OFFSET, sec);
-  OpenALSystem::check_al_error("OpenALSoundSource::seek_to: ");
+  OpenALSystem::warn_al_error("OpenALSoundSource::seek_to: ");
 }
 
 void
 OpenALSoundSource::seek_to_sample(int sample)
 {
   alSourcei(m_source, AL_SAMPLE_OFFSET, sample);
-  OpenALSystem::check_al_error("OpenALSoundSource::seek_to_sample: ");
+  OpenALSystem::warn_al_error("OpenALSoundSource::seek_to_sample: ");
 }
 
 float
@@ -114,7 +112,7 @@ OpenALSoundSource::get_pos() const
 {
   float sec = 0.0f;
   alGetSourcef(m_source, AL_SEC_OFFSET, &sec);
-  OpenALSystem::check_al_error("OpenALSoundSource::get_pos: ");
+  OpenALSystem::warn_al_error("OpenALSoundSource::get_pos: ");
   return sec;
 }
 
@@ -123,7 +121,7 @@ OpenALSoundSource::get_sample_pos() const
 {
   ALint sample_pos;
   alGetSourcei(m_source, AL_SAMPLE_OFFSET, &sample_pos);
-  OpenALSystem::check_al_error("OpenALSoundSource::get_sample_pos: ");
+  OpenALSystem::warn_al_error("OpenALSoundSource::get_sample_pos: ");
   return sample_pos;
 }
 
@@ -132,6 +130,7 @@ OpenALSoundSource::is_playing() const
 {
   ALint state = AL_PLAYING;
   alGetSourcei(m_source, AL_SOURCE_STATE, &state);
+  OpenALSystem::warn_al_error("OpenALSoundSource::is_playing: ");
   return state != AL_STOPPED;
 }
 
@@ -139,27 +138,28 @@ void
 OpenALSoundSource::set_looping(bool looping)
 {
   alSourcei(m_source, AL_LOOPING, looping ? AL_TRUE : AL_FALSE);
-  OpenALSystem::check_al_error("OpenALSoundSource::set_looping: ");
+  OpenALSystem::warn_al_error("OpenALSoundSource::set_looping: ");
 }
 
 void
 OpenALSoundSource::set_relative(bool relative)
 {
   alSourcei(m_source, AL_SOURCE_RELATIVE, relative ? AL_TRUE : AL_FALSE);
+  OpenALSystem::warn_al_error("OpenALSoundSource::set_relative: ");
 }
 
 void
 OpenALSoundSource::set_position(float x, float y, float z)
 {
   alSource3f(m_source, AL_POSITION, x, y, z);
-  OpenALSystem::check_al_error("OpenALSoundSource::set_position: ");
+  OpenALSystem::warn_al_error("OpenALSoundSource::set_position: ");
 }
 
 void
 OpenALSoundSource::set_velocity(float x, float y, float z)
 {
   alSource3f(m_source, AL_VELOCITY, x, y, z);
-  OpenALSystem::check_al_error("OpenALSoundSource::set_velocity: ");
+  OpenALSystem::warn_al_error("OpenALSoundSource::set_velocity: ");
 }
 
 void
@@ -167,7 +167,7 @@ OpenALSoundSource::set_gain(float gain)
 {
   m_gain = gain;
   alSourcef(m_source, AL_GAIN, m_channel.get_gain() * m_gain);
-  OpenALSystem::check_al_error("OpenALSoundSource::set_gain: ");
+  OpenALSystem::warn_al_error("OpenALSoundSource::set_gain: ");
 }
 
 float
@@ -180,27 +180,28 @@ void
 OpenALSoundSource::set_pitch(float pitch)
 {
   alSourcef(m_source, AL_PITCH, pitch);
+  OpenALSystem::warn_al_error("OpenALSoundSource::set_pitch: ");
 }
 
 void
 OpenALSoundSource::set_reference_distance(float distance)
 {
   alSourcef(m_source, AL_REFERENCE_DISTANCE, distance);
-  OpenALSystem::check_al_error("OpenALSoundSource::set_reference_distance: ");
+  OpenALSystem::warn_al_error("OpenALSoundSource::set_reference_distance: ");
 }
 
 void
 OpenALSoundSource::set_rolloff_factor(float factor)
 {
   alSourcef(m_source, AL_ROLLOFF_FACTOR, factor);
-  OpenALSystem::check_al_error("OpenALSoundSource::set_rolloff_factor: ");
+  OpenALSystem::warn_al_error("OpenALSoundSource::set_rolloff_factor: ");
 }
 
 void
 OpenALSoundSource::update_gain() const
 {
   alSourcef(m_source, AL_GAIN, m_channel.get_gain() * get_gain());
-  OpenALSystem::check_al_error("OpenALSoundSource::update_gain: ");
+  OpenALSystem::warn_al_error("OpenALSoundSource::update_gain: ");
 }
 
 void
@@ -219,6 +220,7 @@ OpenALSoundSource::set_direct_filter(FilterPtr const& filter)
   } else {
     alSourcei(m_source, AL_DIRECT_FILTER, filter->handle());
   }
+  OpenALSystem::warn_al_error("OpenALSoundSource::set_direct_filter: ");
 }
 
 void
@@ -231,7 +233,7 @@ OpenALSoundSource::set_effect_slot(EffectSlotPtr const& slot, FilterPtr const& f
              slot->handle(),
              1,
              filter ? m_filter->handle() : AL_FILTER_NULL);
-  OpenALSystem::check_al_error("OpenALSoundSource::update_set_effect_slot: ");
+  OpenALSystem::warn_al_error("OpenALSoundSource::set_effect_slot: ");
 }
 
 } // namespace wstsound

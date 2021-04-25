@@ -38,7 +38,12 @@ class SoundFile;
 class OpenALSystem
 {
 public:
+  /** Check for error and throw SoundError */
   static void check_al_error(const char* message);
+
+  /** Check for error and print a warning */
+  static void warn_al_error(const char* message);
+
   static ALenum get_sample_format(SoundFile* file);
 
 public:
