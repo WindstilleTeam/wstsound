@@ -52,6 +52,7 @@ public:
   /** Seems to be limited to an accuracy of 1024 samples */
   int get_sample_pos() const override;
 
+  void set_relative(bool relative) override;
   void set_position(float x, float y, float z) override;
   void set_velocity(float x, float y, float z) override;
 

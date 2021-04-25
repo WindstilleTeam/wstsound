@@ -50,6 +50,7 @@ public:
 
   int get_sample_pos() const override { return 0; }
 
+  void set_relative(bool relative) override {}
   void set_position(float x, float y, float z) override {}
   void set_velocity(float x, float y, float z) override {}
 

@@ -58,6 +58,8 @@ public:
   /** Return the current position in pcm samples */
   virtual int get_sample_pos() const = 0;
 
+  /** Set position to be relative to the camera */
+  virtual void set_relative(bool relative) = 0;
   virtual void set_position(float x, float y, float z) = 0;
   virtual void set_velocity(float x, float y, float z) = 0;
 

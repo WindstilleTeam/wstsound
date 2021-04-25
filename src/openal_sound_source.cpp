@@ -113,6 +113,12 @@ OpenALSoundSource::set_looping(bool looping)
 }
 
 void
+OpenALSoundSource::set_relative(bool relative)
+{
+  alSourcei(m_source, AL_SOURCE_RELATIVE, relative ? AL_TRUE : AL_FALSE);
+}
+
+void
 OpenALSoundSource::set_position(float x, float y, float z)
 {
   alSource3f(m_source, AL_POSITION, x, y, z);
