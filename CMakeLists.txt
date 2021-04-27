@@ -30,11 +30,10 @@ if(NOT TARGET Threads::Threads)
 endif()
 
 find_package(OpenAL REQUIRED)
-find_package(PkgConfig REQUIRED)
-pkg_search_module(VORBISFILE REQUIRED vorbisfile IMPORTED_TARGET)
-pkg_search_module(OPUSFILE REQUIRED opusfile IMPORTED_TARGET)
-pkg_search_module(LIBMPG123 REQUIRED libmpg123 IMPORTED_TARGET)
-pkg_search_module(LIBMODPLUG REQUIRED libmodplug IMPORTED_TARGET)
+find_package(Opusfile REQUIRED)
+find_package(Vorbisfile REQUIRED)
+find_package(MPG123 REQUIRED)
+find_package(ModPlug REQUIRED)
 
 file(GLOB WSTSOUND_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
   include/wstsound/*.hpp)
@@ -52,10 +51,10 @@ target_include_directories(wstsound PUBLIC include/)
 target_include_directories(wstsound PRIVATE src/ include/wstsound/)
 target_link_libraries(wstsound PUBLIC
   ${OPENAL_LIBRARY}
-  PkgConfig::VORBISFILE
-  PkgConfig::OPUSFILE
-  PkgConfig::LIBMPG123
-  PkgConfig::LIBMODPLUG
+  Vorbisfile::vorbisfile
+  Opusfile::opusfile
+  MPG123::mpg123
+  ModPlug::modplug
   Threads::Threads)
 
 if(BUILD_TESTS)
