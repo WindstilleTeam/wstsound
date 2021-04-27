@@ -99,7 +99,7 @@ SoundFile::get_sample_duration() const
 size_t
 SoundFile::sample2bytes(int sample)
 {
-  return sample * get_channels() * get_bits_per_sample() * 8;
+  return sample * get_channels() * get_bits_per_sample() / 8;
 }
 
 } // namespace wstsound

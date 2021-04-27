@@ -45,6 +45,11 @@ public:
 
   virtual void set_looping(bool looping) = 0;
 
+  /** Set an A-B loop on the source source. Note that this does not
+      seek to the start of the loop instanty, the loop is only
+      triggered once reaching `sample_end`. */
+  virtual void set_loop(int sample_beg, int sample_end) = 0;
+
   /// Set volume (0.0 is silent, 1.0 is normal)
   virtual void  set_gain(float gain) = 0;
   virtual float get_gain() const = 0;

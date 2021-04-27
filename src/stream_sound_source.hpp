@@ -41,6 +41,7 @@ public:
   void seek_to(float sec) override;
   void seek_to_sample(int sample) override;
   void set_looping(bool looping) override;
+  void set_loop(int sample_beg, int sample_end) override;
 
   float get_pos() const override;
   float get_duration() const override;
@@ -58,6 +59,13 @@ private:
   float sample_to_sec(int sample) const;
 
 private:
+  struct Loop
+  {
+    int sample_beg;
+    int sample_end;
+  };
+
+private:
   static const size_t STREAMFRAGMENTS    = 4;
   static const size_t STREAMFRAGMENTSIZE = 65536;
 
@@ -66,7 +74,7 @@ private:
   ALenum m_format;
 
   bool m_playing;
-  bool m_looping;
+  std::optional<Loop> m_loop;
   int  m_total_samples_processed;
 
 public:

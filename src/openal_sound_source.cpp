@@ -26,6 +26,7 @@
 
 #include "effect_slot.hpp"
 #include "filter.hpp"
+#include "sound_error.hpp"
 #include "sound_manager.hpp"
 
 namespace wstsound {
@@ -139,6 +140,12 @@ OpenALSoundSource::set_looping(bool looping)
 {
   alSourcei(m_source, AL_LOOPING, looping ? AL_TRUE : AL_FALSE);
   OpenALSystem::warn_al_error("OpenALSoundSource::set_looping: ");
+}
+
+void
+OpenALSoundSource::set_loop(int sample_beg, int sample_end)
+{
+  throw SoundError("OpenALSoundSource::set_loop() not supported for non-streaming sources");
 }
 
 void

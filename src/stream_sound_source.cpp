@@ -32,7 +32,7 @@ StreamSoundSource::StreamSoundSource(SoundChannel& channel, std::unique_ptr<Soun
   m_buffers(),
   m_format(OpenALSystem::get_sample_format(m_sound_file.get())),
   m_playing(false),
-  m_looping(false),
+  m_loop(),
   m_total_samples_processed(0)
 {
   alGenBuffers(static_cast<ALsizei>(m_buffers.size()), m_buffers.data());
@@ -50,15 +50,25 @@ StreamSoundSource::~StreamSoundSource()
 void
 StreamSoundSource::set_looping(bool looping)
 {
-  // native OpenAL looping will result in the queue being looped, not
-  // the whole song as provided by the SoundFile, so we do it manually
-  m_looping = looping;
+  // Native OpenAL looping will result in only the queue being looped, not
+  // the whole song as provided by the SoundFile, so we do it manually.
+  if (looping) {
+    m_loop = Loop{0, m_sound_file->get_sample_duration()};
+  } else {
+    m_loop = std::nullopt;
+  }
+}
+
+void
+StreamSoundSource::set_loop(int sample_beg, int sample_end)
+{
+  m_loop = Loop{sample_beg % m_sound_file->get_sample_duration(), sample_end % m_sound_file->get_sample_duration()};
 }
 
 void
 StreamSoundSource::seek_to_sample(int sample)
 {
-  bool const was_playing = is_playing();
+  bool const was_playing = m_playing;
 
   if (was_playing) {
     // stop the source to cause all buffers getting marked as
@@ -138,11 +148,11 @@ StreamSoundSource::update(float delta)
 {
   OpenALSoundSource::update(delta);
 
-  if (!OpenALSoundSource::is_playing() && !m_looping) {
+  if (!OpenALSoundSource::is_playing() && !m_loop) {
     m_playing = false;
   }
 
-  if (is_playing())
+  if (m_playing)
   {
     { // fill the buffer queue with new data
       ALint processed = 0;
@@ -175,17 +185,27 @@ StreamSoundSource::fill_buffer_and_queue(ALuint buffer)
 
   // fill buffer with data from m_sound_file
   do {
-    size_t const bytesrequested = STREAMFRAGMENTSIZE - total_bytesread;
+    size_t bytesrequested = STREAMFRAGMENTSIZE - total_bytesread;
+
+    if (m_loop) {
+      bytesrequested = std::min(m_sound_file->sample2bytes(m_loop->sample_end) - m_sound_file->tell(),
+                                bytesrequested);
+    }
+
     size_t const bytesread = m_sound_file->read(bufferdata.data() + total_bytesread,
                                                 bytesrequested);
-    if (bytesread == 0) { // EOF reached
-      if (m_looping) {
-        m_sound_file->seek_to_sample(0);
-      } else {
+    total_bytesread += bytesread;
+
+    if (m_loop) {
+      if (m_sound_file->tell() >= m_sound_file->sample2bytes(m_loop->sample_end)) {
+        m_sound_file->seek_to_sample(m_loop->sample_beg);
+      }
+    } else {
+      if (bytesread == 0) {
+        /* EOF reached */
         break;
       }
     }
-    total_bytesread += bytesread;
   } while(total_bytesread < STREAMFRAGMENTSIZE);
 
   if (total_bytesread > 0)
