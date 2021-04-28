@@ -19,9 +19,11 @@
 #ifndef HEADER_WINDSTILLE_SOUND_STREAM_SOUND_SOURCE_HPP
 #define HEADER_WINDSTILLE_SOUND_STREAM_SOUND_SOURCE_HPP
 
+#include <stdio.h>
+
 #include <array>
 #include <memory>
-#include <stdio.h>
+#include <optional>
 
 #include "openal_sound_source.hpp"
 
