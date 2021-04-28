@@ -195,7 +195,7 @@ MP3SoundFile::cb_lseek(void* userdata, off_t offset, int whence)
     default:
       assert(false && "incorrect whence value");
   }
-  return self.m_istream->tellg();
+  return static_cast<off_t>(self.m_istream->tellg());
 }
 
 void
