@@ -58,7 +58,9 @@ OpenALSoundSource::~OpenALSoundSource()
 void
 OpenALSoundSource::stop()
 {
-  alSourceStop(m_source);
+  // See http://trac.wildfiregames.com/changeset/7111
+  alSourceRewindv(1, &m_source); // Stops the source
+
   alSourcei(m_source, AL_BUFFER, AL_NONE);
   OpenALSystem::warn_al_error("Problem stopping audio source: ");
 }
@@ -132,7 +134,7 @@ OpenALSoundSource::is_playing() const
   ALint state = AL_PLAYING;
   alGetSourcei(m_source, AL_SOURCE_STATE, &state);
   OpenALSystem::warn_al_error("OpenALSoundSource::is_playing: ");
-  return state != AL_STOPPED;
+  return state == AL_PLAYING;
 }
 
 void
