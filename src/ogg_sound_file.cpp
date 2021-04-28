@@ -116,6 +116,12 @@ OggSoundFile::read(void* _buffer, size_t buffer_size)
   return totalBytesRead;
 }
 
+size_t
+OggSoundFile::tell()
+{
+  return sample2bytes(static_cast<int>(ov_pcm_tell(&m_vorbis_file)));
+}
+
 void
 OggSoundFile::seek_to_sample(int sample)
 {

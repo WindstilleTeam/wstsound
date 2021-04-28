@@ -95,6 +95,12 @@ OpusSoundFile::read(void* buffer, size_t buffer_size)
   return (pcm_read * m_channels * m_bits_per_sample / 8);
 }
 
+size_t
+OpusSoundFile::tell()
+{
+  return sample2bytes(static_cast<int>(op_pcm_tell(m_opus_file)));
+}
+
 void
 OpusSoundFile::seek_to_sample(int sample)
 {

@@ -26,6 +26,7 @@ namespace wstsound {
 ModplugSoundFile::ModplugSoundFile(std::unique_ptr<std::istream> istream) :
   m_istream(std::move(istream)),
   m_file(nullptr),
+  m_bytes_read(0),
   m_rate(0),
   m_channels(0),
   m_bits_per_sample(0)
@@ -55,12 +56,21 @@ ModplugSoundFile::~ModplugSoundFile()
 size_t
 ModplugSoundFile::read(void* buffer, size_t buffer_size)
 {
-  return ModPlug_Read(m_file, buffer, static_cast<int>(buffer_size));
+ size_t len = ModPlug_Read(m_file, buffer, static_cast<int>(buffer_size));
+ m_bytes_read += len;
+ return len;
+}
+
+size_t
+ModplugSoundFile::tell()
+{
+  return m_bytes_read;
 }
 
 void
 ModplugSoundFile::seek_to_sample(int sample)
 {
+  m_bytes_read = sample2bytes(sample);
   long int msec = (1000L * static_cast<long>(sample) / static_cast<long>(get_rate()));
   ModPlug_Seek(m_file, static_cast<int>(msec));
 }

@@ -107,6 +107,12 @@ MP3SoundFile::read(void* buffer, size_t buffer_size)
   }
 }
 
+size_t
+MP3SoundFile::tell()
+{
+  return sample2bytes(static_cast<int>(mpg123_tell(m_mh)));
+}
+
 void
 MP3SoundFile::seek_to_sample(int sample)
 {

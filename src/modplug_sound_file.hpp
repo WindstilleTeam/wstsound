@@ -33,6 +33,7 @@ public:
   ~ModplugSoundFile() override;
 
   size_t read(void* buffer, size_t buffer_size) override;
+  size_t tell() override;
   void   seek_to_sample(int sample) override;
 
   int    get_bits_per_sample() const override;
@@ -43,6 +44,7 @@ public:
 private:
   std::unique_ptr<std::istream> m_istream;
   ModPlugFile* m_file;
+  size_t m_bytes_read;
 
   int m_rate;
   int m_channels;
