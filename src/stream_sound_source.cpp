@@ -45,7 +45,7 @@ StreamSoundSource::~StreamSoundSource()
   stop();
 
   alDeleteBuffers(static_cast<ALsizei>(m_buffers.size()), m_buffers.data());
-  OpenALSystem::check_al_error("Couldn't delete audio buffers: ");
+  OpenALSystem::warn_al_error("Couldn't delete audio buffers: ");
 }
 
 void
@@ -93,7 +93,7 @@ StreamSoundSource::seek_to_sample(int sample)
 
     std::array<ALuint, STREAMFRAGMENTS> unqueue_buffers;
     alSourceUnqueueBuffers(m_source, processed, unqueue_buffers.data());
-    OpenALSystem::check_al_error("Couldn't unqueue audio buffer: ");
+    OpenALSystem::warn_al_error("Couldn't unqueue audio buffer: ");
 
     for(int i = 0; i < processed; ++i) {
       fill_buffer_and_queue(unqueue_buffers[i]);
@@ -167,7 +167,7 @@ StreamSoundSource::update(float delta)
 
       std::array<ALuint, STREAMFRAGMENTS> unqueue_buffers;
       alSourceUnqueueBuffers(m_source, processed, unqueue_buffers.data());
-      OpenALSystem::check_al_error("Couldn't unqueue audio buffer: ");
+      OpenALSystem::warn_al_error("Couldn't unqueue audio buffer: ");
 
       for(int i = 0; i < processed; ++i) {
         fill_buffer_and_queue(unqueue_buffers[i]);
