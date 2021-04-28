@@ -100,7 +100,8 @@ OggSoundFile::read(void* _buffer, size_t buffer_size)
   while(buffer_size>0)
   {
     long bytesRead
-      = ov_read(&m_vorbis_file, buffer, static_cast<int>(buffer_size), 0, 2, 1,
+      = ov_read(&m_vorbis_file, buffer, static_cast<int>(buffer_size),
+                std::endian::native == std::endian::big, 2, 1,
                 &section);
 
     if (bytesRead == 0)
