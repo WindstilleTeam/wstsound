@@ -23,9 +23,6 @@ include(GNUInstallDirs)
 include(ClangTidy)
 include(MaximumWarnings)
 
-# FIXME: workaround for SuperTux issue
-list(REMOVE_ITEM WARNINGS_CXX_FLAGS "-Wmissing-include-dirs")
-
 option(BUILD_EXTRA "Build extra stuff" OFF)
 
 if(NOT TARGET Threads::Threads)
