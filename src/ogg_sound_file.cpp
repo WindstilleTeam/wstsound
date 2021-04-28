@@ -138,7 +138,7 @@ OggSoundFile::cb_read(void* ptr, size_t size, size_t nmemb, void* userdata)
 
   // prevent std::istream from hitting eof(), needed as tellg() will
   // return -1 in that case instead of the from cb_tell expected filesize
-  std::streamsize ogg_pos = ogg.m_istream->tellg();
+  std::streamoff ogg_pos = ogg.m_istream->tellg();
   if (ogg_pos < 0) {
     throw SoundError("OggSoundFile::cb_read() tellg() failed");
   }

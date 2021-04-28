@@ -211,7 +211,7 @@ WavSoundFile::read(void* buffer, size_t buffer_size)
 size_t
 WavSoundFile::tell()
 {
-  return m_istream->tellg() - m_datastart;
+  return static_cast<size_t>(m_istream->tellg() - m_datastart);
 }
 
 } // namespace wstsound
