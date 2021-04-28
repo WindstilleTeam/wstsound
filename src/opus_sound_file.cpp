@@ -164,11 +164,11 @@ OpusSoundFile::cb_close(void* stream)
   return 0;
 }
 
-long
+opus_int64
 OpusSoundFile::cb_tell(void* stream)
 {
   OpusSoundFile& opus = *reinterpret_cast<OpusSoundFile*>(stream);
-  return static_cast<long>(opus.m_istream->tellg());
+  return static_cast<opus_int64>(opus.m_istream->tellg());
 }
 
 } // namespace wstsound
