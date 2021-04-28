@@ -31,9 +31,10 @@ StreamSoundSource::StreamSoundSource(SoundChannel& channel, std::unique_ptr<Soun
   m_sound_file(std::move(sound_file)),
   m_buffers(),
   m_format(OpenALSystem::get_sample_format(m_sound_file.get())),
+  m_total_samples_processed(0),
   m_playing(false),
   m_loop(),
-  m_total_samples_processed(0)
+  m_fade()
 {
   alGenBuffers(static_cast<ALsizei>(m_buffers.size()), m_buffers.data());
   OpenALSystem::check_al_error("Couldn't allocate audio buffers: ");
@@ -63,6 +64,12 @@ void
 StreamSoundSource::set_loop(int sample_beg, int sample_end)
 {
   m_loop = Loop{sample_beg % m_sound_file->get_sample_duration(), sample_end % m_sound_file->get_sample_duration()};
+}
+
+void
+StreamSoundSource::set_fading(FadeDirection direction, float duration)
+{
+  m_fade = Fade{direction, duration, 0.0f};
 }
 
 void
@@ -173,6 +180,30 @@ StreamSoundSource::update(float delta)
     {
       std::cerr << "Restarting audio source because of buffer underrun.\n";
       OpenALSoundSource::play();
+    }
+
+    if (m_fade)
+    {
+      m_fade->time_passed += delta;
+      float progress = m_fade->duration == 0.0f ? 1.0f : m_fade->duration / m_fade->duration;
+
+      // FIXME: keep better track of gain, as this will fail when gain isn't 1.0
+      if (m_fade->direction == FadeDirection::In) {
+        if (progress >= 1.0f) {
+          set_gain(1.0f);
+          m_fade = std::nullopt;
+        } else {
+          set_gain(progress);
+        }
+      } else if (m_fade->direction == FadeDirection::Out) {
+        if (progress >= 1.0f) {
+          set_gain(0.0f);
+          m_fade = std::nullopt;
+          stop();
+        } else {
+          set_gain(1.0f - progress);
+        }
+      }
     }
   }
 }
