@@ -197,13 +197,20 @@ WavSoundFile::read(void* buffer, size_t buffer_size)
   {
     std::streamsize bytesread = m_istream->gcount();
 
+#ifdef __clang__
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wunreachable-code"
+#endif
     // handle endian swaping
     if constexpr (std::endian::native == std::endian::big) {
-      char* p = static_cast<char*>(buffer);
-      for(size_t i = 0; i < bytesread; i += sizeof(uint16_t)) {
-        std::reverse(p, p + sizeof(uint16_t));
+      for(std::streamsize i = 0; i < bytesread; i += sizeof(uint16_t)) {
+        std::reverse(static_cast<char*>(buffer),
+                     static_cast<char*>(buffer) + sizeof(uint16_t));
       }
     }
+#ifdef __clang__
+#  pragma GCC diagnostic pop
+#endif
 
     return bytesread;
   }
