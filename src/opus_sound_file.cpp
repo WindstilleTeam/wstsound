@@ -19,6 +19,7 @@
 #include "opus_sound_file.hpp"
 
 #include <iostream>
+#include <sstream>
 
 #include "sound_error.hpp"
 

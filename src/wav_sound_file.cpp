@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <typeinfo>
+#include <sstream>
 
 #include "sound_error.hpp"
 #include "wav_sound_file.hpp"

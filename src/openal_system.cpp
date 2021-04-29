@@ -19,6 +19,7 @@
 
 #include "openal_system.hpp"
 
+#include <sstream>
 #include <iostream>
 
 #define AL_ALEXT_PROTOTYPES
@@ -204,7 +205,7 @@ OpenALSystem::check_al_error(const char* message)
 
   if (err != AL_NO_ERROR)
   {
-    std::stringstream msg;
+    std::ostringstream msg;
     msg << message << alGetString(err);
     throw SoundError(msg.str());
   }

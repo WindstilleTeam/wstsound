@@ -70,14 +70,14 @@ SoundFile::from_file(std::filesystem::path const& filename)
   std::ifstream in(filename, std::ios::binary);
 
   if (!in) {
-    std::stringstream msg;
+    std::ostringstream msg;
     msg << "Couldn't open '" << filename << "'";
     throw SoundError(msg.str());
   } else {
     try {
       return from_stream(std::make_unique<std::ifstream>(std::move(in)));
     } catch(std::exception& e) {
-      std::stringstream msg;
+      std::ostringstream msg;
       msg << "Couldn't read '" << filename << "': " << e.what();
       throw SoundError(msg.str());
     }
