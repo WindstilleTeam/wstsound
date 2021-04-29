@@ -35,6 +35,8 @@ endif()
 
 find_package(OpenAL REQUIRED)
 find_package(Opusfile REQUIRED)
+find_package(Opus REQUIRED)
+find_package(Ogg REQUIRED)
 find_package(Vorbisfile REQUIRED)
 find_package(MPG123 REQUIRED)
 find_package(ModPlug REQUIRED)
@@ -55,7 +57,9 @@ target_include_directories(wstsound PUBLIC include/)
 target_include_directories(wstsound PRIVATE src/ include/wstsound/)
 target_link_libraries(wstsound PUBLIC
   ${OPENAL_LIBRARY}
+  Ogg::ogg
   Vorbisfile::vorbisfile
+  Opus::opus
   Opusfile::opusfile
   MPG123::mpg123
   ModPlug::modplug
