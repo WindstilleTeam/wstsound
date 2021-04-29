@@ -17,6 +17,10 @@
 cmake_minimum_required(VERSION 3.15)
 project(wstsound VERSION 0.3.0)
 
+# Prefer regular libraries over frameworks, so openal-soft is used
+# instead of the OpenAL framework that is missing effects support.
+set(CMAKE_FIND_FRAMEWORK "LAST")
+
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/external/cmake-modules/)
 
 include(GNUInstallDirs)
