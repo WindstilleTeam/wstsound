@@ -186,6 +186,15 @@ SoundManager::set_listener_velocity(float x, float y, float z)
 }
 
 void
+SoundManager::set_listener_orientation(float at_x, float at_y, float at_z,
+                                       float up_x, float up_y, float up_z)
+{
+  if (!m_openal) { return; }
+  ALfloat orientation[] = { at_x, at_y, at_z, up_x, up_y, up_z };
+  alListenerfv(AL_ORIENTATION, orientation);
+}
+
+void
 SoundManager::set_gain(float gain)
 {
   alListenerf(AL_GAIN, gain);

@@ -45,6 +45,8 @@ public:
 
   void set_listener_position(float x, float y, float z);
   void set_listener_velocity(float x, float y, float z);
+  void set_listener_orientation(float at_x, float at_y, float at_z,
+                                float up_x, float up_y, float up_z);
 
   // master volume is not clamped
   void set_gain(float gain);
