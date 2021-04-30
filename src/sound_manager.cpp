@@ -108,25 +108,22 @@ SoundManager::create_sound_source(std::unique_ptr<SoundFile> sound_file,
                                   SoundChannel& channel,
                                   SoundSourceType type)
 {
-  if (!m_openal)
-  {
+  if (!m_openal) {
     return SoundSourcePtr(new DummySoundSource());
   }
-  else
+
+  switch(type)
   {
-    switch(type)
-    {
-      case SoundSourceType::STATIC:
-        assert(false && "not supported");
-        return SoundSourcePtr(new DummySoundSource());
+    case SoundSourceType::STATIC:
+      assert(false && "not supported");
+      return SoundSourcePtr(new DummySoundSource());
 
-      case SoundSourceType::STREAM:
-        return SoundSourcePtr(new StreamSoundSource(channel, std::move(sound_file)));
+    case SoundSourceType::STREAM:
+      return SoundSourcePtr(new StreamSoundSource(channel, std::move(sound_file)));
 
-      default:
-        assert(false && "never reached");
-        return SoundSourcePtr();
-    }
+    default:
+      assert(false && "never reached");
+      return SoundSourcePtr();
   }
 }
 
@@ -134,15 +131,13 @@ SoundSourcePtr
 SoundManager::create_sound_source(std::filesystem::path const& filename, SoundChannel& channel,
                                   SoundSourceType type)
 {
-  if (!m_openal)
-  {
-    return SoundSourcePtr(new DummySoundSource());
+  if (!m_openal) {
+    return SoundSourcePtr(new DummySoundSource);
   }
-  else
+
+  switch(type)
   {
-    switch(type)
-    {
-      case SoundSourceType::STATIC:
+    case SoundSourceType::STATIC:
       {
         ALuint buffer;
 
@@ -159,29 +154,30 @@ SoundManager::create_sound_source(std::filesystem::path const& filename, SoundCh
       }
       break;
 
-      case SoundSourceType::STREAM:
+    case SoundSourceType::STREAM:
       {
         std::unique_ptr<SoundFile> sound_file = SoundFile::from_file(filename);
         return SoundSourcePtr(new StreamSoundSource(channel, std::move(sound_file)));
       }
       break;
 
-      default:
-        assert(false && "never reached");
-        return SoundSourcePtr();
-    }
+    default:
+      assert(false && "never reached");
+      return SoundSourcePtr(new DummySoundSource);
   }
 }
 
 void
 SoundManager::set_listener_position(float x, float y, float z)
 {
+  if (!m_openal) { return; }
   alListener3f(AL_POSITION, x, y, z);
 }
 
 void
 SoundManager::set_listener_velocity(float x, float y, float z)
 {
+  if (!m_openal) { return; }
   alListener3f(AL_VELOCITY, x, y, z);
 }
 
@@ -197,6 +193,7 @@ SoundManager::set_listener_orientation(float at_x, float at_y, float at_z,
 void
 SoundManager::set_gain(float gain)
 {
+  if (!m_openal) { return; }
   alListenerf(AL_GAIN, gain);
 }
 
@@ -207,7 +204,9 @@ SoundManager::update(float delta)
     channel->update(delta);
   }
 
-  m_openal->update();
+  if (m_openal) {
+    m_openal->update();
+  }
 }
 
 EffectSlotPtr
