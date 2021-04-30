@@ -54,6 +54,10 @@ public:
   void  set_gain(float gain);
   float get_gain() const;
 
+  void pause();
+  void resume();
+  void stop();
+
 private:
   SoundManager& m_sound_manager;
   std::vector<SoundSourcePtr> m_sound_sources;

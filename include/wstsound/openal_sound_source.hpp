@@ -37,9 +37,9 @@ public:
   void stop() override;
   bool is_playing() const override;
 
-  void pause();
-  bool is_paused() const;
-  void resume();
+  void pause() override;
+  bool is_paused() const override;
+  void resume() override;
 
   void set_looping(bool looping) override;
   void set_loop(int sample_beg, int sample_end) override;

@@ -111,6 +111,30 @@ SoundChannel::update(float delta)
   });
 }
 
+void
+SoundChannel::pause()
+{
+  for (auto& source : m_sound_sources) {
+    source->pause();
+  }
+}
+
+void
+SoundChannel::resume()
+{
+  for (auto& source : m_sound_sources) {
+    source->resume();
+  }
+}
+
+void
+SoundChannel::stop()
+{
+  for (auto& source : m_sound_sources) {
+    source->stop();
+  }
+}
+
 } // namespace wstsound
 
 /* EOF */

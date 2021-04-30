@@ -26,11 +26,18 @@ namespace wstsound {
 class DummySoundSource : public SoundSource
 {
 public:
-  DummySoundSource() : m_is_playing(false) {}
+  DummySoundSource() :
+    m_is_playing(false),
+    m_is_paused(false)
+  {}
   ~DummySoundSource() override {}
 
   void play() override { m_is_playing = true; }
   void stop() override { m_is_playing = false; }
+  void pause() override { m_is_paused = true; }
+  void resume() override { m_is_paused = false; }
+
+  bool is_paused() const override { return m_is_paused; }
   bool is_playing() const override { return m_is_playing; }
 
   float get_duration() const override { return 0.0f; }
@@ -77,6 +84,7 @@ public:
 
 private:
   bool m_is_playing;
+  bool m_is_paused;
 
 private:
   DummySoundSource(const DummySoundSource&);
