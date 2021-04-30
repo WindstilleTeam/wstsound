@@ -90,6 +90,19 @@ SoundManager::load_file_into_buffer(std::filesystem::path const& filename)
                                 file->get_rate());
 }
 
+void
+SoundManager::preload(std::filesystem::path const& filename)
+{
+  if (!m_openal) { return; }
+
+  auto it = m_buffer_cache.find(filename);
+  if (it == m_buffer_cache.end())
+  {
+    ALuint const buffer = load_file_into_buffer(filename);
+    m_buffer_cache.insert(std::make_pair(filename, buffer));
+  }
+}
+
 SoundSourcePtr
 SoundManager::create_sound_source(std::unique_ptr<SoundFile> sound_file,
                                   SoundChannel& channel,

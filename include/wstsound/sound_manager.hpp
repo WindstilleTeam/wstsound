@@ -55,6 +55,8 @@ public:
 
   void update(float delta);
 
+  void preload(std::filesystem::path const& filename);
+
   /**
    * Creates a new sound source object which plays the specified soundfile.
    * You are responsible for deleting the sound source later (this will stop the
