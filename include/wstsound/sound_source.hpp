@@ -21,14 +21,11 @@
 
 #include "fwd.hpp"
 
+#include <optional>
+
 namespace wstsound {
 
-enum class FadeState
-{
-  NoFading,
-  FadingOn,
-  FadingOff
-};
+enum class FadeDirection { In, Out };
 
 class SoundSource
 {
@@ -47,6 +44,7 @@ public:
   virtual float get_duration() const = 0;
   virtual int get_sample_duration() const = 0;
 
+  virtual void set_fading(FadeDirection direction, float duration);
   virtual void set_looping(bool looping) = 0;
 
   /** Set an A-B loop on the source source. Note that this does not
@@ -90,16 +88,16 @@ public:
 
   virtual void update(float delta);
 
-  void set_fading(FadeState fade_state, float fade_time);
-  FadeState get_fade_state() const { return m_fade_state; }
+private:
+  struct Fade
+  {
+    FadeDirection direction;
+    float duration;
+    float time_passed;
+  };
 
 private:
-  FadeState m_fade_state;
-  float m_fade_start_ticks;
-  float m_fade_time;
-
-  // FIXME: simple time counter that summarizes all deltas, could be done better
-  float m_total_time;
+  std::optional<Fade> m_fade;
 
 private:
   SoundSource(const SoundSource&);

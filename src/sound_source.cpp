@@ -21,57 +21,42 @@
 namespace wstsound {
 
 SoundSource::SoundSource() :
-  m_fade_state(),
-  m_fade_start_ticks(),
-  m_fade_time(),
-  m_total_time(0.0f)
+  m_fade()
 {
 }
 
 void
-SoundSource::set_fading(FadeState fade_state, float fade_time)
+SoundSource::set_fading(FadeDirection direction, float duration)
 {
-  m_fade_state       = fade_state;
-  m_fade_time        = fade_time;
-  m_fade_start_ticks = m_total_time;
-
-  if (m_fade_state == FadeState::FadingOn) {
-    set_gain(0.0f);
-  }
+  m_fade = Fade{direction, duration, 0.0f};
 }
 
 void
 SoundSource::update(float delta)
 {
-  m_total_time += delta;
-
   if (is_playing())
   {
-    // handle fade-in/out
-    if (m_fade_state == FadeState::FadingOn)
+    if (m_fade)
     {
-      float time = m_total_time - m_fade_start_ticks;
-      if (time >= m_fade_time)
-      {
-        set_gain(1.0);
-        m_fade_state = FadeState::NoFading;
-      }
-      else
-      {
-        set_gain(time / m_fade_time);
-      }
-    }
-    else if (m_fade_state == FadeState::FadingOff)
-    {
-      float time = m_total_time - m_fade_start_ticks;
-      if (time >= m_fade_time)
-      {
-        stop();
-        m_fade_state = FadeState::NoFading;
-      }
-      else
-      {
-        set_gain( (m_fade_time - time) / m_fade_time);
+      m_fade->time_passed += delta;
+      float progress = m_fade->duration == 0.0f ? 1.0f : m_fade->duration / m_fade->duration;
+
+      // FIXME: keep better track of gain, as this will fail when gain isn't 1.0
+      if (m_fade->direction == FadeDirection::In) {
+        if (progress >= 1.0f) {
+          set_gain(1.0f);
+          m_fade = std::nullopt;
+        } else {
+          set_gain(progress);
+        }
+      } else if (m_fade->direction == FadeDirection::Out) {
+        if (progress >= 1.0f) {
+          set_gain(0.0f);
+          m_fade = std::nullopt;
+          stop();
+        } else {
+          set_gain(1.0f - progress);
+        }
       }
     }
   }

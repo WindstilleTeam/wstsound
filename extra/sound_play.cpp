@@ -147,7 +147,7 @@ struct FileOptions
   float seek = 0;
   std::array<float, 3> position = { 0.0f, 0.0f, 0.0f };
   std::array<float, 3> velocity = { 0.0f, 0.0f, 0.0f };
-  FadeState fade = FadeState::NoFading;
+  std::optional<FadeDirection> fade;
   int effect = AL_EFFECT_NULL;
   std::vector<std::optional<std::variant<float, int>>> fxparam = {};
   int filter = AL_FILTER_NULL;
@@ -261,9 +261,9 @@ Options parse_args(int argc, char** argv)
         next_arg();
         file_opts().velocity = arg_parse_vec3(argv[i]);
       } else if (strcmp(argv[i], "--fadein") == 0) {
-        file_opts().fade = FadeState::FadingOn;
+        file_opts().fade = FadeDirection::In;
       } else if (strcmp(argv[i], "--fadeout") == 0) {
-        file_opts().fade = FadeState::FadingOff;
+        file_opts().fade = FadeDirection::Out;
       } else if (strcmp(argv[i], "--effect") == 0) {
         next_arg();
         file_opts().effect = str2effect(argv[i]);
@@ -360,8 +360,8 @@ int run(int argc, char** argv)
       source->seek_to(file_opts.seek);
     }
 
-    if (file_opts.fade != FadeState::NoFading) {
-      source->set_fading(file_opts.fade, 5.0f);
+    if (file_opts.fade) {
+      source->set_fading(*file_opts.fade, 5.0f);
     }
 
     if (file_opts.direct_filter != AL_FILTER_NULL) {

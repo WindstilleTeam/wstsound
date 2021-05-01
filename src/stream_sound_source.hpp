@@ -32,8 +32,6 @@ namespace wstsound {
 class SoundFile;
 class SoundChannel;
 
-enum class FadeDirection { In, Out };
-
 class StreamSoundSource : public OpenALSoundSource
 {
 public:
@@ -49,8 +47,6 @@ public:
 
   float get_pos() const override;
   float get_duration() const override;
-
-  void set_fading(FadeDirection state, float duration);
 
   bool is_playing() const override { return m_playing; }
 
@@ -71,13 +67,6 @@ private:
     int sample_end;
   };
 
-  struct Fade
-  {
-    FadeDirection direction;
-    float duration;
-    float time_passed;
-  };
-
 private:
   static const size_t STREAMFRAGMENTS    = 4;
   static const size_t STREAMFRAGMENTSIZE = 65536;
@@ -89,7 +78,6 @@ private:
   bool m_playing;
 
   std::optional<Loop> m_loop;
-  std::optional<Fade> m_fade;
 
 public:
   StreamSoundSource(const StreamSoundSource&) = delete;
