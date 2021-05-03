@@ -30,6 +30,7 @@
 
 namespace wstsound {
 
+class OpenALBuffer;
 class OpenALDevice;
 class OpenALLoopbackDevice;
 class OpenALRealDevice;
@@ -58,12 +59,12 @@ public:
 
   /** Create an OpenAL buffer, the returned handle is held by
       OpenALSystem and must not be deleted */
-  ALuint create_buffer(ALenum format, ALvoid const* data, ALsizei size, ALsizei freq);
+  OpenALBuffer create_buffer(ALenum format, ALvoid const* data, ALsizei size, ALsizei freq);
   void update();
 
 private:
   std::unique_ptr<OpenALDevice> m_device;
-  std::vector<ALuint> m_buffers;
+  std::vector<OpenALBuffer> m_buffers;
 
 public:
   OpenALSystem(const OpenALSystem&) = delete;

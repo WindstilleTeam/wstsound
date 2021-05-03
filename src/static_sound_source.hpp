@@ -19,6 +19,7 @@
 #ifndef HEADER_WINDSTILLE_SOUND_STATIC_SOUND_SOURCE_HPP
 #define HEADER_WINDSTILLE_SOUND_STATIC_SOUND_SOURCE_HPP
 
+#include "openal_buffer.hpp"
 #include "openal_sound_source.hpp"
 
 namespace wstsound {
@@ -26,13 +27,14 @@ namespace wstsound {
 class StaticSoundSource : public OpenALSoundSource
 {
 public:
-  StaticSoundSource(SoundChannel& channel, ALuint buffer);
+  StaticSoundSource(SoundChannel& channel, OpenALBuffer buffer);
   ~StaticSoundSource() override {}
 
   float get_duration() const override { return m_duration; }
   int get_sample_duration() const override  { return m_sample_duration; }
 
 private:
+  OpenALBuffer m_buffer;
   float m_duration;
   int m_sample_duration;
 

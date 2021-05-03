@@ -25,6 +25,7 @@
 #define AL_ALEXT_PROTOTYPES
 #include <alext.h>
 
+#include "openal_buffer.hpp"
 #include "openal_device.hpp"
 #include "openal_loopback_device.hpp"
 #include "openal_real_device.hpp"
@@ -82,8 +83,6 @@ OpenALSystem::OpenALSystem() :
 
 OpenALSystem::~OpenALSystem()
 {
-  alDeleteBuffers(static_cast<ALsizei>(m_buffers.size()), m_buffers.data());
-  m_buffers.clear();
 }
 
 OpenALRealDevice&
@@ -104,21 +103,16 @@ OpenALSystem::open_loopback_device(int frequency, int channels)
   return loopback_device_ref;
 }
 
-ALuint
+OpenALBuffer
 OpenALSystem::create_buffer(ALenum format,
                             ALvoid const* data,
                             ALsizei size,
                             ALsizei freq)
 {
-  ALuint buffer;
-  alGenBuffers(1, &buffer);
-  OpenALSystem::check_al_error("Couldn't create audio buffer: ");
+  OpenALBuffer buffer;
 
-  alBufferData(buffer, format, data, size, freq);
-
+  alBufferData(buffer.get_handle(), format, data, size, freq);
   OpenALSystem::check_al_error("Couldn't fill audio buffer: ");
-
-  m_buffers.push_back(buffer);
 
   return buffer;
 }

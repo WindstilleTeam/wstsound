@@ -21,6 +21,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "openal_buffer.hpp"
 #include "dummy_sound_source.hpp"
 #include "effect.hpp"
 #include "effect_slot.hpp"
@@ -67,11 +68,9 @@ SoundManager::~SoundManager()
 {
 }
 
-ALuint
-SoundManager::load_file_into_buffer(std::filesystem::path const& filename)
+OpenALBuffer
+SoundManager::load_file_into_buffer(std::unique_ptr<SoundFile> file)
 {
-  std::unique_ptr<SoundFile> file(SoundFile::from_file(filename));
-
   std::vector<char> samples(file->get_size());
   size_t total_bytesread = 0;
   while (true) {
@@ -98,8 +97,8 @@ SoundManager::preload(std::filesystem::path const& filename)
   auto it = m_buffer_cache.find(filename);
   if (it == m_buffer_cache.end())
   {
-    ALuint const buffer = load_file_into_buffer(filename);
-    m_buffer_cache.insert(std::make_pair(filename, buffer));
+    OpenALBuffer buffer = load_file_into_buffer(load_sound_file(filename));
+    m_buffer_cache.insert(std::make_pair(filename, std::move(buffer)));
   }
 }
 
@@ -115,16 +114,15 @@ SoundManager::create_sound_source(std::unique_ptr<SoundFile> sound_file,
   switch(type)
   {
     case SoundSourceType::STATIC:
-      assert(false && "not supported");
-      return SoundSourcePtr(new DummySoundSource());
+      //OpenALBuffer buffer = load_file_into_buffer(std::move(sound_file));
+      //return SoundSourcePtr(new StaticSoundSource(channel, buffer));
+      throw SoundError("FIXME: implement this");
 
     case SoundSourceType::STREAM:
       return SoundSourcePtr(new StreamSoundSource(channel, std::move(sound_file)));
-
-    default:
-      assert(false && "never reached");
-      return SoundSourcePtr();
   }
+
+  throw std::invalid_argument("invalid SoundSourceType");
 }
 
 SoundSourcePtr
@@ -139,14 +137,14 @@ SoundManager::create_sound_source(std::filesystem::path const& filename, SoundCh
   {
     case SoundSourceType::STATIC:
       {
-        ALuint buffer;
+        OpenALBuffer buffer;
 
         // reuse an existing static sound buffer
         auto it = m_buffer_cache.find(filename);
         if (it != m_buffer_cache.end()) {
           buffer = it->second;
         } else {
-          buffer = load_file_into_buffer(filename);
+          buffer = load_file_into_buffer(SoundFile::from_file(filename));
           m_buffer_cache.insert(std::make_pair(filename, buffer));
         }
 
@@ -160,10 +158,6 @@ SoundManager::create_sound_source(std::filesystem::path const& filename, SoundCh
         return SoundSourcePtr(new StreamSoundSource(channel, std::move(sound_file)));
       }
       break;
-
-    default:
-      assert(false && "never reached");
-      return SoundSourcePtr(new DummySoundSource);
   }
 }
 
