@@ -82,6 +82,14 @@ public:
     m_is_playing = false;
   }
 
+  float sample_to_sec(int sample) const override {
+    return 0.0f;
+  }
+
+  int sec_to_sample(float sec) const override {
+    return 0;
+  }
+
 private:
   bool m_is_playing;
   bool m_is_paused;

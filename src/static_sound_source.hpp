@@ -33,6 +33,9 @@ public:
   float get_duration() const override { return m_duration; }
   int get_sample_duration() const override  { return m_sample_duration; }
 
+  float sample_to_sec(int sample) const override;
+  int sec_to_sample(float sec) const override;
+
 private:
   OpenALBufferPtr m_buffer;
   float m_duration;

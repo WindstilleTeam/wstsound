@@ -50,15 +50,15 @@ public:
 
   bool is_playing() const override { return m_playing; }
 
-  int   get_sample_pos() const override;
-  int   get_sample_duration() const override;
+  int get_sample_pos() const override;
+  int get_sample_duration() const override;
+
+  int sec_to_sample(float sec) const override;
+  float sample_to_sec(int sample) const override;
 
 private:
   void fill_buffer_and_queue(ALuint buffer);
-
   int samples_per_buffer() const;
-  int sec_to_sample(float sec) const;
-  float sample_to_sec(int sample) const;
 
 private:
   struct Loop

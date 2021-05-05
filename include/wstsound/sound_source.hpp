@@ -88,6 +88,9 @@ public:
 
   virtual void update(float delta);
 
+  virtual int sec_to_sample(float sec) const = 0;
+  virtual float sample_to_sec(int sample) const = 0;
+
 private:
   struct Fade
   {
