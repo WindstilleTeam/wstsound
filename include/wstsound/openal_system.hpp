@@ -28,13 +28,9 @@
 #include <alc.h>
 #include <al.h>
 
-namespace wstsound {
+#include "fwd.hpp"
 
-class OpenALBuffer;
-class OpenALDevice;
-class OpenALLoopbackDevice;
-class OpenALRealDevice;
-class SoundFile;
+namespace wstsound {
 
 class OpenALSystem
 {
@@ -59,7 +55,7 @@ public:
 
   /** Create an OpenAL buffer, the returned handle is held by
       OpenALSystem and must not be deleted */
-  OpenALBuffer create_buffer(ALenum format, ALvoid const* data, ALsizei size, ALsizei freq);
+  OpenALBufferPtr create_buffer(ALenum format, ALvoid const* data, ALsizei size, ALsizei freq);
   void update();
 
 private:

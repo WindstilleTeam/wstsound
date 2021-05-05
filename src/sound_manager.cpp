@@ -72,7 +72,7 @@ SoundManager::~SoundManager()
 {
 }
 
-OpenALBuffer
+OpenALBufferPtr
 SoundManager::load_file_into_buffer(std::unique_ptr<SoundFile> file)
 {
   std::vector<char> samples(file->get_size());
@@ -112,7 +112,7 @@ SoundManager::preload(std::filesystem::path const& filename)
   auto it = m_buffer_cache.find(filename);
   if (it == m_buffer_cache.end())
   {
-    OpenALBuffer buffer = load_file_into_buffer(load_sound_file(filename));
+    OpenALBufferPtr buffer = load_file_into_buffer(load_sound_file(filename));
     m_buffer_cache.insert(std::make_pair(filename, std::move(buffer)));
   }
 }
@@ -151,7 +151,7 @@ SoundManager::create_sound_source(std::filesystem::path const& filename, SoundCh
   {
     case SoundSourceType::STATIC:
       {
-        OpenALBuffer buffer;
+        OpenALBufferPtr buffer;
 
         // reuse an existing static sound buffer
         auto it = m_buffer_cache.find(filename);

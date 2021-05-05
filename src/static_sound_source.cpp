@@ -22,14 +22,26 @@
 
 namespace wstsound {
 
-StaticSoundSource::StaticSoundSource(SoundChannel& channel, OpenALBuffer buffer) :
+StaticSoundSource::StaticSoundSource(SoundChannel& channel, OpenALBufferPtr buffer) :
   OpenALSoundSource(channel),
   m_buffer(std::move(buffer)),
-  m_duration(m_buffer.get_duration()),
-  m_sample_duration(m_buffer.get_sample_duration())
+  m_duration(m_buffer->get_duration()),
+  m_sample_duration(m_buffer->get_sample_duration())
 {
-  alSourcei(m_source, AL_BUFFER, buffer.get_handle());
+  alSourcei(m_source, AL_BUFFER, m_buffer->get_handle());
   OpenALSystem::check_al_error("StaticSoundSource: ");
+}
+
+float
+StaticSoundSource::sample_to_sec(int sample) const
+{
+  return static_cast<float>(sample) / static_cast<float>(m_buffer->get_frequency());
+}
+
+int
+StaticSoundSource::sec_to_sample(float sec) const
+{
+  return static_cast<int>(sec * static_cast<float>(m_buffer->get_frequency()));
 }
 
 } // namespace wstsound

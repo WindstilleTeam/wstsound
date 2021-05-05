@@ -27,14 +27,14 @@ namespace wstsound {
 class StaticSoundSource : public OpenALSoundSource
 {
 public:
-  StaticSoundSource(SoundChannel& channel, OpenALBuffer buffer);
+  StaticSoundSource(SoundChannel& channel, OpenALBufferPtr buffer);
   ~StaticSoundSource() override {}
 
   float get_duration() const override { return m_duration; }
   int get_sample_duration() const override  { return m_sample_duration; }
 
 private:
-  OpenALBuffer m_buffer;
+  OpenALBufferPtr m_buffer;
   float m_duration;
   int m_sample_duration;
 

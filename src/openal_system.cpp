@@ -103,15 +103,14 @@ OpenALSystem::open_loopback_device(int frequency, int channels)
   return loopback_device_ref;
 }
 
-OpenALBuffer
+OpenALBufferPtr
 OpenALSystem::create_buffer(ALenum format,
                             ALvoid const* data,
                             ALsizei size,
                             ALsizei freq)
 {
-  OpenALBuffer buffer;
-
-  alBufferData(buffer.get_handle(), format, data, size, freq);
+  auto buffer = OpenALBuffer::create();
+  alBufferData(buffer->get_handle(), format, data, size, freq);
   OpenALSystem::check_al_error("Couldn't fill audio buffer: ");
 
   return buffer;

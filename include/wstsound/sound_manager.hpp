@@ -82,14 +82,14 @@ public:
   FilterPtr create_filter(ALuint filter_type);
 
 private:
-  OpenALBuffer load_file_into_buffer(std::unique_ptr<SoundFile> file);
+  OpenALBufferPtr load_file_into_buffer(std::unique_ptr<SoundFile> file);
   std::unique_ptr<SoundFile> load_sound_file(std::filesystem::path const& filename);
 
 private:
   std::unique_ptr<OpenALSystem> m_openal;
   std::function<std::unique_ptr<std::istream> (std::filesystem::path)> m_open_func;
   std::vector<std::unique_ptr<SoundChannel> > m_channels;
-  std::map<std::filesystem::path, OpenALBuffer> m_buffer_cache;
+  std::map<std::filesystem::path, OpenALBufferPtr> m_buffer_cache;
 
 public:
   SoundManager(const SoundManager&);

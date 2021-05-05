@@ -28,6 +28,7 @@ class EffectSlot;
 class Filter;
 class FilteredSoundFile;
 class OggSoundFile;
+class OpenALBuffer;
 class OpenALDevice;
 class OpenALLoopbackDevice;
 class OpenALRealDevice;
@@ -45,6 +46,7 @@ class WavSoundFile;
 enum class FadeState;
 enum class SoundSourceType;
 
+using OpenALBufferPtr = std::shared_ptr<OpenALBuffer>;
 using EffectPtr = std::shared_ptr<Effect>;
 using EffectSlotPtr = std::shared_ptr<EffectSlot>;
 using FilterPtr = std::shared_ptr<Filter>;
