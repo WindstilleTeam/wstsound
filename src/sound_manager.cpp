@@ -30,13 +30,16 @@
 #include "sound_error.hpp"
 #include "sound_file.hpp"
 #include "sound_manager.hpp"
+#include "sound_source_type.hpp"
 #include "static_sound_source.hpp"
 #include "stream_sound_source.hpp"
 
 namespace wstsound {
 
-SoundManager::SoundManager(std::unique_ptr<OpenALSystem> openal) :
+SoundManager::SoundManager(std::unique_ptr<OpenALSystem> openal,
+                           OpenFunc open_func) :
   m_openal(std::move(openal)),
+  m_open_func(std::move(open_func)),
   m_channels(),
   m_buffer_cache()
 {
@@ -45,8 +48,9 @@ SoundManager::SoundManager(std::unique_ptr<OpenALSystem> openal) :
   m_channels.emplace_back(std::make_unique<SoundChannel>(*this));
 }
 
-SoundManager::SoundManager() :
+SoundManager::SoundManager(OpenFunc open_func) :
   m_openal(),
+  m_open_func(std::move(open_func)),
   m_channels(),
   m_buffer_cache()
 {
@@ -89,6 +93,17 @@ SoundManager::load_file_into_buffer(std::unique_ptr<SoundFile> file)
                                 file->get_rate());
 }
 
+std::unique_ptr<SoundFile>
+SoundManager::load_sound_file(std::filesystem::path const& filename)
+{
+  if (m_open_func) {
+    auto is = m_open_func(filename);
+    return SoundFile::from_stream(std::move(is));
+  } else {
+    return SoundFile::from_file(filename);
+  }
+}
+
 void
 SoundManager::preload(std::filesystem::path const& filename)
 {
@@ -114,9 +129,8 @@ SoundManager::create_sound_source(std::unique_ptr<SoundFile> sound_file,
   switch(type)
   {
     case SoundSourceType::STATIC:
-      //OpenALBuffer buffer = load_file_into_buffer(std::move(sound_file));
-      //return SoundSourcePtr(new StaticSoundSource(channel, buffer));
-      throw SoundError("FIXME: implement this");
+      return SoundSourcePtr(new StaticSoundSource(channel,
+                                                  load_file_into_buffer(std::move(sound_file))));
 
     case SoundSourceType::STREAM:
       return SoundSourcePtr(new StreamSoundSource(channel, std::move(sound_file)));
@@ -144,7 +158,7 @@ SoundManager::create_sound_source(std::filesystem::path const& filename, SoundCh
         if (it != m_buffer_cache.end()) {
           buffer = it->second;
         } else {
-          buffer = load_file_into_buffer(SoundFile::from_file(filename));
+          buffer = load_file_into_buffer(load_sound_file(filename));
           m_buffer_cache.insert(std::make_pair(filename, buffer));
         }
 
@@ -154,11 +168,13 @@ SoundManager::create_sound_source(std::filesystem::path const& filename, SoundCh
 
     case SoundSourceType::STREAM:
       {
-        std::unique_ptr<SoundFile> sound_file = SoundFile::from_file(filename);
+        std::unique_ptr<SoundFile> sound_file = load_sound_file(filename);
         return SoundSourcePtr(new StreamSoundSource(channel, std::move(sound_file)));
       }
       break;
   }
+
+  throw std::invalid_argument("invalid SoundSourceType");
 }
 
 void

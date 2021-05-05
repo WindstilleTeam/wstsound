@@ -20,10 +20,11 @@
 #define HEADER_WINDSTILLE_SOUND_SOUND_MANAGER_HPP
 
 #include <filesystem>
+#include <functional>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
-#include <map>
 
 #include "openal_system.hpp"
 #include "sound_channel.hpp"
@@ -34,11 +35,13 @@ class SoundFile;
 class SoundSource;
 class StreamSoundSource;
 
+using OpenFunc = std::function<std::unique_ptr<std::istream> (std::filesystem::path)>;
+
 class SoundManager
 {
 public:
-  SoundManager(std::unique_ptr<OpenALSystem> openal);
-  SoundManager();
+  SoundManager(std::unique_ptr<OpenALSystem> openal, OpenFunc open_func = {});
+  SoundManager(OpenFunc open_func = {});
   ~SoundManager();
 
   bool is_dummy() const { return !m_openal; }
@@ -80,9 +83,11 @@ public:
 
 private:
   OpenALBuffer load_file_into_buffer(std::unique_ptr<SoundFile> file);
+  std::unique_ptr<SoundFile> load_sound_file(std::filesystem::path const& filename);
 
 private:
   std::unique_ptr<OpenALSystem> m_openal;
+  std::function<std::unique_ptr<std::istream> (std::filesystem::path)> m_open_func;
   std::vector<std::unique_ptr<SoundChannel> > m_channels;
   std::map<std::filesystem::path, OpenALBuffer> m_buffer_cache;
 
