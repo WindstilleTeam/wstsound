@@ -160,7 +160,8 @@ MP3SoundFile::cb_read(void* userdata, void* buffer, size_t nbytes)
     if (!self.m_istream->eof()) {
       return -1;
     } else {
-      self.m_istream->clear(std::ios::eofbit);
+      // tellg() will return -1 unless eofbit is cleared
+      self.m_istream->clear();
     }
   }
 

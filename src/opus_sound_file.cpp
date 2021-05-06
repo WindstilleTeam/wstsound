@@ -118,7 +118,8 @@ OpusSoundFile::cb_read(void* stream, unsigned char* buffer, int nbytes)
     if (!opus.m_istream->eof()) {
       return -1;
     } else {
-      opus.m_istream->clear(std::ios::eofbit);
+      // tellg() will return -1 unless eofbit is cleared
+      opus.m_istream->clear();
     }
   }
 

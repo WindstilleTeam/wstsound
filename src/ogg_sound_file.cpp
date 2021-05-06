@@ -134,18 +134,17 @@ OggSoundFile::cb_read(void* ptr, size_t size, size_t nmemb, void* userdata)
 {
   OggSoundFile& ogg = *reinterpret_cast<OggSoundFile*>(userdata);
 
-  size_t read_len = size * nmemb;
-
-  // prevent std::istream from hitting eof(), needed as tellg() will
-  // return -1 in that case instead of the from cb_tell expected filesize
-  std::streamoff ogg_pos = ogg.m_istream->tellg();
-  if (ogg_pos < 0) {
-    throw SoundError("OggSoundFile::cb_read() tellg() failed");
+  if (!ogg.m_istream->read(static_cast<char*>(ptr), size * nmemb))
+  {
+    if (!ogg.m_istream->eof()) {
+      return -1;
+    } else {
+      // tellg() will return -1 unless eofbit is cleared
+      ogg.m_istream->clear();
+    }
   }
-  read_len = std::min(read_len, ogg.m_file_size - static_cast<size_t>(ogg_pos));
 
-  size_t len = ogg.m_istream->read(static_cast<char*>(ptr), read_len).gcount();
-  return len;
+  return static_cast<int>(ogg.m_istream->gcount());
 }
 
 int

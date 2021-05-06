@@ -189,8 +189,10 @@ WavSoundFile::read(void* buffer, size_t buffer_size)
   {
     if (!m_istream->eof()) {
       throw SoundError("read error while reading samples");
+    } else {
+      // tellg() will return -1 unless eofbit is cleared
+      m_istream->clear();
     }
-    m_istream->clear();
     return m_istream->gcount();
   }
   else
