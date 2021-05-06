@@ -125,15 +125,15 @@ OpenALSystem::update()
 }
 
 ALenum
-OpenALSystem::get_sample_format(SoundFile* file)
+OpenALSystem::get_sample_format(SoundFile const& file)
 {
-  if (file->get_channels() == 2)
+  if (file.get_channels() == 2)
   {
-    if (file->get_bits_per_sample() == 16)
+    if (file.get_bits_per_sample() == 16)
     {
       return AL_FORMAT_STEREO16;
     }
-    else if (file->get_bits_per_sample() == 8)
+    else if (file.get_bits_per_sample() == 8)
     {
       return AL_FORMAT_STEREO8;
     }
@@ -142,13 +142,13 @@ OpenALSystem::get_sample_format(SoundFile* file)
       throw SoundError("Only 16 and 8 bit samples supported");
     }
   }
-  else if (file->get_channels() == 1)
+  else if (file.get_channels() == 1)
   {
-    if (file->get_bits_per_sample() == 16)
+    if (file.get_bits_per_sample() == 16)
     {
       return AL_FORMAT_MONO16;
     }
-    else if (file->get_bits_per_sample() == 8)
+    else if (file.get_bits_per_sample() == 8)
     {
       return AL_FORMAT_MONO8;
     }

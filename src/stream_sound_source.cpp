@@ -30,7 +30,7 @@ StreamSoundSource::StreamSoundSource(SoundChannel& channel, std::unique_ptr<Soun
   OpenALSoundSource(channel),
   m_sound_file(std::move(sound_file)),
   m_buffers(),
-  m_format(OpenALSystem::get_sample_format(m_sound_file.get())),
+  m_format(OpenALSystem::get_sample_format(*m_sound_file)),
   m_total_samples_processed(0),
   m_playing(false),
   m_loop()
