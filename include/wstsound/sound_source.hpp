@@ -30,6 +30,14 @@ enum class FadeDirection { In, Out };
 class SoundSource
 {
 public:
+  struct Fade
+  {
+    FadeDirection direction;
+    float duration;
+    float time_passed;
+  };
+
+public:
   SoundSource();
   virtual ~SoundSource() {}
 
@@ -45,6 +53,7 @@ public:
   virtual int get_sample_duration() const = 0;
 
   virtual void set_fading(FadeDirection direction, float duration);
+  virtual std::optional<Fade> const& get_fade() const { return m_fade; }
   virtual void set_looping(bool looping) = 0;
 
   /** Set an A-B loop on the source source. Note that this does not
@@ -90,14 +99,6 @@ public:
 
   virtual int sec_to_sample(float sec) const = 0;
   virtual float sample_to_sec(int sample) const = 0;
-
-private:
-  struct Fade
-  {
-    FadeDirection direction;
-    float duration;
-    float time_passed;
-  };
 
 private:
   std::optional<Fade> m_fade;
