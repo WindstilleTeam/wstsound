@@ -59,7 +59,7 @@ void
 OpenALSoundSource::stop()
 {
   // See http://trac.wildfiregames.com/changeset/7111
-  alSourceRewindv(1, &m_source); // Stops the source
+  alSourceRewind(m_source); // Stops the source
 
   alSourcei(m_source, AL_BUFFER, AL_NONE);
   OpenALSystem::warn_al_error("Problem stopping audio source: ");
