@@ -22,6 +22,7 @@
 #include <efx.h>
 
 #include "effect.hpp"
+#include "openal_system.hpp"
 
 namespace wstsound {
 
@@ -30,11 +31,13 @@ EffectSlot::EffectSlot() :
   m_effect()
 {
   alGenAuxiliaryEffectSlots(1, &m_slot);
+  OpenALSystem::check_al_error("EffectSlot::EffectSlot()");
 }
 
 EffectSlot::~EffectSlot()
 {
   alDeleteAuxiliaryEffectSlots(1, &m_slot);
+  OpenALSystem::warn_al_error("EffectSlot::~EffectSlot()");
 }
 
 void
@@ -47,6 +50,7 @@ EffectSlot::set_effect(EffectPtr const& effect)
   } else {
     alAuxiliaryEffectSloti(m_slot, AL_EFFECTSLOT_EFFECT, AL_EFFECT_NULL);
   }
+  OpenALSystem::check_al_error("EffectSlot::set_effect()");
 }
 
 } // namespace wstsound
