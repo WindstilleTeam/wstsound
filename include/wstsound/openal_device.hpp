@@ -19,6 +19,8 @@
 #ifndef HEADER_WINDSTILLE_OPENAL_DEVICE_HPP
 #define HEADER_WINDSTILLE_OPENAL_DEVICE_HPP
 
+#include <string>
+
 #include <al.h>
 #include <alc.h>
 
@@ -38,6 +40,9 @@ public:
 
   void check_alc_error(char const* message);
   void update();
+
+  bool is_extension_present(std::string const& ext) const;
+  int max_auxiliary_sends() const;
 
 protected:
   OpenALSystem& m_openal;

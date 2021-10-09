@@ -21,6 +21,8 @@
 #include <assert.h>
 #include <sstream>
 
+#include <efx.h>
+
 #include "sound_error.hpp"
 
 namespace wstsound {
@@ -69,6 +71,20 @@ OpenALDevice::update()
 {
   alcProcessContext(m_context);
   check_alc_error("Error while processing audio context: ");
+}
+
+bool
+OpenALDevice::is_extension_present(std::string const& ext) const
+{
+  return alcIsExtensionPresent(m_device, ext.c_str()) == AL_TRUE;
+}
+
+int
+OpenALDevice::max_auxiliary_sends() const
+{
+  ALint sends;
+  alcGetIntegerv(m_device, ALC_MAX_AUXILIARY_SENDS, 1, &sends);
+  return sends;
 }
 
 } // namespace wstsound

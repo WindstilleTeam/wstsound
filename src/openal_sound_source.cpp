@@ -237,10 +237,11 @@ OpenALSoundSource::set_effect_slot(EffectSlotPtr const& slot, FilterPtr const& f
 {
   m_effect_slot = slot;
   m_filter = filter;
+  ALint const auxiliary_send = 0; // can have more than one!
 
   alSource3i(m_source, AL_AUXILIARY_SEND_FILTER,
              slot->handle(),
-             1,
+             auxiliary_send,
              filter ? m_filter->handle() : AL_FILTER_NULL);
   OpenALSystem::warn_al_error("OpenALSoundSource::set_effect_slot: ");
 }
