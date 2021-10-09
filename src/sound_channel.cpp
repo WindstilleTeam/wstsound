@@ -43,6 +43,7 @@ SoundChannel::play(std::filesystem::path const& filename,
 {
   SoundSourcePtr source = prepare(filename, type);
   source->play();
+
   return source;
 }
 
@@ -50,14 +51,21 @@ SoundSourcePtr
 SoundChannel::prepare(std::filesystem::path const& filename,
                       SoundSourceType type)
 {
-  try {
+  try
+  {
     SoundSourcePtr source = m_sound_manager.create_sound_source(filename, *this, type);
     source->update_gain();
+
     m_sound_sources.emplace_back(source);
     return source;
-  } catch(std::exception const& err) {
-    std::cout << "SourceChannel::prepare: Couldn't load " << filename << ": " << err.what() << std::endl;
-    return SoundSourcePtr(new DummySoundSource());
+  }
+  catch(std::exception const& err)
+  {
+    std::cerr << "SourceChannel::prepare: Couldn't load " << filename << ": " << err.what() << std::endl;
+    auto source = std::make_shared<DummySoundSource>();
+
+    m_sound_sources.emplace_back(source);
+    return source;
   }
 }
 
@@ -67,6 +75,7 @@ SoundChannel::play(std::unique_ptr<SoundFile> sound_file,
 {
   SoundSourcePtr source = prepare(std::move(sound_file), type);
   source->play();
+
   return source;
 }
 
@@ -76,7 +85,8 @@ SoundChannel::prepare(std::unique_ptr<SoundFile> sound_file,
 {
   SoundSourcePtr source = m_sound_manager.create_sound_source(std::move(sound_file), *this, type);
   source->update_gain();
-  m_sound_sources.push_back(source);
+
+  m_sound_sources.emplace_back(source);
   return source;
 }
 
