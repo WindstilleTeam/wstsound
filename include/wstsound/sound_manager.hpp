@@ -28,6 +28,7 @@
 
 #include "openal_system.hpp"
 #include "sound_channel.hpp"
+#include "listener.hpp"
 
 namespace wstsound {
 
@@ -46,10 +47,7 @@ public:
 
   bool is_dummy() const { return !m_openal; }
 
-  void set_listener_position(float x, float y, float z);
-  void set_listener_velocity(float x, float y, float z);
-  void set_listener_orientation(float at_x, float at_y, float at_z,
-                                float up_x, float up_y, float up_z);
+  Listener& listener() { return m_listener; }
 
   // master volume is not clamped
   void set_gain(float gain);
@@ -88,6 +86,7 @@ private:
 private:
   std::unique_ptr<OpenALSystem> m_openal;
   std::function<std::unique_ptr<std::istream> (std::filesystem::path)> m_open_func;
+  Listener m_listener;
   std::vector<std::unique_ptr<SoundChannel> > m_channels;
   std::map<std::filesystem::path, OpenALBufferPtr> m_buffer_cache;
 

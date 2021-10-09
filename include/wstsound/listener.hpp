@@ -16,42 +16,30 @@
 **  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef HEADER_WSTSOUND_FWD_HPP
-#define HEADER_WSTSOUND_FWD_HPP
-
-#include <memory>
+#ifndef HEADER_WINDSTILLE_LISTENER_HPP
+#define HEADER_WINDSTILLE_LISTENER_HPP
 
 namespace wstsound {
 
-class Effect;
-class EffectSlot;
-class Filter;
-class FilteredSoundFile;
-class Listener;
-class OggSoundFile;
-class OpenALBuffer;
-class OpenALDevice;
-class OpenALLoopbackDevice;
-class OpenALRealDevice;
-class OpenALSoundSource;
-class OpenALSystem;
-class OpenalContext;
-class OpusSoundFile;
-class ProceduralSoundFile;
-class SoundChannel;
-class SoundFile;
 class SoundManager;
-class SoundSource;
-class WavSoundFile;
 
-enum class FadeState;
-enum class SoundSourceType;
+class Listener
+{
+public:
+  Listener(SoundManager& sound_manager);
 
-using OpenALBufferPtr = std::shared_ptr<OpenALBuffer>;
-using EffectPtr = std::shared_ptr<Effect>;
-using EffectSlotPtr = std::shared_ptr<EffectSlot>;
-using FilterPtr = std::shared_ptr<Filter>;
-using SoundSourcePtr = std::shared_ptr<SoundSource>;
+  void set_position(float x, float y, float z);
+  void set_velocity(float x, float y, float z);
+  void set_orientation(float at_x, float at_y, float at_z,
+                       float up_x, float up_y, float up_z);
+
+private:
+  SoundManager& m_sound_manager;
+
+private:
+  Listener(const Listener&) = delete;
+  Listener& operator=(const Listener&) = delete;
+};
 
 } // namespace wstsound
 
