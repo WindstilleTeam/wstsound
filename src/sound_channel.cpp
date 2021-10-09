@@ -119,13 +119,8 @@ SoundChannel::update(float delta)
     }
   }
 
-  // check for finished sound sources
   std::erase_if(m_sound_sources, [](SoundSourceWPtr const& source_wptr){
-    if (auto source = source_wptr.lock()) {
-      return !source->is_playing();
-    } else {
-      return true;
-    }
+    return source_wptr.expired();
   });
 }
 
