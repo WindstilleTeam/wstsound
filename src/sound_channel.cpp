@@ -53,7 +53,7 @@ SoundChannel::prepare(std::filesystem::path const& filename,
   try {
     SoundSourcePtr source = m_sound_manager.create_sound_source(filename, *this, type);
     source->update_gain();
-    m_sound_sources.push_back(source);
+    m_sound_sources.emplace_back(source);
     return source;
   } catch(std::exception const& err) {
     std::cout << "SourceChannel::prepare: Couldn't load " << filename << ": " << err.what() << std::endl;
@@ -85,9 +85,11 @@ SoundChannel::set_gain(float gain)
 {
   m_gain = gain;
 
-  for(std::vector<SoundSourcePtr>::iterator i = m_sound_sources.begin(); i != m_sound_sources.end(); ++i)
+  for(auto& source_wptr : m_sound_sources)
   {
-    (*i)->update_gain();
+    if (auto source = source_wptr.lock()) {
+      source->update_gain();
+    }
   }
 }
 
@@ -100,38 +102,50 @@ SoundChannel::get_gain() const
 void
 SoundChannel::update(float delta)
 {
-  for(SoundSourcePtr& sound_source : m_sound_sources)
+  for(auto& source_wptr : m_sound_sources)
   {
-    sound_source->update(delta);
+    if (auto source = source_wptr.lock()) {
+      source->update(delta);
+    }
   }
 
   // check for finished sound sources
-  std::erase_if(m_sound_sources, [](SoundSourcePtr const& source){
-    return !source->is_playing();
+  std::erase_if(m_sound_sources, [](SoundSourceWPtr const& source_wptr){
+    if (auto source = source_wptr.lock()) {
+      return !source->is_playing();
+    } else {
+      return true;
+    }
   });
 }
 
 void
 SoundChannel::pause()
 {
-  for (auto& source : m_sound_sources) {
-    source->pause();
+  for (auto& source_wptr : m_sound_sources) {
+    if (auto source = source_wptr.lock()) {
+      source->pause();
+    }
   }
 }
 
 void
 SoundChannel::resume()
 {
-  for (auto& source : m_sound_sources) {
-    source->resume();
+  for (auto& source_wptr : m_sound_sources) {
+    if (auto source = source_wptr.lock()) {
+      source->resume();
+    }
   }
 }
 
 void
 SoundChannel::stop()
 {
-  for (auto& source : m_sound_sources) {
-    source->stop();
+  for (auto& source_wptr : m_sound_sources) {
+    if (auto source = source_wptr.lock()) {
+      source->stop();
+    }
   }
 }
 

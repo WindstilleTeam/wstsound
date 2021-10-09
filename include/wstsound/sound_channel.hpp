@@ -60,7 +60,7 @@ public:
 
 private:
   SoundManager& m_sound_manager;
-  std::vector<SoundSourcePtr> m_sound_sources;
+  std::vector<SoundSourceWPtr> m_sound_sources;
   float m_gain;
 
 private:

@@ -52,6 +52,7 @@ using EffectPtr = std::shared_ptr<Effect>;
 using EffectSlotPtr = std::shared_ptr<EffectSlot>;
 using FilterPtr = std::shared_ptr<Filter>;
 using SoundSourcePtr = std::shared_ptr<SoundSource>;
+using SoundSourceWPtr = std::weak_ptr<SoundSource>;
 
 } // namespace wstsound
 
