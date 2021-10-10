@@ -42,7 +42,8 @@ SoundManager::SoundManager(std::unique_ptr<OpenALSystem> openal,
   m_open_func(std::move(open_func)),
   m_listener(*this),
   m_channels(),
-  m_buffer_cache()
+  m_buffer_cache(),
+  m_managed_sources()
 {
   m_channels.emplace_back(std::make_unique<SoundChannel>(*this));
   m_channels.emplace_back(std::make_unique<SoundChannel>(*this));
@@ -54,7 +55,8 @@ SoundManager::SoundManager(OpenFunc open_func) :
   m_open_func(std::move(open_func)),
   m_listener(*this),
   m_channels(),
-  m_buffer_cache()
+  m_buffer_cache(),
+  m_managed_sources()
 {
   m_channels.emplace_back(std::make_unique<SoundChannel>(*this));
   m_channels.emplace_back(std::make_unique<SoundChannel>(*this));
@@ -187,8 +189,16 @@ SoundManager::set_gain(float gain)
 }
 
 void
+SoundManager::manage(SoundSourcePtr source)
+{
+  m_managed_sources.emplace_back(std::move(source));
+}
+
+void
 SoundManager::update(float delta)
 {
+  std::erase_if(m_managed_sources, [](wstsound::SoundSourcePtr& source) { return !source->is_playing(); });
+
   for(std::unique_ptr<SoundChannel>& channel : m_channels) {
     channel->update(delta);
   }

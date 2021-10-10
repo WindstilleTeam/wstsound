@@ -56,6 +56,10 @@ public:
   SoundChannel& music() { return *m_channels[1]; }
   SoundChannel& voice() { return *m_channels[2]; }
 
+  /** Let the SoundManager take ownership of the SoundSource, it will
+      get cleaned up when it's done playing. */
+  void manage(SoundSourcePtr source);
+
   void update(float delta);
 
   void preload(std::filesystem::path const& filename);
@@ -89,6 +93,7 @@ private:
   Listener m_listener;
   std::vector<std::unique_ptr<SoundChannel> > m_channels;
   std::map<std::filesystem::path, OpenALBufferPtr> m_buffer_cache;
+  std::vector<SoundSourcePtr> m_managed_sources;
 
 public:
   SoundManager(const SoundManager&);
