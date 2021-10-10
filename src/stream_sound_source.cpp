@@ -20,6 +20,7 @@
 
 #include <array>
 #include <iostream>
+#include <stdexcept>
 
 #include "sound_manager.hpp"
 #include "sound_file.hpp"
@@ -62,7 +63,14 @@ StreamSoundSource::set_looping(bool looping)
 void
 StreamSoundSource::set_loop(int sample_beg, int sample_end)
 {
-  m_loop = Loop{sample_beg % m_sound_file->get_sample_duration(), sample_end % m_sound_file->get_sample_duration()};
+  m_loop = Loop{
+    std::max(sample_beg, 0),
+    std::min(sample_end, m_sound_file->get_sample_duration())
+  };
+
+  if (sample_beg > sample_end) {
+    throw std::invalid_argument("StreamSoundSource::set_loop(): invalid loop range");
+  }
 }
 
 void
