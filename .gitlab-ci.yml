@@ -37,6 +37,7 @@ before_script:
     libgtest-dev
     libmpg123-dev
     libmodplug-dev
+  - echo -e "pcm.!default {\n  type plug\n  slave.pcm \"null\"\n}" > /etc/asound.conf
 
 .build_wstsound_template: &build_wstsound
   stage: build
