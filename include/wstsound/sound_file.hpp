@@ -39,6 +39,7 @@ public:
   /** Returns current position in bytes */
   virtual size_t tell() const = 0;
 
+  virtual bool eof() const { return tell() == get_size(); }
 
   /** Move the current position in the virtual file to 'sample' */
   virtual void seek_to_sample(int sample) = 0;

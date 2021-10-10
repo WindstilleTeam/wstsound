@@ -97,6 +97,8 @@ void print_usage(int argc, char** argv)
             << "Sound Option:\n"
             << "  --loop             Loop the sound\n"
             << "  --abloop A:B       Loop the sample range A:B\n"
+            << "  --stream           Stream from file\n"
+            << "  --static           Load file into memory\n"
             << "  --fadein           Fade-in the sound\n"
             << "  --fadeout          Fade-out the sound\n"
             << "  --seek SEC         Seek to position SEC\n"

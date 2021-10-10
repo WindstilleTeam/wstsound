@@ -148,7 +148,7 @@ StreamSoundSource::update(float delta)
 {
   OpenALSoundSource::update(delta);
 
-  if (!OpenALSoundSource::is_playing() && !m_loop) {
+  if (!OpenALSoundSource::is_playing() && !m_loop && m_sound_file->eof()) {
     m_playing = false;
   }
 
