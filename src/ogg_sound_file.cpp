@@ -118,9 +118,9 @@ OggSoundFile::read(void* _buffer, size_t buffer_size)
 }
 
 size_t
-OggSoundFile::tell()
+OggSoundFile::tell() const
 {
-  return sample2bytes(static_cast<int>(ov_pcm_tell(&m_vorbis_file)));
+  return sample2bytes(static_cast<int>(ov_pcm_tell(const_cast<OggVorbis_File*>(&m_vorbis_file))));
 }
 
 void

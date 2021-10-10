@@ -32,7 +32,7 @@ public:
   ~WavSoundFile() override;
 
   size_t read(void* buffer, size_t buffer_size) override;
-  size_t tell() override;
+  size_t tell() const override;
   void seek_to_sample(int sample) override;
 
 private:

@@ -62,7 +62,7 @@ ModplugSoundFile::read(void* buffer, size_t buffer_size)
 }
 
 size_t
-ModplugSoundFile::tell()
+ModplugSoundFile::tell() const
 {
   return m_bytes_read;
 }

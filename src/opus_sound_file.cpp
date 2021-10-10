@@ -97,7 +97,7 @@ OpusSoundFile::read(void* buffer, size_t buffer_size)
 }
 
 size_t
-OpusSoundFile::tell()
+OpusSoundFile::tell() const
 {
   return sample2bytes(static_cast<int>(op_pcm_tell(m_opus_file)));
 }

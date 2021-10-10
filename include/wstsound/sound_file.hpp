@@ -36,8 +36,9 @@ public:
   /** Read bytes into buffer */
   virtual size_t read(void* buffer, size_t buffer_size) = 0;
 
-  /** Return current position in bytes */
-  virtual size_t tell() = 0;
+  /** Returns current position in bytes */
+  virtual size_t tell() const = 0;
+
 
   /** Move the current position in the virtual file to 'sample' */
   virtual void seek_to_sample(int sample) = 0;
@@ -60,7 +61,7 @@ public:
   /** Returns the number of samples in the file */
   int get_sample_duration() const;
 
-  size_t sample2bytes(int sample);
+  size_t sample2bytes(int sample) const;
 
 public:
   static std::unique_ptr<SoundFile> from_file(std::filesystem::path const& filename);
