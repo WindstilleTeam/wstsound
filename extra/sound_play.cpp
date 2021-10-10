@@ -58,6 +58,32 @@ std::vector<std::string> string_split(std::string_view text, char delimiter)
   return result;
 }
 
+void write_uint32_le(std::ostream& out, uint32_t value)
+{
+  if (std::endian::native == std::endian::little)
+  {
+    out.write(reinterpret_cast<char*>(&value), 4);
+  }
+  else
+  {
+    std::reverse(reinterpret_cast<char*>(value), reinterpret_cast<char*>(value) + 4);
+    out.write(reinterpret_cast<char*>(&value), 4);
+  }
+}
+
+void write_uint16_le(std::ostream& out, uint32_t value)
+{
+  if (std::endian::native == std::endian::little)
+  {
+    out.write(reinterpret_cast<char*>(&value), 2);
+  }
+  else
+  {
+    std::reverse(reinterpret_cast<char*>(value), reinterpret_cast<char*>(value) + 2);
+    out.write(reinterpret_cast<char*>(&value), 2);
+  }
+}
+
 void print_usage(int argc, char** argv)
 {
   std::cout << "Usage: " << argv[0] << " [GLOBALOPTION]... ( SOUND [SOUNDOPTION] )...\n"
@@ -65,6 +91,8 @@ void print_usage(int argc, char** argv)
             << "Global Option:\n"
             << "  --help             Display this help text\n"
             << "  --output FILE      Write samples to FILE\n"
+            << "  --output-format FMT\n"
+            << "                     Output format, 'wav' or 'raw'\n"
             << "\n"
             << "Sound Option:\n"
             << "  --loop             Loop the sound\n"
@@ -137,6 +165,82 @@ int str2effect(std::string text) {
     return it->second;
   }
 }
+class LoopbackWriter
+{
+public:
+  enum class Format { WAV, RAW };
+
+public:
+  LoopbackWriter(OpenALLoopbackDevice& loopback_device, std::filesystem::path const& filename, Format format) :
+    m_loopback_device(loopback_device),
+    m_out(),
+    m_format(format),
+    m_bytes_written(0)
+  {
+    m_out.open(filename, std::ios::binary);
+
+    if (m_format == Format::WAV)
+    {
+      const int bits_per_sample = 16;
+      const int bytes_per_sample = bits_per_sample / 8;
+
+      // write WAV header
+      m_out.write("RIFF", 4);
+      write_uint32_le(m_out, 36); // chunk size
+      m_out.write("WAVE", 4);
+
+      // fmt chunk
+      m_out.write("fmt ", 4);
+      write_uint32_le(m_out, 16); // subchunk size
+      write_uint16_le(m_out, 1); // audio format: PCM
+      write_uint16_le(m_out, m_loopback_device.get_channels()); // channels
+      write_uint32_le(m_out, m_loopback_device.get_frequency()); // frequency
+      write_uint32_le(m_out, m_loopback_device.get_frequency() * m_loopback_device.get_channels() * bytes_per_sample); // byte rate
+      write_uint16_le(m_out, m_loopback_device.get_channels() * bytes_per_sample); // block align
+      write_uint16_le(m_out, bits_per_sample); // bits per sample
+
+      // data chunk
+      m_out.write("data", 4);
+      write_uint32_le(m_out, 0x0); // subchuck size
+      // actual data is writen in update()
+    }
+  }
+
+  ~LoopbackWriter()
+  {
+  }
+
+  void update()
+  {
+    std::array<char, 1024 * 16 * 16> buffer;
+    size_t len = m_loopback_device.read(buffer.data(), buffer.size());
+    m_out.write(buffer.data(), len);
+    m_bytes_written += len;
+
+    std::streampos const pos = m_out.tellp();
+
+    // update chunk size
+    m_out.seekp(4);
+    write_uint32_le(m_out, 36 + m_bytes_written);
+
+    // update subchunk size
+    m_out.seekp(40);
+    write_uint32_le(m_out, m_bytes_written);
+
+    // back to where we were
+    m_out.seekp(pos);
+  }
+
+private:
+  OpenALLoopbackDevice& m_loopback_device;
+  std::ofstream m_out;
+  Format m_format;
+  size_t m_bytes_written;
+
+private:
+  LoopbackWriter(const LoopbackWriter&) = delete;
+  LoopbackWriter& operator=(const LoopbackWriter&) = delete;
+};
 
 struct FileOptions
 {
@@ -159,6 +263,7 @@ struct FileOptions
 struct Options
 {
   std::optional<std::string> output_filename = {};
+  LoopbackWriter::Format output_format = LoopbackWriter::Format::WAV;
   std::vector<FileOptions> files = {};
 };
 
@@ -242,6 +347,17 @@ Options parse_args(int argc, char** argv)
       } else if (strcmp(argv[i], "--output") == 0) {
         next_arg();
         opts.output_filename = argv[i];
+      } else if (strcmp(argv[i], "--output-format") == 0) {
+        next_arg();
+        if (strcmp(argv[i], "wav") == 0) {
+          opts.output_format = LoopbackWriter::Format::WAV;
+        } else if (strcmp(argv[i], "raw") == 0) {
+          opts.output_format = LoopbackWriter::Format::RAW;
+        } else {
+          std::ostringstream os;
+          os << "unknown output-format: " << argv[i];
+          throw std::runtime_error(os.str());
+        }
       } else if (strcmp(argv[i], "--loop") == 0) {
         file_opts().loop = true;
       } else if (strcmp(argv[i], "--abloop") == 0) {
@@ -296,32 +412,6 @@ Options parse_args(int argc, char** argv)
   return opts;
 }
 
-class LoopbackWriter
-{
-public:
-  LoopbackWriter(OpenALLoopbackDevice& loopback_device, std::filesystem::path const& filename) :
-    m_loopback_device(loopback_device),
-    m_out()
-  {
-    m_out.open(filename, std::ios::binary);
-  }
-
-  void update()
-  {
-    std::array<char, 1024 * 16 * 16> buffer;
-    size_t len = m_loopback_device.read(buffer.data(), buffer.size());
-    m_out.write(buffer.data(), len);
-  }
-
-private:
-  OpenALLoopbackDevice& m_loopback_device;
-  std::ofstream m_out;
-
-private:
-  LoopbackWriter(const LoopbackWriter&) = delete;
-  LoopbackWriter& operator=(const LoopbackWriter&) = delete;
-};
-
 int run(int argc, char** argv)
 {
   Options opts = parse_args(argc, argv);
@@ -331,7 +421,7 @@ int run(int argc, char** argv)
   std::unique_ptr<LoopbackWriter> output_writer;
   if (opts.output_filename) {
     OpenALLoopbackDevice& loopback_device = openal->open_loopback_device();
-    output_writer = std::make_unique<LoopbackWriter>(loopback_device, *opts.output_filename);
+    output_writer = std::make_unique<LoopbackWriter>(loopback_device, *opts.output_filename, opts.output_format);
   } else {
     openal->open_real_device();
   }
