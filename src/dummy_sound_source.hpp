@@ -27,18 +27,15 @@ class DummySoundSource : public SoundSource
 {
 public:
   DummySoundSource() :
-    m_is_playing(false),
-    m_is_paused(false)
+    m_state(SourceState::Paused)
   {}
   ~DummySoundSource() override {}
 
-  void play() override { m_is_playing = true; }
-  void stop() override { m_is_playing = false; }
-  void pause() override { m_is_paused = true; }
-  void resume() override { m_is_paused = false; }
+  void play() override { m_state = SourceState::Playing; }
+  void pause() override { m_state = SourceState::Paused; }
+  void finish() override { m_state = SourceState::Finished; }
 
-  bool is_paused() const override { return m_is_paused; }
-  bool is_playing() const override { return m_is_playing; }
+  SourceState get_state() const override { return m_state; }
 
   float get_duration() const override { return 0.0f; }
   int get_sample_duration() const override { return 0; }
@@ -79,7 +76,7 @@ public:
   void update_gain() const override {}
 
   void update(float delta) override {
-    m_is_playing = false;
+    m_state = SourceState::Finished;
   }
 
   float sample_to_sec(int sample) const override {
@@ -91,8 +88,7 @@ public:
   }
 
 private:
-  bool m_is_playing;
-  bool m_is_paused;
+  SourceState m_state;
 
 private:
   DummySoundSource(const DummySoundSource&);

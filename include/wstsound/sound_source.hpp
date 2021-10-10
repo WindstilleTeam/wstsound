@@ -25,7 +25,18 @@
 
 namespace wstsound {
 
-enum class FadeDirection { In, Out };
+enum class FadeDirection
+{
+  In,
+  Out
+};
+
+enum class SourceState
+{
+  Playing,
+  Paused,
+  Finished
+};
 
 class SoundSource
 {
@@ -42,12 +53,10 @@ public:
   virtual ~SoundSource() {}
 
   virtual void play() = 0;
-  virtual void stop() = 0;
   virtual void pause() = 0;
-  virtual void resume() = 0;
+  virtual void finish() = 0;
 
-  virtual bool is_playing() const = 0;
-  virtual bool is_paused() const = 0;
+  virtual SourceState get_state() const = 0;
 
   virtual float get_duration() const = 0;
   virtual int get_sample_duration() const = 0;

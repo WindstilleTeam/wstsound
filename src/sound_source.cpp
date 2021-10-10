@@ -29,17 +29,25 @@ void
 SoundSource::set_fading(FadeDirection direction, float duration)
 {
   m_fade = Fade{direction, duration, 0.0f};
+
+  // FIXME: keep better track of gain, as this will fail when gain isn't 1.0
+  if (direction == FadeDirection::In) {
+    set_gain(0.0f);
+  } else {
+    set_gain(1.0f);
+  }
 }
 
 void
 SoundSource::update(float delta)
 {
-  if (is_playing())
+  if (get_state() == SourceState::Playing)
   {
     if (m_fade)
     {
       m_fade->time_passed += delta;
-      float progress = m_fade->duration == 0.0f ? 1.0f : m_fade->duration / m_fade->duration;
+
+      float const progress = m_fade->duration == 0.0f ? 1.0f : m_fade->time_passed / m_fade->duration;
 
       // FIXME: keep better track of gain, as this will fail when gain isn't 1.0
       if (m_fade->direction == FadeDirection::In) {
@@ -53,7 +61,7 @@ SoundSource::update(float delta)
         if (progress >= 1.0f) {
           set_gain(0.0f);
           m_fade = std::nullopt;
-          stop();
+          finish();
         } else {
           set_gain(1.0f - progress);
         }

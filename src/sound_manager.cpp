@@ -197,7 +197,10 @@ SoundManager::manage(SoundSourcePtr source)
 void
 SoundManager::update(float delta)
 {
-  std::erase_if(m_managed_sources, [](wstsound::SoundSourcePtr& source) { return !source->is_playing(); });
+  std::erase_if(m_managed_sources,
+                [](SoundSourcePtr& source) {
+                  return source->get_state() == SourceState::Finished;
+                });
 
   for(std::unique_ptr<SoundChannel>& channel : m_channels) {
     channel->update(delta);

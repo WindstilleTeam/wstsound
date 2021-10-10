@@ -18,6 +18,7 @@
 
 #include "stream_sound_source.hpp"
 
+#include <assert.h>
 #include <array>
 #include <iostream>
 #include <stdexcept>
@@ -31,9 +32,10 @@ StreamSoundSource::StreamSoundSource(SoundChannel& channel, std::unique_ptr<Soun
   OpenALSoundSource(channel),
   m_sound_file(std::move(sound_file)),
   m_buffers(),
+  m_buffers_queued(false),
   m_format(OpenALSystem::get_sample_format(*m_sound_file)),
   m_total_samples_processed(0),
-  m_playing(false),
+  m_state(SourceState::Paused),
   m_loop()
 {
   alGenBuffers(static_cast<ALsizei>(m_buffers.size()), m_buffers.data());
@@ -42,7 +44,7 @@ StreamSoundSource::StreamSoundSource(SoundChannel& channel, std::unique_ptr<Soun
 
 StreamSoundSource::~StreamSoundSource()
 {
-  stop();
+  clear_queue();
 
   alDeleteBuffers(static_cast<ALsizei>(m_buffers.size()), m_buffers.data());
   OpenALSystem::warn_al_error("Couldn't delete audio buffers: ");
@@ -63,6 +65,7 @@ StreamSoundSource::set_looping(bool looping)
 void
 StreamSoundSource::set_loop(int sample_beg, int sample_end)
 {
+  // FIXME: should be handle loops that circle around the end?
   m_loop = Loop{
     std::max(sample_beg, 0),
     std::min(sample_end, m_sound_file->get_sample_duration())
@@ -76,34 +79,10 @@ StreamSoundSource::set_loop(int sample_beg, int sample_end)
 void
 StreamSoundSource::seek_to_sample(int sample)
 {
-  bool const was_playing = m_playing;
-
-  if (was_playing) {
-    // stop the source to cause all buffers getting marked as
-    // processed, so we can unqueue them
-    alSourceStop(m_source);
-  }
+  clear_queue();
 
   m_sound_file->seek_to_sample(sample);
-
   m_total_samples_processed = sample;
-
-  {
-    ALint processed = 0;
-    alGetSourcei(m_source, AL_BUFFERS_PROCESSED, &processed);
-
-    std::array<ALuint, STREAMFRAGMENTS> unqueue_buffers;
-    alSourceUnqueueBuffers(m_source, processed, unqueue_buffers.data());
-    OpenALSystem::warn_al_error("Couldn't unqueue audio buffer: ");
-
-    for(int i = 0; i < processed; ++i) {
-      fill_buffer_and_queue(unqueue_buffers[i]);
-    }
-  }
-
-  if (was_playing) {
-    alSourcePlay(m_source);
-  }
 }
 
 void
@@ -142,13 +121,33 @@ StreamSoundSource::get_duration() const
 void
 StreamSoundSource::play()
 {
-  m_playing = true;
+  if (m_state == SourceState::Playing) { return; }
 
-  for(auto const& buffer : m_buffers) {
-    fill_buffer_and_queue(buffer);
-  }
+  m_state = SourceState::Playing;
 
+  update_queue();
   OpenALSoundSource::play();
+}
+
+void
+StreamSoundSource::finish()
+{
+  if (m_state == SourceState::Finished) { return; }
+
+  m_state = SourceState::Finished;
+
+  clear_queue();
+  OpenALSoundSource::finish();
+}
+
+void
+StreamSoundSource::pause()
+{
+  if (m_state == SourceState::Paused) { return; }
+
+  m_state = SourceState::Paused;
+
+  OpenALSoundSource::pause();
 }
 
 void
@@ -156,33 +155,44 @@ StreamSoundSource::update(float delta)
 {
   OpenALSoundSource::update(delta);
 
-  if (!OpenALSoundSource::is_playing() && !m_loop && m_sound_file->eof()) {
-    m_playing = false;
-  }
-
-  if (m_playing)
+  if (m_state == SourceState::Playing)
   {
-    { // fill the buffer queue with new data
-      ALint processed = 0;
-      alGetSourcei(m_source, AL_BUFFERS_PROCESSED, &processed);
+    update_queue();
 
-      std::array<ALuint, STREAMFRAGMENTS> unqueue_buffers;
-      alSourceUnqueueBuffers(m_source, processed, unqueue_buffers.data());
-      OpenALSystem::warn_al_error("Couldn't unqueue audio buffer: ");
-
-      for(int i = 0; i < processed; ++i) {
-        fill_buffer_and_queue(unqueue_buffers[i]);
-        m_total_samples_processed += samples_per_buffer();
+    ALint queued_buffers = 0;
+    alGetSourcei(m_source, AL_BUFFERS_QUEUED, &queued_buffers);
+    if (queued_buffers == 0)
+    {
+      // refilling didn't lead to anything getting queued, thus the
+      // SoundFile must have hit EOF, stop the source
+      m_state = SourceState::Finished;
+      OpenALSoundSource::finish();
+    }
+    else
+    {
+      ALint state = AL_STOPPED;
+      alGetSourcei(m_source, AL_SOURCE_STATE, &state);
+      // Source is stopped, but should still be plalying, thus a
+      // buffer underrun occured, restart the source.
+      if (state == AL_STOPPED)
+      {
+        std::cerr << "Restarting audio source because of buffer underrun.\n";
+        OpenALSoundSource::play();
       }
     }
-
-    // we might have to restart the source if we had a buffer underrun
-    if (!OpenALSoundSource::is_playing())
-    {
-      std::cerr << "Restarting audio source because of buffer underrun.\n";
-      OpenALSoundSource::play();
-    }
   }
+}
+
+float
+StreamSoundSource::sample_to_sec(int sample) const
+{
+  return static_cast<float>(sample) / static_cast<float>(m_sound_file->get_rate());
+}
+
+int
+StreamSoundSource::sec_to_sample(float sec) const
+{
+  return static_cast<int>(sec * static_cast<float>(m_sound_file->get_rate()));
 }
 
 void
@@ -206,6 +216,7 @@ StreamSoundSource::fill_buffer_and_queue(ALuint buffer)
 
     if (m_loop) {
       if (m_sound_file->tell() >= m_sound_file->sample2bytes(m_loop->sample_end)) {
+        std::cout << "loop\n";
         m_sound_file->seek_to_sample(m_loop->sample_beg);
       }
     } else {
@@ -215,6 +226,9 @@ StreamSoundSource::fill_buffer_and_queue(ALuint buffer)
       }
     }
   } while(total_bytesread < STREAMFRAGMENTSIZE);
+
+  assert(total_bytesread == 0 ||
+         total_bytesread == STREAMFRAGMENTSIZE);
 
   if (total_bytesread > 0)
   {
@@ -228,24 +242,51 @@ StreamSoundSource::fill_buffer_and_queue(ALuint buffer)
   }
 }
 
-float
-StreamSoundSource::sample_to_sec(int sample) const
+void
+StreamSoundSource::update_queue()
 {
-  return static_cast<float>(sample) / static_cast<float>(m_sound_file->get_rate());
+  if (m_state != SourceState::Playing) { return; }
+
+  if (!m_buffers_queued)
+  {
+    for(auto const& buffer : m_buffers) {
+      fill_buffer_and_queue(buffer);
+    }
+    m_buffers_queued = true;
+  }
+  else
+  { // fill the buffer queue with new data
+    ALint processed = 0;
+    alGetSourcei(m_source, AL_BUFFERS_PROCESSED, &processed);
+
+    std::array<ALuint, STREAMFRAGMENTS> unqueue_buffers;
+    alSourceUnqueueBuffers(m_source, processed, unqueue_buffers.data());
+    OpenALSystem::warn_al_error("Couldn't unqueue audio buffer: ");
+
+    for(int i = 0; i < processed; ++i) {
+      fill_buffer_and_queue(unqueue_buffers[i]);
+
+      // FIXME: actual processed sample count might be different if
+      // buffers weren't filled completely
+      m_total_samples_processed += (8 * static_cast<int>(STREAMFRAGMENTSIZE)
+                                    / m_sound_file->get_channels()
+                                    / m_sound_file->get_bits_per_sample());
+    }
+  }
 }
 
-int
-StreamSoundSource::sec_to_sample(float sec) const
+void
+StreamSoundSource::clear_queue()
 {
-  return static_cast<int>(sec * static_cast<float>(m_sound_file->get_rate()));
-}
+  if (!m_buffers_queued) { return; }
 
-int
-StreamSoundSource::samples_per_buffer() const
-{
-  return (8 * static_cast<int>(STREAMFRAGMENTSIZE)
-          / m_sound_file->get_channels()
-          / m_sound_file->get_bits_per_sample());
+  // stop the source to cause all buffers getting marked as
+  // processed, so we can unqueue them
+  OpenALSoundSource::finish();
+
+  alSourcei(m_source, AL_BUFFER, AL_NONE);
+
+  m_buffers_queued = false;
 }
 
 } // namespace wstsound

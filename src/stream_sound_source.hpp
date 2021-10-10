@@ -39,16 +39,21 @@ public:
   ~StreamSoundSource() override;
 
   void play() override;
+  void pause() override;
+  void finish() override;
+
+  SourceState get_state() const override { return m_state; }
+
   void update(float delta) override;
+
   void seek_to(float sec) override;
   void seek_to_sample(int sample) override;
+
   void set_looping(bool looping) override;
   void set_loop(int sample_beg, int sample_end) override;
 
   float get_pos() const override;
   float get_duration() const override;
-
-  bool is_playing() const override { return m_playing; }
 
   int get_sample_pos() const override;
   int get_sample_duration() const override;
@@ -58,7 +63,8 @@ public:
 
 private:
   void fill_buffer_and_queue(ALuint buffer);
-  int samples_per_buffer() const;
+  void update_queue();
+  void clear_queue();
 
 private:
   struct Loop
@@ -68,14 +74,15 @@ private:
   };
 
 private:
-  static const size_t STREAMFRAGMENTS    = 4;
+  static const size_t STREAMFRAGMENTS = 4;
   static const size_t STREAMFRAGMENTSIZE = 65536;
 
   std::unique_ptr<SoundFile> m_sound_file;
   std::array<ALuint, STREAMFRAGMENTS> m_buffers;
+  bool m_buffers_queued;
   ALenum m_format;
   int m_total_samples_processed;
-  bool m_playing;
+  SourceState m_state;
 
   std::optional<Loop> m_loop;
 

@@ -33,6 +33,7 @@ namespace wstsound {
 SoundChannel::SoundChannel(SoundManager& sound_manager) :
   m_sound_manager(sound_manager),
   m_sound_sources(),
+  m_paused_sources(),
   m_gain(1.0f)
 {
 }
@@ -129,7 +130,10 @@ SoundChannel::pause()
 {
   for (auto& source_wptr : m_sound_sources) {
     if (auto source = source_wptr.lock()) {
-      source->pause();
+      if (source->get_state() == SourceState::Playing) {
+        source->pause();
+        m_paused_sources.emplace_back(source);
+      }
     }
   }
 }
@@ -137,19 +141,21 @@ SoundChannel::pause()
 void
 SoundChannel::resume()
 {
-  for (auto& source_wptr : m_sound_sources) {
+  for (auto& source_wptr : m_paused_sources) {
     if (auto source = source_wptr.lock()) {
-      source->resume();
+      source->play();
     }
   }
+
+  m_paused_sources.clear();
 }
 
 void
-SoundChannel::stop()
+SoundChannel::finish()
 {
   for (auto& source_wptr : m_sound_sources) {
     if (auto source = source_wptr.lock()) {
-      source->stop();
+      source->finish();
     }
   }
 }

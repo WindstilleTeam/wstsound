@@ -517,7 +517,7 @@ int run(int argc, char** argv)
     }
 
     std::erase_if(sources, [](SoundSourcePtr const& source){
-      return !source->is_playing();
+      return source->get_state() == SourceState::Finished;
     });
 
     usleep(10000);

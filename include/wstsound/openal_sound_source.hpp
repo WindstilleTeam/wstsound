@@ -34,12 +34,10 @@ public:
   ~OpenALSoundSource() override;
 
   void play() override;
-  void stop() override;
-  bool is_playing() const override;
-
   void pause() override;
-  bool is_paused() const override;
-  void resume() override;
+  void finish() override;
+
+  SourceState get_state() const override;
 
   void set_looping(bool looping) override;
   void set_loop(int sample_beg, int sample_end) override;

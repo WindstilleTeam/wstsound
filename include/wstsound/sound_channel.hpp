@@ -56,11 +56,12 @@ public:
 
   void pause();
   void resume();
-  void stop();
+  void finish();
 
 private:
   SoundManager& m_sound_manager;
   std::vector<SoundSourceWPtr> m_sound_sources;
+  std::vector<SoundSourceWPtr> m_paused_sources;
   float m_gain;
 
 private:

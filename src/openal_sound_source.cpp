@@ -50,19 +50,9 @@ OpenALSoundSource::OpenALSoundSource(SoundChannel& channel) :
 
 OpenALSoundSource::~OpenALSoundSource()
 {
-  stop();
+  finish();
   alDeleteSources(1, &m_source);
   OpenALSystem::warn_al_error("Couldn't delete source: ");
-}
-
-void
-OpenALSoundSource::stop()
-{
-  // See http://trac.wildfiregames.com/changeset/7111
-  alSourceRewind(m_source); // Stops the source
-
-  alSourcei(m_source, AL_BUFFER, AL_NONE);
-  OpenALSystem::warn_al_error("Problem stopping audio source: ");
 }
 
 void
@@ -80,20 +70,36 @@ OpenALSoundSource::pause()
 }
 
 void
-OpenALSoundSource::resume()
+OpenALSoundSource::finish()
 {
-  if (!is_paused()) { return; }
-
-  play();
+  alSourceStop(m_source);
+  OpenALSystem::warn_al_error("Problem stopping audio source: ");
 }
 
-bool
-OpenALSoundSource::is_paused() const
+SourceState
+OpenALSoundSource::get_state() const
 {
-  ALint state = AL_PAUSED;
+  ALint state = AL_STOPPED;
   alGetSourcei(m_source, AL_SOURCE_STATE, &state);
-  OpenALSystem::warn_al_error("OpenALSoundSource::is_paused: ");
-  return state == AL_PAUSED;
+  OpenALSystem::warn_al_error("OpenALSoundSource::get_state(): ");
+
+  switch (state)
+  {
+    case AL_INITIAL:
+      return SourceState::Paused;
+
+    case AL_PLAYING:
+      return SourceState::Playing;
+
+    case AL_PAUSED:
+      return SourceState::Paused;
+
+    case AL_STOPPED:
+      return SourceState::Finished;
+
+    default:
+      return SourceState::Finished;
+  }
 }
 
 void
@@ -126,15 +132,6 @@ OpenALSoundSource::get_sample_pos() const
   alGetSourcei(m_source, AL_SAMPLE_OFFSET, &sample_pos);
   OpenALSystem::warn_al_error("OpenALSoundSource::get_sample_pos: ");
   return sample_pos;
-}
-
-bool
-OpenALSoundSource::is_playing() const
-{
-  ALint state = AL_PLAYING;
-  alGetSourcei(m_source, AL_SOURCE_STATE, &state);
-  OpenALSystem::warn_al_error("OpenALSoundSource::is_playing: ");
-  return state == AL_PLAYING;
 }
 
 void
