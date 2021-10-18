@@ -212,9 +212,9 @@ public:
   {
   }
 
-  void update()
+  float update()
   {
-    std::array<char, 1024 * 16 * 16> buffer;
+    std::array<char, 1024 * 16> buffer;
     size_t len = m_loopback_device.read(buffer.data(), buffer.size());
     m_out.write(buffer.data(), len);
     m_bytes_written += len;
@@ -231,6 +231,11 @@ public:
 
     // back to where we were
     m_out.seekp(pos);
+
+    return static_cast<float>(len)
+      / 2
+      / static_cast<float>(m_loopback_device.get_channels())
+      / static_cast<float>(m_loopback_device.get_frequency());
   }
 
 private:
@@ -522,10 +527,11 @@ int run(int argc, char** argv)
 
     usleep(10000);
 
-    sound_manager.update(0.01f);
-
     if (output_writer) {
-      output_writer->update();
+      float delta = output_writer->update();
+      sound_manager.update(delta);
+    } else {
+      sound_manager.update(0.01f);
     }
   }
 
