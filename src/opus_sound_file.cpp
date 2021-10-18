@@ -29,9 +29,7 @@ OpusSoundFile::OpusSoundFile(std::unique_ptr<std::istream> istream) :
   m_istream(std::move(istream)),
   m_file_size(0),
   m_opus_file(nullptr),
-  m_channels(0),
-  m_rate(48000),
-  m_bits_per_sample(16),
+  m_format(),
   m_size(0)
 {
   // get the file size
@@ -65,14 +63,14 @@ OpusSoundFile::OpusSoundFile(std::unique_ptr<std::istream> istream) :
     throw SoundError(str.str());
   }
 
-  m_channels = op_channel_count(m_opus_file, -1);
+  m_format = SoundFormat(48000, op_channel_count(m_opus_file, -1), 16);
 
   ogg_int64_t pcm_total = op_pcm_total(m_opus_file, -1);
   if (pcm_total < 0) {
     op_free(m_opus_file);
     throw SoundError("OpusSoundFile: op_pcm_total() failure");
   }
-  m_size = static_cast<size_t>(pcm_total * m_channels * m_bits_per_sample / 8);
+  m_size = m_format.sample2bytes(static_cast<int>(pcm_total));
 }
 
 OpusSoundFile::~OpusSoundFile()
@@ -93,13 +91,13 @@ OpusSoundFile::read(void* buffer, size_t buffer_size)
     return 0;
   }
 
-  return (pcm_read * m_channels * m_bits_per_sample / 8);
+  return m_format.sample2bytes(pcm_read);
 }
 
 size_t
 OpusSoundFile::tell() const
 {
-  return sample2bytes(static_cast<int>(op_pcm_tell(m_opus_file)));
+  return m_format.sample2bytes(static_cast<int>(op_pcm_tell(m_opus_file)));
 }
 
 void

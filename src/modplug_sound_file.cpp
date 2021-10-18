@@ -27,9 +27,7 @@ ModplugSoundFile::ModplugSoundFile(std::unique_ptr<std::istream> istream) :
   m_istream(std::move(istream)),
   m_file(nullptr),
   m_bytes_read(0),
-  m_rate(0),
-  m_channels(0),
-  m_bits_per_sample(0)
+  m_format()
 {
   // get the file size
   m_istream->seekg(0, std::ios::end);
@@ -43,9 +41,10 @@ ModplugSoundFile::ModplugSoundFile(std::unique_ptr<std::istream> istream) :
 
   ModPlug_Settings settings;
   ModPlug_GetSettings(&settings);
-  m_channels = settings.mChannels;
-  m_bits_per_sample = settings.mBits;
-  m_rate = settings.mFrequency;
+
+  m_format = SoundFormat(settings.mFrequency,
+                         settings.mChannels,
+                         settings.mBits);
 }
 
 ModplugSoundFile::~ModplugSoundFile()
@@ -70,34 +69,16 @@ ModplugSoundFile::tell() const
 void
 ModplugSoundFile::seek_to_sample(int sample)
 {
-  m_bytes_read = sample2bytes(sample);
-  long int msec = (1000L * static_cast<long>(sample) / static_cast<long>(get_rate()));
+  m_bytes_read = m_format.sample2bytes(sample);
+  long int msec = (1000L * static_cast<long>(sample) / static_cast<long>(m_format.get_rate()));
   ModPlug_Seek(m_file, static_cast<int>(msec));
-}
-
-int
-ModplugSoundFile::get_bits_per_sample() const
-{
-  return m_bits_per_sample;
 }
 
 size_t
 ModplugSoundFile::get_size() const
 {
   long int duration_msec = ModPlug_GetLength(m_file);
-  return duration_msec * get_rate() * get_channels() * get_bits_per_sample() / 8  / 1000;
-}
-
-int
-ModplugSoundFile::get_rate() const
-{
-  return m_rate;
-}
-
-int
-ModplugSoundFile::get_channels() const
-{
-  return m_channels;
+  return duration_msec * m_format.get_rate() * m_format.get_channels() * m_format.get_bits_per_sample() / 8  / 1000;
 }
 
 } // namespace wstsound

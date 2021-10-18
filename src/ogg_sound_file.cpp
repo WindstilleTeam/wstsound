@@ -30,9 +30,7 @@ OggSoundFile::OggSoundFile(std::unique_ptr<std::istream> istream) :
   m_istream(std::move(istream)),
   m_file_size(),
   m_vorbis_file(),
-  m_channels(),
-  m_rate(),
-  m_bits_per_sample(),
+  m_format(),
   m_size()
 {
   // get the file size
@@ -79,10 +77,9 @@ OggSoundFile::OggSoundFile(std::unique_ptr<std::istream> istream) :
   }
 
   vorbis_info* vi = ov_info(&m_vorbis_file, -1);
-  m_channels = vi->channels;
-  m_rate = static_cast<int>(vi->rate);
-  m_bits_per_sample = 16;
-  m_size = static_cast<size_t>(ov_pcm_total(&m_vorbis_file, -1) * m_channels * m_bits_per_sample / 8);
+
+  m_format = SoundFormat(static_cast<int>(vi->rate), vi->channels, 16);
+  m_size = m_format.sample2bytes(static_cast<int>(ov_pcm_total(&m_vorbis_file, -1)));
 }
 
 OggSoundFile::~OggSoundFile()
@@ -120,7 +117,7 @@ OggSoundFile::read(void* _buffer, size_t buffer_size)
 size_t
 OggSoundFile::tell() const
 {
-  return sample2bytes(static_cast<int>(ov_pcm_tell(const_cast<OggVorbis_File*>(&m_vorbis_file))));
+  return m_format.sample2bytes(static_cast<int>(ov_pcm_tell(const_cast<OggVorbis_File*>(&m_vorbis_file))));
 }
 
 void

@@ -39,9 +39,7 @@ T map_to(float value)
 namespace wstsound {
 
 ProceduralSoundFile::ProceduralSoundFile() :
-  m_bits_per_sample(16),
-  m_rate(48000),
-  m_channels(1),
+  m_format(48000, 1, 16),
   m_size(0),
   m_sample_pos(0)
 {
@@ -55,7 +53,7 @@ ProceduralSoundFile::read(void* buffer, size_t buffer_size)
 
   for(size_t i = 0; i < len; ++i) {
     size_t const pos = m_sample_pos + i;
-    float const pos_sec = static_cast<float>(pos) / static_cast<float>(m_rate);
+    float const pos_sec = static_cast<float>(pos) / static_cast<float>(m_format.get_rate());
     float const value = sinf(pos_sec * 5000.0f);
     samples[i] = map_to<int16_t>(value);
     //samples[i] = static_cast<int16_t>(rand() % 30000) / 4 + map_to<int16_t>(value);

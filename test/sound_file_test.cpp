@@ -28,7 +28,7 @@ using namespace wstsound;
 namespace {
 
 size_t get_sample_duration(SoundFile& soundfile, size_t bytes) {
-  return bytes / soundfile.get_channels() / (soundfile.get_bits_per_sample() / 8);
+  return bytes / soundfile.get_format().get_channels() / (soundfile.get_format().get_bits_per_sample() / 8);
 }
 
 size_t get_real_size(SoundFile& soundfile) {
@@ -51,10 +51,10 @@ TEST(SoundFileTest, wav)
   auto fin = std::make_unique<std::ifstream>("data/sound.wav");
   WavSoundFile sound_file(std::move(fin));
 
-  EXPECT_EQ(sound_file.get_bits_per_sample(), 16);
   EXPECT_EQ(sound_file.get_size(), 22788);
-  EXPECT_EQ(sound_file.get_rate(), 44100);
-  EXPECT_EQ(sound_file.get_channels(), 1);
+  EXPECT_EQ(sound_file.get_format().get_rate(), 44100);
+  EXPECT_EQ(sound_file.get_format().get_channels(), 1);
+  EXPECT_EQ(sound_file.get_format().get_bits_per_sample(), 16);
   EXPECT_FLOAT_EQ(sound_file.get_duration(), 0.25836736f);
 
   size_t const real_byte_size = get_real_size(sound_file);
@@ -68,10 +68,10 @@ TEST(SoundFileTest, ogg)
   auto fin = std::make_unique<std::ifstream>("data/sound.ogg");
   OggSoundFile sound_file(std::move(fin));
 
-  EXPECT_EQ(sound_file.get_bits_per_sample(), 16);
   EXPECT_EQ(sound_file.get_size(), 22788);
-  EXPECT_EQ(sound_file.get_rate(), 44100);
-  EXPECT_EQ(sound_file.get_channels(), 1);
+  EXPECT_EQ(sound_file.get_format().get_rate(), 44100);
+  EXPECT_EQ(sound_file.get_format().get_channels(), 1);
+  EXPECT_EQ(sound_file.get_format().get_bits_per_sample(), 16);
   EXPECT_FLOAT_EQ(sound_file.get_duration(), 0.25836736f);
 
   size_t const real_byte_size = get_real_size(sound_file);
@@ -85,10 +85,10 @@ TEST(SoundFileTest, opus)
   auto fin = std::make_unique<std::ifstream>("data/sound.opus");
   OpusSoundFile sound_file(std::move(fin));
 
-  EXPECT_EQ(sound_file.get_bits_per_sample(), 16);
   EXPECT_EQ(sound_file.get_size(), 24804);
-  EXPECT_EQ(sound_file.get_rate(), 48000);
-  EXPECT_EQ(sound_file.get_channels(), 1);
+  EXPECT_EQ(sound_file.get_format().get_rate(), 48000);
+  EXPECT_EQ(sound_file.get_format().get_channels(), 1);
+  EXPECT_EQ(sound_file.get_format().get_bits_per_sample(), 16);
   EXPECT_FLOAT_EQ(sound_file.get_duration(), 0.25837499f);
 
   size_t const real_byte_size = get_real_size(sound_file);
@@ -102,10 +102,10 @@ TEST(SoundFileTest, mp3)
   auto fin = std::make_unique<std::ifstream>("data/sound.mp3");
   MP3SoundFile sound_file(std::move(fin));
 
-  EXPECT_EQ(sound_file.get_bits_per_sample(), 16);
   EXPECT_EQ(sound_file.get_size(), 22788);
-  EXPECT_EQ(sound_file.get_rate(), 44100);
-  EXPECT_EQ(sound_file.get_channels(), 1);
+  EXPECT_EQ(sound_file.get_format().get_rate(), 44100);
+  EXPECT_EQ(sound_file.get_format().get_channels(), 1);
+  EXPECT_EQ(sound_file.get_format().get_bits_per_sample(), 16);
   EXPECT_FLOAT_EQ(sound_file.get_duration(), 0.25836736f);
 
   size_t const real_byte_size = get_real_size(sound_file);

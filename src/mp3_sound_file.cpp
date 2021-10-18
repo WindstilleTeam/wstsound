@@ -49,8 +49,7 @@ public:
 MP3SoundFile::MP3SoundFile(std::unique_ptr<std::istream> istream) :
   m_istream(std::move(istream)),
   m_mh(nullptr),
-  m_samplerate(0),
-  m_channels(0)
+  m_format()
 {
   // This is never cleaned up
   static Mpg123System mpg123_system;
@@ -78,8 +77,7 @@ MP3SoundFile::MP3SoundFile(std::unique_ptr<std::istream> istream) :
   int encoding;
   mpg123_getformat(m_mh, &rate, &channels, &encoding);
 
-  m_samplerate = static_cast<int>(rate);
-  m_channels = channels;
+  m_format = SoundFormat(static_cast<int>(rate), channels, 16);
 }
 
 MP3SoundFile::~MP3SoundFile()
@@ -110,7 +108,7 @@ MP3SoundFile::read(void* buffer, size_t buffer_size)
 size_t
 MP3SoundFile::tell() const
 {
-  return sample2bytes(static_cast<int>(mpg123_tell(m_mh)));
+  return m_format.sample2bytes(static_cast<int>(mpg123_tell(m_mh)));
 }
 
 void
@@ -121,12 +119,6 @@ MP3SoundFile::seek_to_sample(int sample)
   }
 }
 
-int
-MP3SoundFile::get_bits_per_sample() const
-{
-  return 16;
-}
-
 size_t
 MP3SoundFile::get_size() const
 {
@@ -134,20 +126,8 @@ MP3SoundFile::get_size() const
   if (samples_len < 0) {
     return 0;
   }  else {
-    return samples_len * get_channels() * get_bits_per_sample() / 8;
+    return m_format.sample2bytes(static_cast<int>(samples_len));
   }
-}
-
-int
-MP3SoundFile::get_rate() const
-{
-  return m_samplerate;
-}
-
-int
-MP3SoundFile::get_channels() const
-{
-  return m_channels;
 }
 
 ssize_t

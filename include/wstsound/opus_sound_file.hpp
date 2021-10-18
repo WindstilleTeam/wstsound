@@ -37,10 +37,8 @@ public:
   size_t tell() const override;
   void seek_to_sample(int sample) override;
 
-  int    get_bits_per_sample() const override { return m_bits_per_sample; }
+  SoundFormat get_format() const override { return m_format; }
   size_t get_size() const override { return m_size; }
-  int    get_rate() const override { return m_rate; }
-  int    get_channels() const override { return m_channels; }
 
 private:
   static int cb_read(void* stream, unsigned char* buffer, int nbytes);
@@ -53,9 +51,7 @@ private:
   size_t m_file_size;
   OggOpusFile* m_opus_file;
 
-  int m_channels;
-  int m_rate;
-  int m_bits_per_sample;
+  SoundFormat m_format;
   size_t m_size; /// size in bytes
 
 private:

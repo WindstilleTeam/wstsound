@@ -87,19 +87,13 @@ SoundFile::from_file(std::filesystem::path const& filename)
 float
 SoundFile::get_duration() const
 {
-  return static_cast<float>(get_sample_duration()) / static_cast<float>(get_rate());
+  return static_cast<float>(get_sample_duration()) / static_cast<float>(get_format().get_rate());
 }
 
 int
 SoundFile::get_sample_duration() const
 {
-  return 8 * static_cast<int>(get_size()) / get_channels() / get_bits_per_sample();
-}
-
-size_t
-SoundFile::sample2bytes(int sample) const
-{
-  return sample * get_channels() * get_bits_per_sample() / 8;
+  return 8 * static_cast<int>(get_size()) / get_format().get_channels() / get_format().get_bits_per_sample();
 }
 
 } // namespace wstsound

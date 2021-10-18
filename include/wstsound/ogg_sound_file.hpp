@@ -35,11 +35,8 @@ public:
   size_t read(void* buffer, size_t buffer_size) override;
   size_t tell() const override;
   void seek_to_sample(int sample) override;
-
-  int    get_bits_per_sample() const override { return m_bits_per_sample; }
   size_t get_size() const override { return m_size; }
-  int    get_rate() const override { return m_rate; }
-  int    get_channels() const override { return m_channels; }
+  SoundFormat get_format() const override { return m_format; }
 
 private:
   // I/O functions for ogg
@@ -51,10 +48,7 @@ private:
   std::unique_ptr<std::istream> m_istream;
   size_t m_file_size;
   OggVorbis_File m_vorbis_file;
-
-  int m_channels;
-  int m_rate;
-  int m_bits_per_sample;
+  SoundFormat m_format;
   size_t m_size; /// size in bytes
 
 private:

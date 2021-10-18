@@ -35,11 +35,8 @@ public:
   size_t read(void* buffer, size_t buffer_size) override;
   size_t tell() const override;
   void seek_to_sample(int sample) override;
-
-  int get_bits_per_sample() const override;
+  SoundFormat get_format() const override { return m_format; }
   size_t get_size() const override;
-  int get_rate() const override;
-  int get_channels() const override;
 
 private:
   static ssize_t cb_read(void* userdata, void* buffer, size_t nbytes);
@@ -49,8 +46,7 @@ private:
 private:
   std::unique_ptr<std::istream> m_istream;
   mpg123_handle* m_mh;
-  int m_samplerate;
-  int m_channels;
+  SoundFormat m_format;
 
 private:
   MP3SoundFile(const MP3SoundFile&) = delete;

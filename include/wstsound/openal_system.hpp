@@ -41,8 +41,6 @@ public:
   /** Check for error and print a warning */
   static void warn_al_error(const char* message);
 
-  static ALenum get_sample_format(SoundFile const& file);
-
 public:
   OpenALSystem();
   ~OpenALSystem();

@@ -33,7 +33,7 @@ StreamSoundSource::StreamSoundSource(SoundChannel& channel, std::unique_ptr<Soun
   m_sound_file(std::move(sound_file)),
   m_buffers(),
   m_buffers_queued(false),
-  m_format(OpenALSystem::get_sample_format(*m_sound_file)),
+  m_format(m_sound_file->get_format().get_openal_format()),
   m_total_samples_processed(0),
   m_state(SourceState::Paused),
   m_loop()
@@ -186,13 +186,13 @@ StreamSoundSource::update(float delta)
 float
 StreamSoundSource::sample_to_sec(int sample) const
 {
-  return static_cast<float>(sample) / static_cast<float>(m_sound_file->get_rate());
+  return static_cast<float>(sample) / static_cast<float>(m_sound_file->get_format().get_rate());
 }
 
 int
 StreamSoundSource::sec_to_sample(float sec) const
 {
-  return static_cast<int>(sec * static_cast<float>(m_sound_file->get_rate()));
+  return static_cast<int>(sec * static_cast<float>(m_sound_file->get_format().get_rate()));
 }
 
 void
@@ -206,7 +206,7 @@ StreamSoundSource::fill_buffer_and_queue(ALuint buffer)
     size_t bytesrequested = STREAMFRAGMENTSIZE - total_bytesread;
 
     if (m_loop) {
-      bytesrequested = std::min(m_sound_file->sample2bytes(m_loop->sample_end) - m_sound_file->tell(),
+      bytesrequested = std::min(m_sound_file->get_format().sample2bytes(m_loop->sample_end) - m_sound_file->tell(),
                                 bytesrequested);
     }
 
@@ -215,7 +215,7 @@ StreamSoundSource::fill_buffer_and_queue(ALuint buffer)
     total_bytesread += bytesread;
 
     if (m_loop) {
-      if (m_sound_file->tell() >= m_sound_file->sample2bytes(m_loop->sample_end)) {
+      if (m_sound_file->tell() >= m_sound_file->get_format().sample2bytes(m_loop->sample_end)) {
         std::cout << "loop\n";
         m_sound_file->seek_to_sample(m_loop->sample_beg);
       }
@@ -233,7 +233,7 @@ StreamSoundSource::fill_buffer_and_queue(ALuint buffer)
   if (total_bytesread > 0)
   {
     // upload data to the OpenAL buffer
-    alBufferData(buffer, m_format, bufferdata.data(), static_cast<ALsizei>(total_bytesread), m_sound_file->get_rate());
+    alBufferData(buffer, m_format, bufferdata.data(), static_cast<ALsizei>(total_bytesread), m_sound_file->get_format().get_rate());
     OpenALSystem::check_al_error("Couldn't refill audio buffer: ");
 
     // add buffer to the queue of this source
@@ -269,8 +269,8 @@ StreamSoundSource::update_queue()
       // FIXME: actual processed sample count might be different if
       // buffers weren't filled completely
       m_total_samples_processed += (8 * static_cast<int>(STREAMFRAGMENTSIZE)
-                                    / m_sound_file->get_channels()
-                                    / m_sound_file->get_bits_per_sample());
+                                    / m_sound_file->get_format().get_channels()
+                                    / m_sound_file->get_format().get_bits_per_sample());
     }
   }
 }

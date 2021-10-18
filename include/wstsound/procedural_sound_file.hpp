@@ -31,18 +31,12 @@ public:
 
   size_t read(void* buffer, size_t buffer_size) override;
   void seek_to_sample(int sample) override;
-
-  int get_bits_per_sample() const override { return m_bits_per_sample; }
-  int get_rate() const override { return m_rate; }
-  int get_channels() const override { return m_channels; }
+  SoundFormat get_format() const override { return m_format; }
   size_t get_size() const override { return m_size; }
 
 private:
-  int m_bits_per_sample;
-  int m_rate;
-  int m_channels;
+  SoundFormat m_format;
   size_t m_size;
-
   size_t m_sample_pos;
 
 private:

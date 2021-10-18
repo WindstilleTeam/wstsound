@@ -23,6 +23,8 @@
 #include <memory>
 #include <string>
 
+#include "sound_format.hpp"
+
 namespace wstsound {
 
 /** SoundFile gives access to .wav, .ogg, .opus, .mod or .mp3 files as
@@ -33,7 +35,10 @@ public:
   SoundFile() {}
   virtual ~SoundFile() {}
 
-  /** Read bytes into buffer */
+  /** Read bytes into buffer
+      @param buffer       Memory location to copy the samples to
+      @param buffer_size  Size of the Memory location
+      @returns Bytes read into buffer or 0 if EOF is reached */
   virtual size_t read(void* buffer, size_t buffer_size) = 0;
 
   /** Returns current position in bytes */
@@ -44,25 +49,17 @@ public:
   /** Move the current position in the virtual file to 'sample' */
   virtual void seek_to_sample(int sample) = 0;
 
-  /** Bits per sample, usually 8 or 16 */
-  virtual int get_bits_per_sample() const = 0;
-
   /** The size of the virtual file in bytes */
   virtual size_t get_size() const = 0;
 
-  /** The sample rate or frequency of the file, usually 44100 or 48000 */
-  virtual int get_rate() const = 0;
-
-  /** The number of channels, 1 for mono, 2 for stereo */
-  virtual int get_channels() const = 0;
+  /** Return sound format */
+  virtual SoundFormat get_format() const = 0;
 
   /** Returns the length of the file in seconds */
   float get_duration() const;
 
   /** Returns the number of samples in the file */
   int get_sample_duration() const;
-
-  size_t sample2bytes(int sample) const;
 
 public:
   static std::unique_ptr<SoundFile> from_file(std::filesystem::path const& filename);

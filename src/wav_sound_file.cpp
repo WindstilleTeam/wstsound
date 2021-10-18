@@ -67,9 +67,7 @@ T read_le(std::istream& in)
 WavSoundFile::WavSoundFile(std::unique_ptr<std::istream> istream) :
   m_istream(std::move(istream)),
   m_datastart(),
-  m_channels(),
-  m_rate(),
-  m_bits_per_sample(),
+  m_format(),
   m_size()
 {
   char magic[4];
@@ -138,11 +136,14 @@ WavSoundFile::WavSoundFile(std::unique_ptr<std::istream> istream) :
     str << "WavSoundFile(): only PCM encoding supported, got " << encoding;
     throw SoundError(str.str());
   }
-  m_channels = read_le<uint16_t>(*m_istream);
-  m_rate = read_le<uint32_t>(*m_istream);
+
+  uint16_t channels = read_le<uint16_t>(*m_istream);
+  uint32_t rate = read_le<uint32_t>(*m_istream);
   /*uint32_t byterate =*/ read_le<uint32_t>(*m_istream);
   /*uint16_t blockalign =*/ read_le<uint16_t>(*m_istream);
-  m_bits_per_sample = read_le<uint16_t>(*m_istream);
+  uint16_t bits_per_sample = read_le<uint16_t>(*m_istream);
+
+  m_format = SoundFormat(rate, channels, bits_per_sample);
 
   if(chunklen > 16)
   {
@@ -175,7 +176,7 @@ WavSoundFile::~WavSoundFile()
 void
 WavSoundFile::seek_to_sample(int sample)
 {
-  std::streamoff byte_pos = sample * m_channels * m_bits_per_sample / 8;
+  std::streamoff byte_pos = m_format.sample2bytes(sample);
 
   if (!m_istream->seekg(m_datastart + byte_pos, std::ios::beg)) {
     throw SoundError("Couldn't seek to data start");

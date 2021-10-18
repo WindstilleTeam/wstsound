@@ -124,45 +124,6 @@ OpenALSystem::update()
   }
 }
 
-ALenum
-OpenALSystem::get_sample_format(SoundFile const& file)
-{
-  if (file.get_channels() == 2)
-  {
-    if (file.get_bits_per_sample() == 16)
-    {
-      return AL_FORMAT_STEREO16;
-    }
-    else if (file.get_bits_per_sample() == 8)
-    {
-      return AL_FORMAT_STEREO8;
-    }
-    else
-    {
-      throw SoundError("Only 16 and 8 bit samples supported");
-    }
-  }
-  else if (file.get_channels() == 1)
-  {
-    if (file.get_bits_per_sample() == 16)
-    {
-      return AL_FORMAT_MONO16;
-    }
-    else if (file.get_bits_per_sample() == 8)
-    {
-      return AL_FORMAT_MONO8;
-    }
-    else
-    {
-      throw SoundError("Only 16 and 8 bit samples supported");
-    }
-  }
-  else
-  {
-    throw SoundError("Only 1 and 2 channel samples supported");
-  }
-}
-
 void
 OpenALSystem::print_openal_version(std::ostream& out)
 {

@@ -50,28 +50,16 @@ FilteredSoundFile::read(void* buffer, size_t buffer_size)
   return len;
 }
 
-int
-FilteredSoundFile::get_bits_per_sample() const
-{
-  return m_sound_file->get_bits_per_sample();
-}
-
 size_t
 FilteredSoundFile::get_size() const
 {
   return m_sound_file->get_size();
 }
 
-int
-FilteredSoundFile::get_rate() const
+SoundFormat
+FilteredSoundFile::get_format() const
 {
-  return m_sound_file->get_rate();
-}
-
-int
-FilteredSoundFile::get_channels() const
-{
-  return m_sound_file->get_channels();
+  return m_sound_file->get_format();
 }
 
 void

@@ -91,10 +91,10 @@ SoundManager::load_file_into_buffer(std::unique_ptr<SoundFile> file)
     assert(total_bytesread <= file->get_size());
   }
 
-  return m_openal->create_buffer(OpenALSystem::get_sample_format(*file),
-                                samples.data(),
-                                static_cast<ALsizei>(total_bytesread),
-                                file->get_rate());
+  return m_openal->create_buffer(file->get_format().get_openal_format(),
+                                 samples.data(),
+                                 static_cast<ALsizei>(total_bytesread),
+                                 file->get_format().get_rate());
 }
 
 std::unique_ptr<SoundFile>

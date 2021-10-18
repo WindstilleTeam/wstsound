@@ -37,9 +37,9 @@ int main(int argc, char** argv)
       std::cout << "Filename: " << argv[i] << std::endl;
       std::cout << "Duration  " << sound_file->get_duration() << "sec" << std::endl;
       std::cout << "Size:     " << sound_file->get_size() << "B" << std::endl;
-      std::cout << "Rate:     " << sound_file->get_rate() << "Hz" << std::endl;
-      std::cout << "Bits:     " << sound_file->get_bits_per_sample() << std::endl;
-      std::cout << "Channels: " << sound_file->get_channels() << std::endl;
+      std::cout << "Rate:     " << sound_file->get_format().get_rate() << "Hz" << std::endl;
+      std::cout << "Bits:     " << sound_file->get_format().get_bits_per_sample() << std::endl;
+      std::cout << "Channels: " << sound_file->get_format().get_channels() << std::endl;
       std::cout << std::endl;
     }
 
