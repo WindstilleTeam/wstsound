@@ -172,8 +172,7 @@ void
 OpenALSoundSource::set_gain(float gain)
 {
   m_gain = gain;
-  alSourcef(m_source, AL_GAIN, m_channel.get_gain() * m_gain);
-  OpenALSystem::warn_al_error("OpenALSoundSource::set_gain: ");
+  update_gain();
 }
 
 float
@@ -206,7 +205,7 @@ OpenALSoundSource::set_rolloff_factor(float factor)
 void
 OpenALSoundSource::update_gain() const
 {
-  alSourcef(m_source, AL_GAIN, m_channel.get_gain() * get_gain());
+  alSourcef(m_source, AL_GAIN, m_channel.get_gain() * get_gain() * m_fade_gain);
   OpenALSystem::warn_al_error("OpenALSoundSource::update_gain: ");
 }
 

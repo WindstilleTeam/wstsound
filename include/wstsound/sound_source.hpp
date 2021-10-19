@@ -109,8 +109,9 @@ public:
   virtual int sec_to_sample(float sec) const = 0;
   virtual float sample_to_sec(int sample) const = 0;
 
-private:
+protected:
   std::optional<Fade> m_fade;
+  float m_fade_gain;
 
 private:
   SoundSource(const SoundSource&);
