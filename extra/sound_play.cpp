@@ -99,6 +99,7 @@ void print_usage(int argc, char** argv)
             << "  --abloop A:B       Loop the sample range A:B\n"
             << "  --stream           Stream from file\n"
             << "  --static           Load file into memory\n"
+            << "  --gain GAIN        Set gain of the source\n"
             << "  --fadein           Fade-in the sound\n"
             << "  --fadeout          Fade-out the sound\n"
             << "  --seek SEC         Seek to position SEC\n"
@@ -258,6 +259,7 @@ struct FileOptions
   float seek = 0;
   std::array<float, 3> position = { 0.0f, 0.0f, 0.0f };
   std::array<float, 3> velocity = { 0.0f, 0.0f, 0.0f };
+  float gain = 1.0f;
   std::optional<FadeDirection> fade;
   int effect = AL_EFFECT_NULL;
   std::vector<std::optional<std::variant<float, int>>> fxparam = {};
@@ -383,6 +385,9 @@ Options parse_args(int argc, char** argv)
       } else if (strcmp(argv[i], "--velocity") == 0) {
         next_arg();
         file_opts().velocity = arg_parse_vec3(argv[i]);
+      } else if (strcmp(argv[i], "--gain") == 0) {
+        next_arg();
+        file_opts().gain = std::stod(argv[i]);
       } else if (strcmp(argv[i], "--fadein") == 0) {
         file_opts().fade = FadeDirection::In;
       } else if (strcmp(argv[i], "--fadeout") == 0) {
@@ -456,6 +461,8 @@ int run(int argc, char** argv)
     if (file_opts.seek != 0) {
       source->seek_to(file_opts.seek);
     }
+
+    source->set_gain(file_opts.gain);
 
     if (file_opts.fade) {
       source->set_fading(*file_opts.fade, 5.0f);
