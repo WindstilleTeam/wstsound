@@ -18,7 +18,6 @@
 
 #include "stream_sound_source.hpp"
 
-#include <assert.h>
 #include <array>
 #include <iostream>
 #include <stdexcept>
@@ -226,9 +225,6 @@ StreamSoundSource::fill_buffer_and_queue(ALuint buffer)
       }
     }
   } while(total_bytesread < STREAMFRAGMENTSIZE);
-
-  assert(total_bytesread == 0 ||
-         total_bytesread == STREAMFRAGMENTSIZE);
 
   if (total_bytesread > 0)
   {
