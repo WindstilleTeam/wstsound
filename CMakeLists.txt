@@ -21,7 +21,10 @@ project(wstsound VERSION 0.3.0)
 # instead of the OpenAL framework that is missing effects support.
 set(CMAKE_FIND_FRAMEWORK "LAST")
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/external/cmake-modules/)
+set(TINYCMMC_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/external/cmake-modules/modules/")
+find_package(tinycmmc CONFIG)
+message(STATUS "tinycmmc module path: ${TINYCMMC_MODULE_PATH}")
+list(APPEND CMAKE_MODULE_PATH ${TINYCMMC_MODULE_PATH})
 
 include(GNUInstallDirs)
 include(ClangTidy)
