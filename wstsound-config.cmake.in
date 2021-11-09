@@ -1,0 +1,17 @@
+get_filename_component(WSTDISPLAY_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+
+include(CMakeFindDependencyMacro)
+
+find_dependency(OpenAL REQUIRED)
+find_dependency(Opusfile REQUIRED)
+find_dependency(Opus REQUIRED)
+find_dependency(Ogg REQUIRED)
+find_dependency(Vorbisfile REQUIRED)
+find_dependency(MPG123 REQUIRED)
+find_dependency(ModPlug REQUIRED)
+
+if(NOT TARGET wstsound)
+  include("${WSTDISPLAY_CMAKE_DIR}/wstsound-targets.cmake")
+endif()
+
+# EOF #

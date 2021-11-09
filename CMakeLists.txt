@@ -56,7 +56,10 @@ set_target_properties(wstsound PROPERTIES
   CXX_STANDARD_REQUIRED ON
   CXX_EXTENSIONS OFF)
 target_include_directories(wstsound SYSTEM PUBLIC ${OPENAL_INCLUDE_DIR})
-target_include_directories(wstsound PUBLIC include/)
+target_include_directories(wstsound PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+  )
 target_include_directories(wstsound PRIVATE src/ include/wstsound/)
 target_link_libraries(wstsound PUBLIC
   ${OPENAL_LIBRARY}
@@ -67,6 +70,23 @@ target_link_libraries(wstsound PUBLIC
   MPG123::mpg123
   ModPlug::modplug
   Threads::Threads)
+
+install(TARGETS wstsound
+  EXPORT wstsound-targets
+  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+  PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}")
+
+# CMake integration
+configure_file(wstsound-config.cmake.in
+  "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_FILES_DIRECTORY}/wstsound-config.cmake" @ONLY)
+install(FILES
+  "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_FILES_DIRECTORY}/wstsound-config.cmake"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/wstsound/")
+export(TARGETS wstsound
+  FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_FILES_DIRECTORY}/wstsound-targets.cmake")
+export(PACKAGE wstsound)
+install(EXPORT wstsound-targets
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/wstsound/")
 
 if(BUILD_TESTS)
   find_package(GTest REQUIRED)
@@ -109,9 +129,5 @@ if(BUILD_EXTRA)
       CXX_EXTENSIONS OFF)
   endforeach(SRC)
 endif()
-
-install(TARGETS wstsound
-  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-  PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}")
 
 # EOF #
