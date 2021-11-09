@@ -22,6 +22,7 @@
             pname = "wstsound";
             version = "0.3.0";
             src = nixpkgs.lib.cleanSource ./.;
+            cmakeFlags = [ "-DBUILD_EXTRA=ON" ];
             nativeBuildInputs = [
               pkgs.cmake
               pkgs.ninja
