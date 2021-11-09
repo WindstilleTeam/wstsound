@@ -3,8 +3,13 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs";
+    nix.inputs.nixpkgs.follows = "nixpkgs";
     flake-utils.url = "github:numtide/flake-utils";
+
     tinycmmc.url = "gitlab:grumbel/cmake-modules";
+    tinycmmc.inputs.nix.follows = "nix";
+    tinycmmc.inputs.nixpkgs.follows = "nixpkgs";
+    tinycmmc.inputs.flake-utils.follows = "flake-utils";
   };
 
   outputs = { self, nix, nixpkgs, flake-utils, tinycmmc }:
