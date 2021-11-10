@@ -9,6 +9,7 @@ find_dependency(Ogg REQUIRED)
 find_dependency(Vorbisfile REQUIRED)
 find_dependency(MPG123 REQUIRED)
 find_dependency(ModPlug REQUIRED)
+find_dependency(Threads REQUIRED)
 
 if(NOT TARGET wstsound)
   include("${WSTDISPLAY_CMAKE_DIR}/wstsound-targets.cmake")
