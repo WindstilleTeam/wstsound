@@ -32,10 +32,7 @@ include(MaximumWarnings)
 
 option(BUILD_EXTRA "Build extra stuff" OFF)
 
-if(NOT TARGET Threads::Threads)
-  find_package(Threads REQUIRED)
-endif()
-
+find_package(Threads REQUIRED)
 find_package(OpenAL REQUIRED)
 find_package(Opusfile REQUIRED)
 find_package(Opus REQUIRED)
@@ -70,23 +67,6 @@ target_link_libraries(wstsound PUBLIC
   MPG123::mpg123
   ModPlug::modplug
   Threads::Threads)
-
-install(TARGETS wstsound
-  EXPORT wstsound-targets
-  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-  PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}")
-
-# CMake integration
-configure_file(wstsound-config.cmake.in
-  "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_FILES_DIRECTORY}/wstsound-config.cmake" @ONLY)
-install(FILES
-  "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_FILES_DIRECTORY}/wstsound-config.cmake"
-  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/wstsound/")
-export(TARGETS wstsound
-  FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_FILES_DIRECTORY}/wstsound-targets.cmake")
-export(PACKAGE wstsound)
-install(EXPORT wstsound-targets
-  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/wstsound/")
 
 if(BUILD_TESTS)
   find_package(GTest REQUIRED)
@@ -131,5 +111,7 @@ if(BUILD_EXTRA)
       RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
   endforeach(SRC)
 endif()
+
+include(ExportAndInstallLibrary)
 
 # EOF #
