@@ -14,8 +14,8 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-      in rec {
-        packages = flake-utils.lib.flattenTree {
+      in {
+        packages = flake-utils.lib.flattenTree rec {
           wstsound = pkgs.stdenv.mkDerivation {
             pname = "wstsound";
             version = "0.3.0";
@@ -25,7 +25,7 @@
               pkgs.cmake
               pkgs.ninja
               pkgs.gcc
-              tinycmmc.defaultPackage.${system}
+              tinycmmc.packages.${system}.default
             ];
             buildInputs = [
               pkgs.openal
@@ -37,7 +37,8 @@
               pkgs.gtest
             ];
            };
+          default = wstsound;
         };
-        defaultPackage = packages.wstsound;
-      });
+      }
+    );
 }
