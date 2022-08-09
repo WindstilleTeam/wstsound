@@ -16,6 +16,8 @@
         pkgs = nixpkgs.legacyPackages.${system};
       in {
         packages = flake-utils.lib.flattenTree rec {
+          default = wstsound;
+
           wstsound = pkgs.stdenv.mkDerivation {
             pname = "wstsound";
             version = "0.3.0";
@@ -28,21 +30,20 @@
             ];
             nativeBuildInputs = [
               pkgs.cmake
-              pkgs.ninja
-              pkgs.gcc
               tinycmmc.packages.${system}.default
             ];
             buildInputs = [
-              pkgs.openal
-              pkgs.libvorbis
-              pkgs.libogg
-              pkgs.opusfile
-              pkgs.mpg123
-              pkgs.libmodplug
               pkgs.gtest
             ];
+            propagatedBuildInputs = [
+              pkgs.libmodplug
+              pkgs.libogg
+              pkgs.libvorbis
+              pkgs.mpg123
+              pkgs.openal
+              pkgs.opusfile
+            ];
            };
-          default = wstsound;
         };
       }
     );
