@@ -19,8 +19,13 @@
           wstsound = pkgs.stdenv.mkDerivation {
             pname = "wstsound";
             version = "0.3.0";
-            src = nixpkgs.lib.cleanSource ./.;
-            cmakeFlags = [ "-DBUILD_EXTRA=ON" ];
+            src = ./.;
+            cmakeFlags = [
+              "-DWARNINGS=ON"
+              "-DWERROR=ON"
+              "-DBUILD_TESTS=ON"
+              "-DBUILD_EXTRA=ON"
+            ];
             nativeBuildInputs = [
               pkgs.cmake
               pkgs.ninja
