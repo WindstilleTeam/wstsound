@@ -2,11 +2,11 @@
   "nodes": {
     "flake-utils": {
       "locked": {
-        "lastModified": 1656928814,
-        "narHash": "sha256-RIFfgBuKz6Hp89yRr7+NR5tzIAbn52h8vT6vXkYjZoM=",
+        "lastModified": 1659877975,
+        "narHash": "sha256-zllb8aq3YO3h8B/U0/J1WBgAL8EX5yWf5pMj3G0NAmc=",
         "owner": "numtide",
         "repo": "flake-utils",
-        "rev": "7e2a3b3dfd9af950a856d66b0a7d01e3c18aa249",
+        "rev": "c0e246b9b83f637f4681389ecabcb2681b4f3af0",
         "type": "github"
       },
       "original": {
@@ -15,13 +15,61 @@
         "type": "github"
       }
     },
+    "libmodplug_src": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-jNHspgIcrv5AUEgq2MB4TSqbj//tTCXiOoSqYjShGkw=",
+        "type": "tarball",
+        "url": "https://downloads.sourceforge.net/project/modplug-xmms/libmodplug/0.8.9.0/libmodplug-0.8.9.0.tar.gz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://downloads.sourceforge.net/project/modplug-xmms/libmodplug/0.8.9.0/libmodplug-0.8.9.0.tar.gz"
+      }
+    },
+    "libogg_src": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-L8hFWoCh2VTdlsOq+cbP1eYAnciH70xlk1eSwr8YP5c=",
+        "type": "tarball",
+        "url": "https://downloads.xiph.org/releases/ogg/libogg-1.3.5.tar.gz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://downloads.xiph.org/releases/ogg/libogg-1.3.5.tar.gz"
+      }
+    },
+    "libvorbis_src": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-xXty8sK0hmJX7jQu5+CDBslNVQ0+dZaUrbp/12xVmy0=",
+        "type": "tarball",
+        "url": "https://downloads.xiph.org/releases/vorbis/libvorbis-1.3.7.tar.xz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://downloads.xiph.org/releases/vorbis/libvorbis-1.3.7.tar.xz"
+      }
+    },
+    "mpg123_src": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-df+AH4sCwVj89IRKBCseDR+93LY8RPuGo/F0KtULEys=",
+        "type": "tarball",
+        "url": "https://downloads.sourceforge.net/project/mpg123/mpg123/1.30.2/mpg123-1.30.2.tar.bz2"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://downloads.sourceforge.net/project/mpg123/mpg123/1.30.2/mpg123-1.30.2.tar.bz2"
+      }
+    },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1658422817,
-        "narHash": "sha256-kzZrlzqK6kbkTEnDK21wjRDamUJP0m30pm3XRPk0aZg=",
+        "lastModified": 1660406417,
+        "narHash": "sha256-ekKl2IWxAEjwrAtE//PgR95UcvqFK+FaT4kR5XFcdjQ=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "70e3e0ee807371e16563a88b77b8533e2cea8aa2",
+        "rev": "d816f474aa79d020a75cc3e69113759e32aabc2e",
         "type": "github"
       },
       "original": {
@@ -31,10 +79,58 @@
         "type": "github"
       }
     },
+    "openal-soft_src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1656318833,
+        "narHash": "sha256-MVM0qCZDWcO7/Hnco+0dBqzBLcWD279xjx0slxxlc4w=",
+        "owner": "kcat",
+        "repo": "openal-soft",
+        "rev": "dc83d99c95a42c960150ddeee06c124134b52208",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kcat",
+        "ref": "1.22.2",
+        "repo": "openal-soft",
+        "type": "github"
+      }
+    },
+    "opus_src": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-VyHmKoRXCJ0shVfUn6cX13b0fAXIQk0Z5NLZIfy8Gh4=",
+        "type": "tarball",
+        "url": "https://archive.mozilla.org/pub/opus/opus-1.3.1.tar.gz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://archive.mozilla.org/pub/opus/opus-1.3.1.tar.gz"
+      }
+    },
+    "opusfile_src": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-UEoOyY9DM5lINTAHIfSRK5+o622pIK2ObQ00swIcM40=",
+        "type": "tarball",
+        "url": "https://downloads.xiph.org/releases/opus/opusfile-0.12.tar.gz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://downloads.xiph.org/releases/opus/opusfile-0.12.tar.gz"
+      }
+    },
     "root": {
       "inputs": {
         "flake-utils": "flake-utils",
+        "libmodplug_src": "libmodplug_src",
+        "libogg_src": "libogg_src",
+        "libvorbis_src": "libvorbis_src",
+        "mpg123_src": "mpg123_src",
         "nixpkgs": "nixpkgs",
+        "openal-soft_src": "openal-soft_src",
+        "opus_src": "opus_src",
+        "opusfile_src": "opusfile_src",
         "tinycmmc": "tinycmmc"
       }
     },
@@ -48,11 +144,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1658424416,
-        "narHash": "sha256-i8jdYQy/IrCFNnnLTQ90oJ0btEHrW1MgnLOhYtHMFzM=",
+        "lastModified": 1660502431,
+        "narHash": "sha256-y8/oijBPvI74DSmOULeNuG0Y0+S6c7sx8yKSULI82As=",
         "owner": "grumbel",
         "repo": "tinycmmc",
-        "rev": "43c75c5344979c5ad4c65233aa407e3ec6d92c03",
+        "rev": "fe10bcbb5ba1a3f9a3cc58bd07ab3f6320c24648",
         "type": "github"
       },
       "original": {
