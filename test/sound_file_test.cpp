@@ -18,6 +18,8 @@
 
 #include <gtest/gtest.h>
 
+#include <fstream>
+
 #include "mp3_sound_file.hpp"
 #include "ogg_sound_file.hpp"
 #include "opus_sound_file.hpp"

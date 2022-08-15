@@ -20,7 +20,7 @@
 #define HEADER_WINDSTILLE_SOUND_OGG_SOUND_FILE_HPP
 
 #include <vorbis/vorbisfile.h>
-#include <fstream>
+#include <istream>
 
 #include "sound_file.hpp"
 

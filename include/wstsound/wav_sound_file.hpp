@@ -19,7 +19,7 @@
 #ifndef HEADER_WINDSTILLE_SOUND_WAV_SOUND_FILE_HPP
 #define HEADER_WINDSTILLE_SOUND_WAV_SOUND_FILE_HPP
 
-#include <fstream>
+#include <istream>
 
 #include "sound_file.hpp"
 
