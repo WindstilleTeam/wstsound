@@ -48,7 +48,7 @@ size_t get_real_size(SoundFile& soundfile) {
 
 TEST(SoundFileTest, wav)
 {
-  auto fin = std::make_unique<std::ifstream>("data/sound.wav");
+  auto fin = std::make_unique<std::ifstream>("data/sound.wav", std::ios::binary);
   WavSoundFile sound_file(std::move(fin));
 
   EXPECT_EQ(sound_file.get_size(), 22788);
@@ -65,7 +65,7 @@ TEST(SoundFileTest, wav)
 
 TEST(SoundFileTest, ogg)
 {
-  auto fin = std::make_unique<std::ifstream>("data/sound.ogg");
+  auto fin = std::make_unique<std::ifstream>("data/sound.ogg", std::ios::binary);
   OggSoundFile sound_file(std::move(fin));
 
   EXPECT_EQ(sound_file.get_size(), 22788);
@@ -82,7 +82,7 @@ TEST(SoundFileTest, ogg)
 
 TEST(SoundFileTest, opus)
 {
-  auto fin = std::make_unique<std::ifstream>("data/sound.opus");
+  auto fin = std::make_unique<std::ifstream>("data/sound.opus", std::ios::binary);
   OpusSoundFile sound_file(std::move(fin));
 
   EXPECT_EQ(sound_file.get_size(), 24804);
@@ -99,7 +99,7 @@ TEST(SoundFileTest, opus)
 
 TEST(SoundFileTest, mp3)
 {
-  auto fin = std::make_unique<std::ifstream>("data/sound.mp3");
+  auto fin = std::make_unique<std::ifstream>("data/sound.mp3", std::ios::binary);
   MP3SoundFile sound_file(std::move(fin));
 
   EXPECT_EQ(sound_file.get_size(), 22788);
