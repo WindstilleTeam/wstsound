@@ -1,5 +1,29 @@
 {
   "nodes": {
+    "SDL2_image_src": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-GNKF/bhxZ9WxpNVqRQ3yFf/8yiQntLXOYnhn22Sy9k0=",
+        "type": "tarball",
+        "url": "https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.5-mingw.tar.gz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.5-mingw.tar.gz"
+      }
+    },
+    "SDL2_src": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-7F8KGZaY6R7tzv/+0gNNm1FvDyrY4Z4PPuzYu+3pvNM=",
+        "type": "tarball",
+        "url": "https://libsdl.org/release/SDL2-devel-2.0.22-mingw.tar.gz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://libsdl.org/release/SDL2-devel-2.0.22-mingw.tar.gz"
+      }
+    },
     "flake-utils": {
       "locked": {
         "lastModified": 1659877975,
@@ -63,6 +87,41 @@
         "url": "https://downloads.sourceforge.net/project/mpg123/mpg123/1.30.2/mpg123-1.30.2.tar.bz2"
       }
     },
+    "nix-cross": {
+      "inputs": {
+        "SDL2_image_src": "SDL2_image_src",
+        "SDL2_src": "SDL2_src",
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "libmodplug_src": "libmodplug_src",
+        "libogg_src": "libogg_src",
+        "libvorbis_src": "libvorbis_src",
+        "mpg123_src": "mpg123_src",
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "openal-soft_src": "openal-soft_src",
+        "opus_src": "opus_src",
+        "opusfile_src": "opusfile_src",
+        "tinycmmc": [
+          "tinycmmc"
+        ]
+      },
+      "locked": {
+        "lastModified": 1660559753,
+        "narHash": "sha256-0Hcmz+unvkkK2TWwFN6BdlgY/qszYnt5AdTI/fBEfRM=",
+        "owner": "grumbel",
+        "repo": "nix-cross",
+        "rev": "c2099438503f524ae713d638901b92629e1a530e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "grumbel",
+        "repo": "nix-cross",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1660406417,
@@ -123,14 +182,8 @@
     "root": {
       "inputs": {
         "flake-utils": "flake-utils",
-        "libmodplug_src": "libmodplug_src",
-        "libogg_src": "libogg_src",
-        "libvorbis_src": "libvorbis_src",
-        "mpg123_src": "mpg123_src",
+        "nix-cross": "nix-cross",
         "nixpkgs": "nixpkgs",
-        "openal-soft_src": "openal-soft_src",
-        "opus_src": "opus_src",
-        "opusfile_src": "opusfile_src",
         "tinycmmc": "tinycmmc"
       }
     },
