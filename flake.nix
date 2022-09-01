@@ -45,7 +45,7 @@
               tinycmmc, libmodplug-win32, libogg-win32, libvorbis-win32,
               mpg123-win32, openal-soft-win32, opusfile-win32, opus-win32 }:
     tinycmmc.lib.eachSystemWithPkgs (pkgs:
-      {
+      rec {
         packages = rec {
           default = wstsound;
 
@@ -83,6 +83,15 @@
             mcfgthreads = if pkgs.targetPlatform.isWindows
                           then pkgs.windows.mcfgthreads
                           else null;
+          };
+        };
+
+        apps = rec {
+          default = wstsound-play;
+
+          wstsound-play = {
+            type = "app";
+            program = "${packages.wstsound}/bin/wstsound-play";
           };
         };
       }
