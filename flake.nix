@@ -2,7 +2,7 @@
   description = "Windstille Sound Engine";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
     flake-utils.url = "github:numtide/flake-utils";
 
     tinycmmc.url = "github:grumbel/tinycmmc";
@@ -50,6 +50,8 @@
           default = wstsound;
 
           wstsound = pkgs.callPackage ./wstsound.nix {
+            stdenv = pkgs.gcc12Stdenv;
+
             tinycmmc = tinycmmc.packages.${pkgs.system}.default;
 
             libmodplug = if pkgs.targetPlatform.isWindows
