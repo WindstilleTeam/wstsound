@@ -52,37 +52,37 @@
           wstsound = pkgs.callPackage ./wstsound.nix {
             stdenv = pkgs.stdenv;
 
-            tinycmmc = tinycmmc.packages.${pkgs.system}.default;
+            tinycmmc = tinycmmc.packages.${pkgs.stdenv.hostPlatform.system}.default;
 
-            libmodplug = if pkgs.targetPlatform.isWindows
-                         then libmodplug-win32.packages.${pkgs.system}.default
+            libmodplug = if pkgs.stdenv.targetPlatform.isWindows
+                         then libmodplug-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
                          else pkgs.libmodplug;
 
-            libogg = if pkgs.targetPlatform.isWindows
-                     then libogg-win32.packages.${pkgs.system}.default
+            libogg = if pkgs.stdenv.targetPlatform.isWindows
+                     then libogg-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
                      else pkgs.libogg;
 
-            libvorbis = if pkgs.targetPlatform.isWindows
-                        then libvorbis-win32.packages.${pkgs.system}.default
+            libvorbis = if pkgs.stdenv.targetPlatform.isWindows
+                        then libvorbis-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
                         else pkgs.libvorbis;
 
-            mpg123 = if pkgs.targetPlatform.isWindows
-                     then mpg123-win32.packages.${pkgs.system}.default
+            mpg123 = if pkgs.stdenv.targetPlatform.isWindows
+                     then mpg123-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
                      else pkgs.mpg123;
 
-            openal = if pkgs.targetPlatform.isWindows
-                     then openal-soft-win32.packages.${pkgs.system}.default
+            openal = if pkgs.stdenv.targetPlatform.isWindows
+                     then openal-soft-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
                      else pkgs.openal;
 
-            opusfile = if pkgs.targetPlatform.isWindows
-                       then opusfile-win32.packages.${pkgs.system}.default
+            opusfile = if pkgs.stdenv.targetPlatform.isWindows
+                       then opusfile-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
                        else pkgs.opusfile;
 
-            libopus = if pkgs.targetPlatform.isWindows
-                      then opus-win32.packages.${pkgs.system}.default
+            libopus = if pkgs.stdenv.targetPlatform.isWindows
+                      then opus-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
                       else pkgs.libopus;
 
-            mcfgthreads = if pkgs.targetPlatform.isWindows
+            mcfgthreads = if pkgs.stdenv.targetPlatform.isWindows
                           then pkgs.windows.mcfgthreads
                           else null;
           };
