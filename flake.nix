@@ -54,35 +54,35 @@
 
             tinycmmc = tinycmmc.packages.${pkgs.stdenv.hostPlatform.system}.default;
 
-            libmodplug = if pkgs.stdenv.targetPlatform.isWindows
+            libmodplug = if pkgs.stdenv.hostPlatform.isWindows
                          then libmodplug-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
                          else pkgs.libmodplug;
 
-            libogg = if pkgs.stdenv.targetPlatform.isWindows
+            libogg = if pkgs.stdenv.hostPlatform.isWindows
                      then libogg-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
                      else pkgs.libogg;
 
-            libvorbis = if pkgs.stdenv.targetPlatform.isWindows
+            libvorbis = if pkgs.stdenv.hostPlatform.isWindows
                         then libvorbis-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
                         else pkgs.libvorbis;
 
-            mpg123 = if pkgs.stdenv.targetPlatform.isWindows
+            mpg123 = if pkgs.stdenv.hostPlatform.isWindows
                      then mpg123-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
                      else pkgs.mpg123;
 
-            openal = if pkgs.stdenv.targetPlatform.isWindows
+            openal = if pkgs.stdenv.hostPlatform.isWindows
                      then openal-soft-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
                      else pkgs.openal;
 
-            opusfile = if pkgs.stdenv.targetPlatform.isWindows
+            opusfile = if pkgs.stdenv.hostPlatform.isWindows
                        then opusfile-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
                        else pkgs.opusfile;
 
-            libopus = if pkgs.stdenv.targetPlatform.isWindows
+            libopus = if pkgs.stdenv.hostPlatform.isWindows
                       then opus-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
                       else pkgs.libopus;
 
-            mcfgthreads = if pkgs.stdenv.targetPlatform.isWindows
+            mcfgthreads = if pkgs.stdenv.hostPlatform.isWindows
                           then pkgs.windows.mcfgthreads
                           else null;
           };
