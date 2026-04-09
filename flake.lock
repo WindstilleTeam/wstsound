@@ -31,15 +31,15 @@
       "locked": {
         "lastModified": 1716834232,
         "narHash": "sha256-ZnTt0ZFvCPSA6NcIzAku/LH4SqYmKnwhdTadk209bFY=",
-        "owner": "grumnix",
-        "repo": "libmodplug-win32",
+        "ref": "refs/heads/master",
         "rev": "ca34343b3492192f977f06b529888ea55f184097",
-        "type": "github"
+        "revCount": 5,
+        "type": "git",
+        "url": "https://github.com/grumnix/libmodplug-win32.git"
       },
       "original": {
-        "owner": "grumnix",
-        "repo": "libmodplug-win32",
-        "type": "github"
+        "type": "git",
+        "url": "https://github.com/grumnix/libmodplug-win32.git"
       }
     },
     "libmodplug_src": {
@@ -68,15 +68,15 @@
       "locked": {
         "lastModified": 1764251829,
         "narHash": "sha256-CUq+HLy257tgKo9URjnjgCS1HyIQpPetU06gFr/1fQA=",
-        "owner": "grumnix",
-        "repo": "libogg-win32",
+        "ref": "refs/heads/master",
         "rev": "a05787b0ad8f878cd44008fd0c4c99cb149c0066",
-        "type": "github"
+        "revCount": 6,
+        "type": "git",
+        "url": "https://github.com/grumnix/libogg-win32.git"
       },
       "original": {
-        "owner": "grumnix",
-        "repo": "libogg-win32",
-        "type": "github"
+        "type": "git",
+        "url": "https://github.com/grumnix/libogg-win32.git"
       }
     },
     "libogg_src": {
@@ -108,15 +108,15 @@
       "locked": {
         "lastModified": 1764251884,
         "narHash": "sha256-3jO1DR02WbHEtv6r809E/UvUFou2uXkT/8hkqmhK2Y4=",
-        "owner": "grumnix",
-        "repo": "libvorbis-win32",
+        "ref": "refs/heads/master",
         "rev": "d698e14ec3fce00f85c111f74ad783bbda813a72",
-        "type": "github"
+        "revCount": 7,
+        "type": "git",
+        "url": "https://github.com/grumnix/libvorbis-win32.git"
       },
       "original": {
-        "owner": "grumnix",
-        "repo": "libvorbis-win32",
-        "type": "github"
+        "type": "git",
+        "url": "https://github.com/grumnix/libvorbis-win32.git"
       }
     },
     "libvorbis_src": {
@@ -145,15 +145,15 @@
       "locked": {
         "lastModified": 1716728685,
         "narHash": "sha256-+oyZIT88pcIuWUW1jw69KpxEjvqU1QDtF3VV6hiTVAo=",
-        "owner": "grumnix",
-        "repo": "mpg123-win32",
+        "ref": "refs/heads/master",
         "rev": "aead750a3614f02601f7e81f67751b9f64eeab07",
-        "type": "github"
+        "revCount": 5,
+        "type": "git",
+        "url": "https://github.com/grumnix/mpg123-win32.git"
       },
       "original": {
-        "owner": "grumnix",
-        "repo": "mpg123-win32",
-        "type": "github"
+        "type": "git",
+        "url": "https://github.com/grumnix/mpg123-win32.git"
       }
     },
     "mpg123_src": {
@@ -171,11 +171,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1763966396,
-        "narHash": "sha256-6eeL1YPcY1MV3DDStIDIdy/zZCDKgHdkCmsrLJFiZf0=",
+        "lastModified": 1775423009,
+        "narHash": "sha256-vPKLpjhIVWdDrfiUM8atW6YkIggCEKdSAlJPzzhkQlw=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "5ae3b07d8d6527c42f17c876e404993199144b6a",
+        "rev": "68d8aa3d661f0e6bd5862291b5bb263b2a6595c9",
         "type": "github"
       },
       "original": {
@@ -198,15 +198,15 @@
       "locked": {
         "lastModified": 1763585892,
         "narHash": "sha256-ADPqFbvM+Dy6OoW/Mk1E/0OM+IPyO6QC6Qd+FOsXQeg=",
-        "owner": "grumnix",
-        "repo": "openal-soft-win32",
+        "ref": "refs/heads/master",
         "rev": "98996385d263cbafa77890bf7c1fbc7efdb9a2e6",
-        "type": "github"
+        "revCount": 7,
+        "type": "git",
+        "url": "https://github.com/grumnix/openal-soft-win32.git"
       },
       "original": {
-        "owner": "grumnix",
-        "repo": "openal-soft-win32",
-        "type": "github"
+        "type": "git",
+        "url": "https://github.com/grumnix/openal-soft-win32.git"
       }
     },
     "openal-soft_src": {
@@ -239,15 +239,15 @@
       "locked": {
         "lastModified": 1716728603,
         "narHash": "sha256-3+GUby3dHbQPdsBiGQlQ9XgNyZe1hORqbQpGUCzFm1E=",
-        "owner": "grumnix",
-        "repo": "opus-win32",
+        "ref": "refs/heads/master",
         "rev": "4530cd6280b2c239d8df717943fa0f63b1a3a650",
-        "type": "github"
+        "revCount": 5,
+        "type": "git",
+        "url": "https://github.com/grumnix/opus-win32.git"
       },
       "original": {
-        "owner": "grumnix",
-        "repo": "opus-win32",
-        "type": "github"
+        "type": "git",
+        "url": "https://github.com/grumnix/opus-win32.git"
       }
     },
     "opus_src": {
@@ -282,15 +282,15 @@
       "locked": {
         "lastModified": 1716728646,
         "narHash": "sha256-pCL8yrYE3EppKKrv8ORuCaWepm6eYmsYj3I1WoIxWDQ=",
-        "owner": "grumnix",
-        "repo": "opusfile-win32",
+        "ref": "refs/heads/master",
         "rev": "c19b24efe82fd596016d7805e9206466c0b5744e",
-        "type": "github"
+        "revCount": 7,
+        "type": "git",
+        "url": "https://github.com/grumnix/opusfile-win32.git"
       },
       "original": {
-        "owner": "grumnix",
-        "repo": "opusfile-win32",
-        "type": "github"
+        "type": "git",
+        "url": "https://github.com/grumnix/opusfile-win32.git"
       }
     },
     "opusfile_src": {
@@ -347,15 +347,15 @@
       "locked": {
         "lastModified": 1763256011,
         "narHash": "sha256-CpQWAHdeLUYd28cT9heG05p6RX9WF7QslqNHoBi931E=",
-        "owner": "grumbel",
-        "repo": "tinycmmc",
+        "ref": "refs/heads/master",
         "rev": "2e007ba059a4991c011a7193c9d7df28826c9adc",
-        "type": "github"
+        "revCount": 64,
+        "type": "git",
+        "url": "https://github.com/grumbel/tinycmmc.git"
       },
       "original": {
-        "owner": "grumbel",
-        "repo": "tinycmmc",
-        "type": "github"
+        "type": "git",
+        "url": "https://github.com/grumbel/tinycmmc.git"
       }
     }
   },

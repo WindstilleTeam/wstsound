@@ -5,36 +5,36 @@
     nixpkgs.url = "github:NixOS/nixpkgs?ref=nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
 
-    tinycmmc.url = "github:grumbel/tinycmmc";
+    tinycmmc.url = "git+https://github.com/grumbel/tinycmmc.git";
     tinycmmc.inputs.nixpkgs.follows = "nixpkgs";
     tinycmmc.inputs.flake-utils.follows = "flake-utils";
 
-    libmodplug-win32.url = "github:grumnix/libmodplug-win32";
+    libmodplug-win32.url = "git+https://github.com/grumnix/libmodplug-win32.git";
     libmodplug-win32.inputs.nixpkgs.follows = "nixpkgs";
     libmodplug-win32.inputs.tinycmmc.follows = "tinycmmc";
 
-    libogg-win32.url = "github:grumnix/libogg-win32";
+    libogg-win32.url = "git+https://github.com/grumnix/libogg-win32.git";
     libogg-win32.inputs.nixpkgs.follows = "nixpkgs";
     libogg-win32.inputs.tinycmmc.follows = "tinycmmc";
 
-    libvorbis-win32.url = "github:grumnix/libvorbis-win32";
+    libvorbis-win32.url = "git+https://github.com/grumnix/libvorbis-win32.git";
     libvorbis-win32.inputs.nixpkgs.follows = "nixpkgs";
     libvorbis-win32.inputs.tinycmmc.follows = "tinycmmc";
     libvorbis-win32.inputs.libogg.follows = "libogg-win32";
 
-    mpg123-win32.url = "github:grumnix/mpg123-win32";
+    mpg123-win32.url = "git+https://github.com/grumnix/mpg123-win32.git";
     mpg123-win32.inputs.nixpkgs.follows = "nixpkgs";
     mpg123-win32.inputs.tinycmmc.follows = "tinycmmc";
 
-    openal-soft-win32.url = "github:grumnix/openal-soft-win32";
+    openal-soft-win32.url = "git+https://github.com/grumnix/openal-soft-win32.git";
     openal-soft-win32.inputs.nixpkgs.follows = "nixpkgs";
     openal-soft-win32.inputs.tinycmmc.follows = "tinycmmc";
 
-    opus-win32.url = "github:grumnix/opus-win32";
+    opus-win32.url = "git+https://github.com/grumnix/opus-win32.git";
     opus-win32.inputs.nixpkgs.follows = "nixpkgs";
     opus-win32.inputs.tinycmmc.follows = "tinycmmc";
 
-    opusfile-win32.url = "github:grumnix/opusfile-win32";
+    opusfile-win32.url = "git+https://github.com/grumnix/opusfile-win32.git";
     opusfile-win32.inputs.nixpkgs.follows = "nixpkgs";
     opusfile-win32.inputs.tinycmmc.follows = "tinycmmc";
     opusfile-win32.inputs.libogg.follows = "libogg-win32";
