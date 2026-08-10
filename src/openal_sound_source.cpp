@@ -22,7 +22,7 @@
 #include <iostream>
 
 #define AL_ALEXT_PROTOTYPES
-#include <efx.h>
+#include <AL/efx.h>
 
 #include "effect_slot.hpp"
 #include "filter.hpp"
