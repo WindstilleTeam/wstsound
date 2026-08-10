@@ -85,10 +85,12 @@ int
 OpenALDevice::max_auxiliary_sends() const
 {
 #if defined(WSTSOUND_WITH_EFX)
-  ALint sends;
+  ALint sends = 0;
   alcGetIntegerv(m_device, ALC_MAX_AUXILIARY_SENDS, 1, &sends);
-#endif
   return sends;
+#else
+  return 0;
+#endif
 }
 
 } // namespace wstsound
