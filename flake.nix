@@ -137,9 +137,22 @@
         apps = rec {
           default = wstsound-play;
 
+          # Extra tools from the full-featured package (BUILD_EXTRA=ON).
           wstsound-play = {
             type = "app";
             program = "${packages.wstsound}/bin/wstsound-play";
+          };
+          wstsound-openal = {
+            type = "app";
+            program = "${packages.wstsound}/bin/wstsound-openal";
+          };
+          wstsoundfile-cat = {
+            type = "app";
+            program = "${packages.wstsound}/bin/wstsoundfile-cat";
+          };
+          wstsoundfile-info = {
+            type = "app";
+            program = "${packages.wstsound}/bin/wstsoundfile-info";
           };
         };
       }
