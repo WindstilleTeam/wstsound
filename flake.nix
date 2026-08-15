@@ -110,6 +110,8 @@
           withOpus    = false;
           withMpg123  = false;
           withEfx     = false;
+          # Extra tools (wstsound-play, …) assume EFX; keep them off for lean.
+          buildExtra  = false;
         };
 
         fullFeatures = {
