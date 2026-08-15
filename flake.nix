@@ -45,47 +45,91 @@
               tinycmmc, libmodplug-win32, libogg-win32, libvorbis-win32,
               mpg123-win32, openal-soft-win32, opusfile-win32, opus-win32 }:
     tinycmmc.lib.eachSystemWithPkgs (pkgs:
+      let
+        # Shared dependency selection (Windows vs native).
+        deps = {
+          stdenv = pkgs.stdenv;
+          tinycmmc = tinycmmc.packages.${pkgs.stdenv.hostPlatform.system}.default;
+
+          libmodplug = if pkgs.stdenv.hostPlatform.isWindows
+                       then libmodplug-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
+                       else pkgs.libmodplug;
+
+          libogg = if pkgs.stdenv.hostPlatform.isWindows
+                   then libogg-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
+                   else pkgs.libogg;
+
+          libvorbis = if pkgs.stdenv.hostPlatform.isWindows
+                      then libvorbis-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
+                      else pkgs.libvorbis;
+
+          mpg123 = if pkgs.stdenv.hostPlatform.isWindows
+                   then mpg123-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
+                   else pkgs.mpg123;
+
+          openal = if pkgs.stdenv.hostPlatform.isWindows
+                   then openal-soft-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
+                   else pkgs.openal;
+
+          opusfile = if pkgs.stdenv.hostPlatform.isWindows
+                     then opusfile-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
+                     else pkgs.opusfile;
+
+          libopus = if pkgs.stdenv.hostPlatform.isWindows
+                    then opus-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
+                    else pkgs.libopus;
+
+          mcfgthreads = if pkgs.stdenv.hostPlatform.isWindows
+                        then pkgs.windows.mcfgthreads
+                        else null;
+        };
+
+        mkWstsound = features:
+          pkgs.callPackage ./wstsound.nix (deps // features);
+
+        # Attach .withXxx modifiers that return a new package with the
+        # corresponding feature enabled.  Chaining is supported:
+        #   wstsound-lean.withOpus.withVorbis
+        withFeatures = baseFeatures: pkg:
+          pkg // {
+            withModplug = let f = baseFeatures // { withModplug = true; }; in
+              withFeatures f (mkWstsound f);
+            withVorbis = let f = baseFeatures // { withVorbis = true; }; in
+              withFeatures f (mkWstsound f);
+            withOpus = let f = baseFeatures // { withOpus = true; }; in
+              withFeatures f (mkWstsound f);
+            withMpg123 = let f = baseFeatures // { withMpg123 = true; }; in
+              withFeatures f (mkWstsound f);
+            withEfx = let f = baseFeatures // { withEfx = true; }; in
+              withFeatures f (mkWstsound f);
+          };
+
+        leanFeatures = {
+          withModplug = true;
+          withVorbis  = false;
+          withOpus    = false;
+          withMpg123  = false;
+          withEfx     = false;
+        };
+
+        fullFeatures = {
+          withModplug = true;
+          withVorbis  = true;
+          withOpus    = true;
+          withMpg123  = true;
+          withEfx     = true;
+        };
+      in
       rec {
         packages = rec {
           default = wstsound;
 
-          wstsound = pkgs.callPackage ./wstsound.nix {
-            stdenv = pkgs.stdenv;
+          # Full-featured build (previous default behaviour).
+          wstsound = mkWstsound fullFeatures;
 
-            tinycmmc = tinycmmc.packages.${pkgs.stdenv.hostPlatform.system}.default;
-
-            libmodplug = if pkgs.stdenv.hostPlatform.isWindows
-                         then libmodplug-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
-                         else pkgs.libmodplug;
-
-            libogg = if pkgs.stdenv.hostPlatform.isWindows
-                     then libogg-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
-                     else pkgs.libogg;
-
-            libvorbis = if pkgs.stdenv.hostPlatform.isWindows
-                        then libvorbis-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
-                        else pkgs.libvorbis;
-
-            mpg123 = if pkgs.stdenv.hostPlatform.isWindows
-                     then mpg123-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
-                     else pkgs.mpg123;
-
-            openal = if pkgs.stdenv.hostPlatform.isWindows
-                     then openal-soft-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
-                     else pkgs.openal;
-
-            opusfile = if pkgs.stdenv.hostPlatform.isWindows
-                       then opusfile-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
-                       else pkgs.opusfile;
-
-            libopus = if pkgs.stdenv.hostPlatform.isWindows
-                      then opus-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
-                      else pkgs.libopus;
-
-            mcfgthreads = if pkgs.stdenv.hostPlatform.isWindows
-                          then pkgs.windows.mcfgthreads
-                          else null;
-          };
+          # Minimal build (modplug only) with fluent .withXxx modifiers.
+          # Example: packages.wstsound-lean.withOpus.withVorbis
+          wstsound-lean = withFeatures leanFeatures (mkWstsound leanFeatures);
         };
 
         apps = rec {
