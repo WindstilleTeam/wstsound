@@ -11,7 +11,6 @@
 
     libmodplug-win32.url = "git+https://github.com/grumnix/libmodplug-win32.git";
     libmodplug-win32.inputs.nixpkgs.follows = "nixpkgs";
-    libmodplug-win32.inputs.tinycmmc.follows = "tinycmmc";
 
     libogg-win32.url = "git+https://github.com/grumnix/libogg-win32.git";
     libogg-win32.inputs.nixpkgs.follows = "nixpkgs";
@@ -28,7 +27,6 @@
 
     openal-soft-win32.url = "git+https://github.com/grumnix/openal-soft-win32.git";
     openal-soft-win32.inputs.nixpkgs.follows = "nixpkgs";
-    openal-soft-win32.inputs.tinycmmc.follows = "tinycmmc";
 
     opus-win32.url = "git+https://github.com/grumnix/opus-win32.git";
     opus-win32.inputs.nixpkgs.follows = "nixpkgs";
