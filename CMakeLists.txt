@@ -338,4 +338,9 @@ install(FILES
   "${CMAKE_CURRENT_BINARY_DIR}/wstsound-config.cmake"
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/wstsound")
 
+# Ship Find modules so consumers can resolve Opusfile/Opus/Ogg/etc.
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/cmake/"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/wstsound"
+  FILES_MATCHING PATTERN "Find*.cmake")
+
 # EOF #
