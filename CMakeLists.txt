@@ -51,18 +51,18 @@ include(MaximumWarnings)
 
 option(BUILD_EXTRA "Build extra stuff" OFF)
 
-# Codec / feature toggles. Desktop defaults keep the full set; Emscripten
-# defaults match Pingus in-tree assets (WAV + module music via ModPlug).
+# Codec / feature toggles. Desktop defaults keep the full set.
+# Constrained targets (EMSCRIPTEN/ANDROID) disable codecs/features that are
+# usually unavailable; VORBIS is left optional so projects that ship .ogg can
+# keep it (pass -DWSTSOUND_WITH_VORBIS=OFF to force off).
 option(WSTSOUND_WITH_MODPLUG "Decode module formats via libmodplug (.it/.s3m/…)" ON)
 option(WSTSOUND_WITH_VORBIS "Decode Ogg Vorbis" ON)
 option(WSTSOUND_WITH_OPUS "Decode Opus" ON)
 option(WSTSOUND_WITH_MPG123 "Decode MP3 via mpg123" ON)
 option(WSTSOUND_WITH_EFX "OpenAL EFX effects API (not on Emscripten OpenAL)" ON)
 
-# Mobile / wasm: stock Pingus data is WAV SFX + .it/.s3m modules only.
 if(EMSCRIPTEN OR ANDROID)
   set(WSTSOUND_WITH_MPG123 OFF CACHE BOOL "Decode MP3 via mpg123" FORCE)
-  set(WSTSOUND_WITH_VORBIS OFF CACHE BOOL "Decode Ogg Vorbis" FORCE)
   set(WSTSOUND_WITH_OPUS OFF CACHE BOOL "Decode Opus" FORCE)
   set(WSTSOUND_WITH_MODPLUG ON CACHE BOOL "Decode module formats via libmodplug" FORCE)
   set(WSTSOUND_WITH_EFX OFF CACHE BOOL "OpenAL EFX effects API" FORCE)
