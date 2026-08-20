@@ -27,6 +27,9 @@ string(REGEX MATCH "^[0-9]+(\\.[0-9]+)*" _project_version_cmake "${PROJECT_VERSI
 
 project(wstsound VERSION ${_project_version_cmake} LANGUAGES CXX)
 
+# Find modules for Opusfile/Opus/Ogg/MPG123/ModPlug/Vorbisfile (formerly from tinycmmc)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 # Prefer regular libraries over frameworks, so openal-soft is used
 # instead of the OpenAL framework that is missing effects support.
 set(CMAKE_FIND_FRAMEWORK "LAST")
