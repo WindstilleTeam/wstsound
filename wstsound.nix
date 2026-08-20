@@ -10,7 +10,6 @@
 , openal
 , opusfile ? null
 , libopus ? null
-, tinycmmc
 , withModplug ? true
 , withVorbis  ? true
 , withOpus    ? true
@@ -18,6 +17,7 @@
 , withEfx     ? true
 , buildExtra  ? true
 , buildTests  ? true
+, version ? "0.3.0"
 }:
 
 assert withModplug -> libmodplug != null;
@@ -27,7 +27,7 @@ assert withMpg123  -> mpg123 != null;
 
 stdenv.mkDerivation {
   pname = "wstsound";
-  version = "0.3.0";
+  inherit version;
 
   src = ./.;
 
@@ -41,6 +41,7 @@ stdenv.mkDerivation {
     "-DWSTSOUND_WITH_OPUS=${if withOpus then "ON" else "OFF"}"
     "-DWSTSOUND_WITH_MPG123=${if withMpg123 then "ON" else "OFF"}"
     "-DWSTSOUND_WITH_EFX=${if withEfx then "ON" else "OFF"}"
+    "-DPROJECT_VERSION_FULL=${version}"
   ];
 
   postFixup = ""
@@ -75,9 +76,7 @@ stdenv.mkDerivation {
     cmake
   ];
 
-  buildInputs = [
-    tinycmmc
-  ] ++ lib.optionals buildTests [
+  buildInputs = lib.optionals buildTests [
     gtest
   ];
 

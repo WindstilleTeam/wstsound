@@ -5,49 +5,58 @@
     nixpkgs.url = "github:NixOS/nixpkgs?ref=nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
 
-    tinycmmc.url = "git+https://github.com/grumbel/tinycmmc.git";
-    tinycmmc.inputs.nixpkgs.follows = "nixpkgs";
-    tinycmmc.inputs.flake-utils.follows = "flake-utils";
-
     libmodplug-win32.url = "git+https://github.com/grumnix/libmodplug-win32.git";
     libmodplug-win32.inputs.nixpkgs.follows = "nixpkgs";
 
     libogg-win32.url = "git+https://github.com/grumnix/libogg-win32.git";
     libogg-win32.inputs.nixpkgs.follows = "nixpkgs";
-    libogg-win32.inputs.tinycmmc.follows = "tinycmmc";
 
     libvorbis-win32.url = "git+https://github.com/grumnix/libvorbis-win32.git";
     libvorbis-win32.inputs.nixpkgs.follows = "nixpkgs";
-    libvorbis-win32.inputs.tinycmmc.follows = "tinycmmc";
     libvorbis-win32.inputs.libogg.follows = "libogg-win32";
 
     mpg123-win32.url = "git+https://github.com/grumnix/mpg123-win32.git";
     mpg123-win32.inputs.nixpkgs.follows = "nixpkgs";
-    mpg123-win32.inputs.tinycmmc.follows = "tinycmmc";
 
     openal-soft-win32.url = "git+https://github.com/grumnix/openal-soft-win32.git";
     openal-soft-win32.inputs.nixpkgs.follows = "nixpkgs";
 
     opus-win32.url = "git+https://github.com/grumnix/opus-win32.git";
     opus-win32.inputs.nixpkgs.follows = "nixpkgs";
-    opus-win32.inputs.tinycmmc.follows = "tinycmmc";
 
     opusfile-win32.url = "git+https://github.com/grumnix/opusfile-win32.git";
     opusfile-win32.inputs.nixpkgs.follows = "nixpkgs";
-    opusfile-win32.inputs.tinycmmc.follows = "tinycmmc";
     opusfile-win32.inputs.libogg.follows = "libogg-win32";
     opusfile-win32.inputs.opus.follows = "opus-win32";
   };
 
   outputs = { self, nixpkgs, flake-utils,
-              tinycmmc, libmodplug-win32, libogg-win32, libvorbis-win32,
+              libmodplug-win32, libogg-win32, libvorbis-win32,
               mpg123-win32, openal-soft-win32, opusfile-win32, opus-win32 }:
-    tinycmmc.lib.eachSystemWithPkgs (pkgs:
+    let
+      versionBase = nixpkgs.lib.strings.removeSuffix "\n" (builtins.readFile ./VERSION);
+      gitRev = "${self.shortRev or self.dirtyShortRev or "dirty"}";
+      isDev = nixpkgs.lib.strings.hasInfix "-dev" versionBase;
+      version =
+        if isDev then
+          "${versionBase}.${toString (self.revCount or 0)}+g${gitRev}"
+        else
+          versionBase;
+
+      eachSystem = flake-utils.lib.eachSystem (flake-utils.lib.defaultSystems ++ [ "x86_64-windows" "i686-windows" ]);
+      pkgsFromSystem = system:
+        if system == "x86_64-windows" then nixpkgs.legacyPackages.x86_64-linux.pkgsCross.mingwW64
+        else if system == "i686-windows" then nixpkgs.legacyPackages.x86_64-linux.pkgsCross.mingw32
+        else nixpkgs.legacyPackages.${system};
+    in
+    eachSystem (system:
       let
+        pkgs = pkgsFromSystem system;
+
         # Shared dependency selection (Windows vs native).
         deps = {
           stdenv = pkgs.stdenv;
-          tinycmmc = tinycmmc.packages.${pkgs.stdenv.hostPlatform.system}.default;
+          inherit version;
 
           libmodplug = if pkgs.stdenv.hostPlatform.isWindows
                        then libmodplug-win32.packages.${pkgs.stdenv.hostPlatform.system}.default
@@ -80,10 +89,12 @@
           mcfgthreads = if pkgs.stdenv.hostPlatform.isWindows
                         then pkgs.windows.mcfgthreads
                         else null;
+
+          gtest = pkgs.gtest;
+          cmake = pkgs.buildPackages.cmake;
         };
 
-        mkWstsound = features:
-          pkgs.callPackage ./wstsound.nix (deps // features);
+        mkWstsound = features: pkgs.callPackage ./wstsound.nix (deps // features);
 
         # Attach .withXxx modifiers that return a new package with the
         # corresponding feature enabled.  Chaining is supported:

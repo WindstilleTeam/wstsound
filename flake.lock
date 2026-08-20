@@ -94,9 +94,6 @@
         "libogg_src": "libogg_src",
         "nixpkgs": [
           "nixpkgs"
-        ],
-        "tinycmmc": [
-          "tinycmmc"
         ]
       },
       "locked": {
@@ -134,9 +131,6 @@
         "libvorbis_src": "libvorbis_src",
         "nixpkgs": [
           "nixpkgs"
-        ],
-        "tinycmmc": [
-          "tinycmmc"
         ]
       },
       "locked": {
@@ -171,9 +165,6 @@
         "mpg123_src": "mpg123_src",
         "nixpkgs": [
           "nixpkgs"
-        ],
-        "tinycmmc": [
-          "tinycmmc"
         ]
       },
       "locked": {
@@ -263,10 +254,7 @@
         "nixpkgs": [
           "nixpkgs"
         ],
-        "opus_src": "opus_src",
-        "tinycmmc": [
-          "tinycmmc"
-        ]
+        "opus_src": "opus_src"
       },
       "locked": {
         "lastModified": 1716728603,
@@ -306,10 +294,7 @@
         "opus": [
           "opus-win32"
         ],
-        "opusfile_src": "opusfile_src",
-        "tinycmmc": [
-          "tinycmmc"
-        ]
+        "opusfile_src": "opusfile_src"
       },
       "locked": {
         "lastModified": 1716728646,
@@ -348,8 +333,7 @@
         "nixpkgs": "nixpkgs",
         "openal-soft-win32": "openal-soft-win32",
         "opus-win32": "opus-win32",
-        "opusfile-win32": "opusfile-win32",
-        "tinycmmc": "tinycmmc"
+        "opusfile-win32": "opusfile-win32"
       }
     },
     "systems": {
@@ -395,29 +379,6 @@
         "owner": "nix-systems",
         "repo": "default",
         "type": "github"
-      }
-    },
-    "tinycmmc": {
-      "inputs": {
-        "flake-utils": [
-          "flake-utils"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1787238930,
-        "narHash": "sha256-kmFvY8ssxULmN1An3GnjmG6sNc8OSL16JCLNIN5Tcws=",
-        "ref": "refs/heads/master",
-        "rev": "356564fa4c18e4b35fcf2d2645f32a2e8e6b0986",
-        "revCount": 71,
-        "type": "git",
-        "url": "https://github.com/grumbel/tinycmmc.git"
-      },
-      "original": {
-        "type": "git",
-        "url": "https://github.com/grumbel/tinycmmc.git"
       }
     }
   },
